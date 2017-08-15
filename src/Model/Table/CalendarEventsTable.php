@@ -129,6 +129,10 @@ class CalendarEventsTable extends Table
         if (!empty($data['recurrence'])) {
             $data['recurrence'] = json_encode($data['recurrence']);
         }
+
+        if (empty($data['is_allday'])) {
+            $data['is_allday'] = false;
+        }
     }
 
     /**
@@ -472,10 +476,9 @@ class CalendarEventsTable extends Table
      *
      * @return array $item containing calendar event record.
      */
-    protected function prepareEventData($event, $calendar, $options = [])
+    public function prepareEventData($event, $calendar, $options = [])
     {
         $item = [];
-
         $item = [
             'id' => $event['id'],
             'title' => (!empty($options['title']) ? $options['title'] : $event['title']),
@@ -483,8 +486,8 @@ class CalendarEventsTable extends Table
             'start_date' => date('Y-m-d H:i:s', strtotime($event['start_date'])),
             'end_date' => date('Y-m-d H:i:s', strtotime($event['end_date'])),
             'color' => (empty($event['color']) ? $calendar->color : $event['color']),
-            'source' => $event['source'],
-            'source_id' => $event['source_id'],
+            'source' => (!empty($event['source']) ? $event['source'] : null),
+            'source_id' => (!empty($event['source_id']) ? $event['source_id'] : null),
             'calendar_id' => $calendar->id,
             'event_type' => (!empty($event['event_type']) ? $event['event_type'] : null),
             'is_recurring' => $event['is_recurring'],

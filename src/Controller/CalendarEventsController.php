@@ -91,6 +91,7 @@ class CalendarEventsController extends AppController
         $calendarEvent = $this->CalendarEvents->newEntity(null, [
             'associated' => ['CalendarAttendees'],
         ]);
+
         $this->Calendars = TableRegistry::get('Calendars');
 
         if ($this->request->is(['patch', 'post', 'put'])) {
@@ -103,27 +104,14 @@ class CalendarEventsController extends AppController
             $calendarEvent = $this->CalendarEvents->patchEntity(
                 $calendarEvent,
                 $data,
-                [
-                    'associated' => ['CalendarAttendees'],
-                ]
+                ['associated' => ['CalendarAttendees']]
             );
 
             $saved = $this->CalendarEvents->save($calendarEvent);
-
-            $entity = [
-                'id' => $saved->id,
-                'title' => $saved->title,
-                'content' => $saved->content,
-                'start_date' => $saved->start_date,
-                'end_date' => $saved->end_date,
-                'color' => $calendar->color,
-                'calendar_id' => $calendar->id,
-                'event_type' => $saved->event_type,
-                'is_recurring' => $saved->is_recurring,
-                'source' => $saved->source,
-                'source_id' => $saved->source_id,
-                'recurrence' => json_decode($saved->recurrence, true),
-            ];
+            $entity = $this->CalendarEvents->prepareEventData(
+                $saved->toArray(),
+                $calendar
+            );
 
             if ($saved) {
                 $result['entity'] = $entity;
