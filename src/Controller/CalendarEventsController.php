@@ -18,49 +18,6 @@ use Qobo\Calendar\Controller\AppController;
 class CalendarEventsController extends AppController
 {
     /**
-     * Edit method
-     *
-     * @param string|null $id Calendar Event id.
-     * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
-     * @throws \Cake\Network\Exception\NotFoundException When record not found.
-     */
-    public function edit($id = null)
-    {
-        $eventTypes = [];
-
-        $calendarEvent = $this->CalendarEvents->get($id, [
-            'contain' => ['Calendars', 'CalendarAttendees']
-        ]);
-
-        $calendars = $this->CalendarEvents->Calendars->find('list', ['limit' => 200]);
-
-        $calendarType = $calendarEvent->calendar->calendar_type;
-        $types = Configure::read('Calendar.Types');
-
-        foreach ($types as $typeInfo) {
-            if ($typeInfo['value'] === $calendarType) {
-                foreach ($typeInfo['types'] as $type) {
-                    $eventTypes[$type['value']] = $type['name'];
-                }
-            }
-        }
-
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $calendarEvent = $this->CalendarEvents->patchEntity($calendarEvent, $this->request->getData(), ['associated' => ['CalendarAttendees']]);
-            if ($this->CalendarEvents->save($calendarEvent, ['associated' => ['CalendarAttendees']])) {
-                $this->Flash->success(__('The calendar event has been saved.'));
-
-                return $this->redirect(['plugin' => 'Qobo/Calendar', 'controller' => 'Calendars', 'action' => 'index']);
-            }
-            $this->Flash->error(__('The calendar event could not be saved. Please, try again.'));
-        }
-
-        $this->set('eventTypes', $eventTypes);
-        $this->set(compact('calendarEvent', 'calendars'));
-        $this->set('_serialize', ['calendarEvent']);
-    }
-
-    /**
      * Delete method
      *
      * @param string|null $id Calendar Event id.

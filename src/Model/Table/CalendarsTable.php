@@ -172,11 +172,11 @@ class CalendarsTable extends Table
     /**
      * Get Calendar Types
      *
-     * @param array $options with extra filters
+     * @param string $type of current calendar instance
      *
      * @return array $result containing calendar types.
      */
-    public function getCalendarTypes($options = [])
+    public function getCalendarTypes($type = null)
     {
         $result = [];
 
