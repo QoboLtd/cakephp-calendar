@@ -45,9 +45,6 @@ class SyncTask extends Shell
         $calendarsProcessed = 1;
         $output = [];
 
-        $progress = $this->helper('Progress');
-        $progress->init();
-
         $this->info('Preparing for calendar sync...');
 
         $result = $options = [];
@@ -61,6 +58,9 @@ class SyncTask extends Shell
             $options['period']['end_date'] = $this->params['end'];
         }
 
+        $status = $table->sync($options);
+
+        dd('w00t');
         $result['calendars'] = $table->syncCalendars($options);
 
         if (empty($result['calendars'])) {
@@ -79,9 +79,6 @@ class SyncTask extends Shell
                     'events' => $resultEvents,
                     'attendees' => $resultAttendees,
                 ];
-
-                $progress->increment(100 / ++$calendarsProcessed);
-                $progress->draw();
             }
         }
 
