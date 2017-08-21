@@ -112,6 +112,7 @@ $timezone = date_default_timezone_get();
                             :end="end"
                             :events="events"
                             :editable="editable"
+                            :show-print-button="true"
                             @interval-update="updateStartEnd"
                             @event-info="getEventInfo"
                             @modal-add-event="addCalendarEvent">

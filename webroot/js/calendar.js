@@ -52,7 +52,7 @@ Vue.component('calendar-item', {
 
 Vue.component('calendar', {
     template: '<div></div>',
-    props: ['ids', 'events', 'editable', 'start', 'end', 'timezone', 'public'],
+    props: ['ids', 'events', 'editable', 'start', 'end', 'timezone', 'public', 'showPrintButton'],
     data() {
         return {
             calendarInstance: null,
@@ -90,15 +90,8 @@ Vue.component('calendar', {
     mounted() {
         var self = this;
         self.calendarInstance = $(self.$el);
+
         var args = {
-            customButtons: {
-                printButton: {
-                    text: 'Print',
-                    click: function() {
-                        window.print();
-                    }
-                }
-            },
             header: {
                 left: 'today, prev,next printButton',
                 center: 'title',
@@ -120,6 +113,17 @@ Vue.component('calendar', {
                 self.$emit('interval-update', view.start.format(this.format), view.end.format(this.format));
             }
         };
+
+        if (true === this.showPrintButton) {
+            args.customButtons = {
+                printButton: {
+                    text: 'Print',
+                    click: function() {
+                        window.print();
+                    }
+                }
+            };
+        }
 
         //@TODO: editable/public/active flags should
         // be sorted out.
