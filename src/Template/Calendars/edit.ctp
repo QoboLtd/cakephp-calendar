@@ -18,10 +18,10 @@ echo $this->Html->script(
         'AdminLTE./plugins/colorpicker/bootstrap-colorpicker.min',
         'Qobo/Utils.select2.init',
     ],
-    ['block' => 'scriptBotton']
+    ['block' => 'scriptBottom']
 );
 
-echo $this->Html->scriptBlock("$(function() { $('.calendar-colorpicker').colorpicker(); });", ['block' => 'scriptBotton']);
+echo $this->Html->scriptBlock("$(function() { $('.calendar-colorpicker').colorpicker(); });", ['block' => 'scriptBottom']);
 
 foreach ($icons as $k => $v) {
     $icons[$v] = '<i class="fa fa-' . $v . '"></i>&nbsp;&nbsp;' . $v;
@@ -46,7 +46,7 @@ foreach ($icons as $k => $v) {
         <div class="box-body">
             <div class="row">
                 <div class="col-xs-12 col-md-6">
-                    <?= $this->Form->control('name'); ?>
+                    <?= $this->Form->control('name', ['class' => 'form-control']); ?>
                     <?= $this->Form->hidden('source_id');?>
                     <?= $this->Form->hidden('source');?>
 
@@ -61,7 +61,7 @@ foreach ($icons as $k => $v) {
                 <div class="col-xs-12 col-md-6">
                     <?= $this->Form->input('color', [
                         'type' => 'text',
-                        'class' => 'calendar-colorpicker',
+                        'class' => 'calendar-colorpicker form-control',
                         'empty' => true
                     ]) ?>
                 </div>

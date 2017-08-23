@@ -16,7 +16,7 @@ echo $this->Html->script(
         'AdminLTE./plugins/daterangepicker/daterangepicker',
         'AdminLTE./plugins/select2/select2.min',
     ],
-    ['block' => 'scriptBotton']
+    ['block' => 'scriptBottom']
 );
 
 echo $this->Html->script(
@@ -28,7 +28,7 @@ echo $this->Html->script(
         'Qobo/Calendar.vue-select',
         'Qobo/Calendar.calendar.js',
     ],
-    ['block' => 'scriptBotton']
+    ['block' => 'scriptBottom']
 );
 
 $start = date('Y-m-01');

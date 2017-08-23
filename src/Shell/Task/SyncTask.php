@@ -3,6 +3,7 @@ namespace Qobo\Calendar\Shell\Task;
 
 use Cake\Console\Shell;
 use Cake\ORM\TableRegistry;
+use Qobo\Utils\Utility\FileLock;
 
 /**
  * Sync shell task.
@@ -42,6 +43,16 @@ class SyncTask extends Shell
      */
     public function main()
     {
+        try {
+            $lock = new FileLock('import_' . md5(__FILE__) . '.lock');
+        } catch (Exception $e) {
+            $this->abort($e->getMessage());
+        }
+
+        if (!$lock->lock()) {
+            $this->abort('Import is already in progress');
+        }
+
         $calendarsProcessed = 1;
         $output = [];
 
@@ -86,12 +97,14 @@ class SyncTask extends Shell
         $birthdays = $this->syncBirthdays($table);
 
         $this->out(null);
-        $this->out('<success>Synchronization complete!</success>');
+        $this->success('Synchronization complete!');
         $this->out(null);
 
         if (true == $this->params['verbose']) {
             print_r($output);
         }
+
+        $lock->unlock();
 
         return $output;
     }
@@ -113,6 +126,7 @@ class SyncTask extends Shell
 
         $progress = $this->helper('Progress');
         $progress->init();
+        $this->out(null);
         $this->info('Syncing attendees...');
 
         $count = 1;

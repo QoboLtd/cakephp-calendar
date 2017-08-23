@@ -10,7 +10,7 @@
         }
     ],
     "require": {
-        "qobo/cakephp-utils": "^4.0",
+        "qobo/cakephp-utils": "^5.0",
         "lorenzo/audit-stash": "^1.0",
         "rlanvin/php-rrule": "^1.5"
     },

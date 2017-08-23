@@ -16,7 +16,7 @@ echo $this->Html->script(
         'AdminLTE./plugins/select2/select2.full.min',
         'Qobo/Utils.select2.init',
     ],
-    ['block' => 'scriptBotton']
+    ['block' => 'scriptBottom']
 );
 
 foreach ($icons as $k => $v) {

@@ -19,7 +19,7 @@ echo $this->Html->script(
         'AdminLTE./plugins/select2/select2.min',
         'Qobo/Calendar.calendar.misc',
     ],
-    ['block' => 'scriptBotton']
+    ['block' => 'scriptBottom']
 );
 
 ?>
