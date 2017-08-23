@@ -342,12 +342,33 @@ class CalendarsTable extends Table
             }
         }
 
-        $diff = [];
-
         foreach ($calendars as $k => $calendarObject) {
-            $diff[] = $this->getDifferences($calendarObject);
+            $diff = $this->getDifferences($calendarObject);
+
+            if (!empty($diff)) {
+                array_push($data, $diff);
+            }
         }
-        dd($diff);
+
+        if (!empty($data)) {
+            foreach ($data as $k => $calendarObject) {
+                $calendarObject = $this->syncSaveCalendarObject($calendarObject);
+            }
+        }
+
+        return $data;
+    }
+
+
+    protected function syncSaveCalendarObject($object = null)
+    {
+        $result = $object;
+
+        if (empty($object)) {
+            return $result;
+        }
+
+        return $result;
     }
 
     protected function getObjectConditions($object, array $fields = [])
