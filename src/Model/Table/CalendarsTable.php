@@ -352,19 +352,54 @@ class CalendarsTable extends Table
 
         if (!empty($data)) {
             foreach ($data as $k => $calendarObject) {
-                $calendarObject = $this->syncSaveCalendarObject($calendarObject);
+                $calendarEntity = $this->syncSaveCalendarObject($calendarObject);
+
+                if (!$calendarEntity) {
+                    continue;
+                }
+
+                $events = $calendarObject->getAttribute('events');
+
+                if (empty($events)) {
+                    continue;
+                }
+
+                $eventEntities = $this->syncSaveCalendarEventObjects($events);
             }
         }
-
         return $data;
     }
 
+    protected function syncSaveCalendarEventObjects($eventObjects)
+    {
+        $result = false;
+
+        return $result;
+    }
 
     protected function syncSaveCalendarObject($object = null)
     {
-        $result = $object;
+        $result = false;
 
-        if (empty($object)) {
+        $status = $object->getAttribute('diff_status');
+
+        if (!in_array($status, ['add','update'])) {
+            return $result;
+        }
+
+        $calendarsTable = TableRegistry::get('Qobo/Calendar.Calendars');
+
+        $calendarEntity = $object->toEntity();
+        $calendarData = $calendarEntity->toArray();
+
+        $events = $calendarEntity->events;
+        $calendarEntity->events = [];
+
+        $entity = $calendarsTable->patchEntities($calendarEntity, $calendarData);
+
+        $savedCalendar = $calendarsTable->save($entity);
+
+        if (!$savedCalendar) {
             return $result;
         }
 

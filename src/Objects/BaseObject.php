@@ -22,7 +22,7 @@ class BaseObject implements CalendarObjectInterface
         if (property_exists($this, $property)) {
             return $this->$property;
         } else {
-            throw new \Exception("Property {$property} doesn't exist in the object");
+            throw new \Exception("Property [{$property}] doesn't exist in the object");
         }
     }
 
