@@ -72,29 +72,6 @@ class SyncTask extends Shell
         $status = $table->sync($options);
 
         dd('w00t');
-        $result['calendars'] = $table->syncCalendars($options);
-
-        if (empty($result['calendars'])) {
-            $this->abort('No calendars found for synchronization');
-        }
-
-        foreach ($result['calendars'] as $actionName => $calendars) {
-            foreach ($calendars as $k => $calendar) {
-                $resultEvents = $table->syncCalendarEvents($calendar, $options);
-
-                $resultAttendees = $table->syncEventsAttendees($calendar, $resultEvents);
-
-                $output[] = [
-                    'action' => $actionName,
-                    'calendar' => $calendar,
-                    'events' => $resultEvents,
-                    'attendees' => $resultAttendees,
-                ];
-            }
-        }
-
-        $this->syncAttendees();
-        $birthdays = $this->syncBirthdays($table);
 
         $this->out(null);
         $this->success('Synchronization complete!');
