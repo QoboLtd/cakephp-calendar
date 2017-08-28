@@ -174,20 +174,23 @@ class CalendarsTable extends Table
     /**
      * Get Calendar Types
      *
-     * @param string $type of current calendar instance
+     * Each Calendar type embeds different event types, with
+     * various start/end event configurations.
      *
      * @return array $result containing calendar types.
      */
-    public function getCalendarTypes($type = null)
+    public function getTypes()
     {
         $result = [];
 
         $config = Configure::read('Calendar.Types');
 
-        if (!empty($config)) {
-            foreach ($config as $k => $val) {
-                $result[$val['value']] = $val['name'];
-            }
+        if (empty($config)) {
+            return $result;
+        }
+
+        foreach ($config as $k => $item) {
+            $result[$item['value']] = $item['name'];
         }
 
         return $result;
