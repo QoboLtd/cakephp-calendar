@@ -378,27 +378,6 @@ class CalendarEventsTable extends Table
     }
 
     /**
-     * Set ID suffix for recurring events
-     *
-     * We attach timestamp suffix for recurring events
-     * that haven't been saved in the DB yet.
-     *
-     * @param array $entity of the event
-     *
-     * @return string $result with suffix.
-     */
-    public function setIdSuffix($entity = null)
-    {
-        if (is_object($entity)) {
-            $result = strtotime($entity->start_date) . '_' . strtotime($entity->end_date);
-        } else {
-            $result = strtotime($entity['start_date']) . '_' . strtotime($entity['end_date']);
-        }
-
-        return $result;
-    }
-
-    /**
      * Get RRULE configuration from the event
      *
      * @param array $recurrence received from the calendar
@@ -427,15 +406,15 @@ class CalendarEventsTable extends Table
      *
      * @param \Cake\ORM\Table $calendar record
      *
-     * @return array $result containing event types for select2 dropdown
+     * @return array $eventTypes containing event types for select2 dropdown
      */
-    public function getEventTypes($calendar = null)
+    public function getEventTypes(EntityInterface $calendar = null)
     {
         $type = 'default';
-        $result = $eventTypes = [];
+        $eventTypes = [];
 
         if (!$calendar) {
-            return $result;
+            return $eventTypes;
         }
 
         if (!empty($calendar->calendar_type)) {
@@ -444,9 +423,7 @@ class CalendarEventsTable extends Table
 
         if (!empty($calendar->event_types)) {
             $eventTypes = $calendar->event_types;
-        }
-
-        if (empty($eventTypes)) {
+        } else {
             $types = Configure::read('Calendar.Types');
 
             if (!empty($types)) {
@@ -456,13 +433,12 @@ class CalendarEventsTable extends Table
                     }
                 }
             }
+
         }
 
-        foreach ($eventTypes as $eventType) {
-            array_push($result, $eventType);
-        }
+        $eventTypes = array_values($eventTypes);
 
-        return $result;
+        return $eventTypes;
     }
 
     /**
@@ -574,6 +550,27 @@ class CalendarEventsTable extends Table
                 ->where($conditions)
                 ->contain(['CalendarAttendees'])
                 ->toArray();
+
+        return $result;
+    }
+
+    /**
+     * Set ID suffix for recurring events
+     *
+     * We attach timestamp suffix for recurring events
+     * that haven't been saved in the DB yet.
+     *
+     * @param array $entity of the event
+     *
+     * @return string $result with suffix.
+     */
+    public function setIdSuffix($entity = null)
+    {
+        if (is_object($entity)) {
+            $result = strtotime($entity->start_date) . '_' . strtotime($entity->end_date);
+        } else {
+            $result = strtotime($entity['start_date']) . '_' . strtotime($entity['end_date']);
+        }
 
         return $result;
     }
