@@ -53,20 +53,13 @@ class CalendarsTableTest extends TestCase
         parent::tearDown();
     }
 
-    public function testGetCalendarTypes()
-    {
-        $result = $this->Calendars->getCalendarTypes();
-        $this->assertTrue(is_array($result));
-
-        Configure::write('Calendar.Types', ['foo' => ['name' => 'bar', 'value' => 'bar']]);
-        $result = $this->Calendars->getCalendarTypes();
-        $this->assertEquals(['bar' => 'bar'], $result);
-    }
-
     public function testGetCalendars()
     {
         $result = $this->Calendars->getCalendars();
         $this->assertTrue(!empty($result));
+
+        $result = $this->Calendars->getCalendars(['conditions' => ['name' => 'foobar']]);
+        $this->assertEquals($result, []);
 
         $result = $this->Calendars->getCalendars(['id' => '9390cbc1-dc1d-474a-a372-de92dce85aae']);
         $this->assertNotEmpty($result);
@@ -78,5 +71,31 @@ class CalendarsTableTest extends TestCase
 
         Configure::write('Calendar.Types', ['foo' => ['name' => 'bar', 'value' => 'bar']]);
         $result = $this->Calendars->getCalendars(['conditions' => ['id' => '9390cbc1-dc1d-474a-a372-de92dce85aaa']]);
+    }
+
+    public function testGetTypesWithEmptyConfig()
+    {
+        Configure::write('Calendar.Types', []);
+        $result = $this->Calendars->getTypes();
+
+        $this->assertEquals($result, []);
+    }
+
+    /**
+     * @dataProvider testGetTypesProvider
+     */
+    public function testGetTypes($expected, $msg)
+    {
+        $result = $this->Calendars->getTypes();
+        $this->assertEquals($result, $expected, $msg);
+    }
+
+    public function testGetTypesProvider()
+    {
+        return [
+            [
+                ['default' => 'Default', 'shifts' => 'Shifts'], "Wrong set of calendar types returned"
+            ]
+        ];
     }
 }

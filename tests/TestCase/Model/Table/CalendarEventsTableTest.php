@@ -19,6 +19,13 @@ class CalendarEventsTableTest extends TestCase
     public $CalendarEvents;
 
     /**
+     * Calendars subject
+     *
+     * @var \Qobo\Calendar\Model\Table\Calendars
+     */
+    public $Calendars;
+
+    /**
      * Fixtures
      *
      * @var array
@@ -39,6 +46,9 @@ class CalendarEventsTableTest extends TestCase
     {
         parent::setUp();
         $config = TableRegistry::exists('CalendarEvents') ? [] : ['className' => 'Qobo\Calendar\Model\Table\CalendarEventsTable'];
+        $calendarConfig = TableRegistry::exists('Calendars') ? [] : ['className' => 'Qobo\Calendar\Model\Table\CalendarsTable'];
+
+        $this->Calendars = TableRegistry::get('Calendars', $calendarConfig);
         $this->CalendarEvents = TableRegistry::get('CalendarEvents', $config);
     }
 
@@ -54,142 +64,34 @@ class CalendarEventsTableTest extends TestCase
         parent::tearDown();
     }
 
-    public function testGetEvents()
+    public function testGetEventTypesWithCalendarEntity()
     {
-        $result = $this->CalendarEvents->getEvents(null);
-        $this->assertEquals($result, []);
-
-        $this->Calendars = TableRegistry::get('Qobo/Calendar.Calendars');
-        $dbItems = $this->Calendars->getCalendars();
-
-        $options = [
-            'calendar_id' => $dbItems[0]->id,
-        ];
-
-        $result = $this->CalendarEvents->getEvents($dbItems[0], $options);
-        $this->assertNotEmpty($result);
-    }
-
-    public function testGetRecurringEvents()
-    {
-        $event = $this->CalendarEvents->find()
-            ->where([
-                'is_recurring' => true,
-                'event_type' => 'default_event',
-            ])
-            ->first();
-
-        $event->recurrence = json_decode($event->recurrence, true);
-        $result = $this->CalendarEvents->getRecurringEvents($event->toArray(), [
-            'period' => [
-                'start_date' => '2017-08-01 09:00:00',
-                'end_date' => '2020-08-01 09:00:00',
+        $calendars = $this->Calendars->getCalendars([
+            'conditions' => [
+                'id' => '9390cbc1-dc1d-474a-a372-de92dce85aaa',
             ],
         ]);
 
+        $calendarWithEventTypes = (!empty($calendars) ? $calendars[0] : []);
+
+        $result = $this->CalendarEvents->getEventTypes($calendarWithEventTypes);
+        $this->assertTrue(is_array($result));
         $this->assertNotEmpty($result);
     }
 
-    public function testGetRecurringEventsEmptyRRule()
-    {
-        $event = $this->CalendarEvents->find()
-            ->where([
-                'is_recurring' => true,
-                'event_type' => 'special_event',
-            ])
-            ->first();
-        $event->recurrence = json_decode($event->recurrence, true);
-
-        $result = $this->CalendarEvents->getRecurringEvents($event->toArray(), [
-            'period' => [
-                'start_date' => '2017-08-01 09:00:00',
-                'end_date' => '2020-08-01 09:00:00',
-            ],
-        ]);
-
-        $this->assertEmpty($result);
-    }
-
     /**
-     * @dataProvider testEventTitleProvider
+     * @dataProvider testGetEventTypesProvider
      */
-    public function testSetEventTitle($data, $expected)
+    public function testGetEventTypes($data, $expected, $msg)
     {
-        $calendars = TableRegistry::get('Qobo/Calendar.Calendars');
-        $dbItems = $calendars->getCalendars();
-
-        $title = $this->CalendarEvents->setEventTitle($data, $dbItems[0]);
-        $this->assertEquals($title, $expected);
-    }
-
-    public function testEventTitleProvider()
-    {
-        return [
-            [
-                ['CalendarEvents' => [
-                    'start_date' => '2017-09-01 09:00:00',
-                    'end_date' => '2017-09-02 09:00:00'
-                    ]
-                ],
-                'Calendar - 1 Event',
-            ],
-            [
-                ['CalendarEvents' => [
-                    'start_date' => '2017-09-01 09:00:00',
-                    'end_date' => '2017-09-02 09:00:00',
-                    'event_type' => 'foobar',
-                    ]
-                ],
-                'Calendar - 1 - Foobar',
-            ]
-        ];
-    }
-
-    /**
-     * @dataProvider testGetRRuleConfigurationProvider
-     * @exp
-     */
-    public function testGetRRuleConfguration($data, $expected, $msg)
-    {
-        $result = $this->CalendarEvents->getRRuleConfiguration($data);
-
+        $result = $this->CalendarEvents->getEventTypes($data);
         $this->assertEquals($result, $expected, $msg);
     }
 
-    public function testGetRRuleConfigurationProvider()
+    public function testGetEventTypesProvider()
     {
         return [
-            [ ['foo' => 'bar'], '', 'RRule wasnt found'],
-            [ [], '', 'Empty array' ],
-            [ ['RRULE:FREQ=YEARLY'], 'RRULE:FREQ=YEARLY', 'Couldnt fetch correct RRULE element for array' ],
+            [null, [], "Couldn't pass NULL calendar to getEventTypes"],
         ];
-    }
-
-    public function testSetIdSuffix()
-    {
-        $event = [
-            'id' => '123',
-            'start_date' => '2019-08-01 09:00:00',
-            'end_date' => '2019-08-02 09:00:00',
-        ];
-
-        $eventObj = (object)$event;
-
-        $result = $this->CalendarEvents->setIdSuffix($event);
-        $resultObj = $this->CalendarEvents->setIdSuffix($eventObj);
-
-        $this->assertNotEmpty($result);
-        $this->assertEquals($result, $resultObj);
-    }
-
-    public function testGetEventInfo()
-    {
-        $eventId = '688580e6-2224-4dcb-a8df-32337b82e1e4';
-
-        $result = $this->CalendarEvents->getEventInfo(['id' => $eventId]);
-        $this->assertNotEmpty($result);
-
-        $result = $this->CalendarEvents->getEventInfo([]);
-        $this->assertEmpty($result);
     }
 }
