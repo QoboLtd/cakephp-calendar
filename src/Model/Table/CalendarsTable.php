@@ -367,15 +367,50 @@ class CalendarsTable extends Table
                     continue;
                 }
 
-                $eventEntities = $this->syncSaveCalendarEventObjects($events);
+                $eventEntities = $this->syncSaveCalendarEventObjects($calendarEntity, $events);
             }
         }
         return $data;
     }
 
-    protected function syncSaveCalendarEventObjects($eventObjects)
+    protected function syncSaveCalendarEventObjects($calendarEntity, array $eventObjects = [])
     {
         $result = false;
+
+        if (empty($eventObjects)) {
+            return $result;
+        }
+
+        $saved = $errors = [];
+
+        $table = TableRegistry::get('Qobo/Calendar.CalendarEvents');
+
+        foreach ($eventObjects as $object) {
+            $attendees = $object->getAttribute('attendees');
+            $entity = $object->toEntity();
+            $entity->set('attendees', []);
+
+            $data = $entity->toArray();
+
+            $entity = $table->patchEntity($entity, $data);
+
+            $savedEvent = $table->save($entity);
+
+            if (!$savedEvent) {
+                array_push($errors, $entity);
+                continue;
+            }
+
+            if (empty($attendees)) {
+                continue;
+            }
+
+            foreach ($attendees as $attObject) {
+                $attendeeEntity = $attObject->toEntity();
+                debug($attendeeEntity);
+                dd($attObject);
+            }
+        }
 
         return $result;
     }
@@ -383,7 +418,7 @@ class CalendarsTable extends Table
     protected function syncSaveCalendarObject($object = null)
     {
         $result = false;
-
+        $events = [];
         $status = $object->getAttribute('diff_status');
 
         if (!in_array($status, ['add','update'])) {
@@ -393,17 +428,16 @@ class CalendarsTable extends Table
         $calendarsTable = TableRegistry::get('Qobo/Calendar.Calendars');
 
         $calendarEntity = $object->toEntity();
-        $calendarData = $calendarEntity->toArray();
-
         $events = $calendarEntity->events;
-        $calendarEntity->events = [];
 
-        $entity = $calendarsTable->patchEntities($calendarEntity, $calendarData);
+        $calendarEntity->set('events', []);
+        $calendarData = $calendarEntity->toArray();
+        $entity = $calendarsTable->patchEntity($calendarEntity, $calendarData);
 
         $savedCalendar = $calendarsTable->save($entity);
 
-        if (!$savedCalendar) {
-            return $result;
+        if ($savedCalendar) {
+            $result = $savedCalendar;
         }
 
         return $result;

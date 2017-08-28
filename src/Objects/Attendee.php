@@ -49,4 +49,26 @@ class Attendee extends BaseObject
     {
         $this->responseStatus = $status;
     }
+
+    public function toEntity()
+    {
+        $item = [
+            'id' => $this->getAttribute('id'),
+            'display_name' => $this->getAttribute('display_name'),
+            'contact_details' => $this->getAttribute('contact_details'),
+            'source' => $this->getAttribute('source'),
+            'source_id' => $this->getAttribute('source_id'),
+            'response_status' => $this->getAttribute('response_status'),
+        ];
+
+        $table = TableRegistry::get('Qobo/Calendar.CalendarAttendees');
+
+        $entity = new \Qobo\Calendar\Model\Entity\CalendarAttendee();
+
+        foreach ($item as $name => $val) {
+            $entity->set($name, $val);
+        }
+
+        return $entity;
+    }
 }
