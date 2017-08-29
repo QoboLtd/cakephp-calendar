@@ -143,7 +143,6 @@ class Calendar extends BaseObject
         $item = [];
 
         $item = [
-            'id' => $this->getAttribute('id'),
             'name' => $this->getAttribute('name'),
             'source' => $this->getAttribute('source'),
             'source_id' => $this->getAttribute('source_id'),
@@ -158,6 +157,10 @@ class Calendar extends BaseObject
             'diff_status' => $this->getAttribute('diff_status'),
             'events' => $this->getAttribute('events'),
         ];
+
+        if (!empty($this->getAttribute('id'))) {
+            $item['id'] = $this->getAttribute('id');
+        }
 
         $table = TableRegistry::get('Qobo/Calendar.Calendars');
 

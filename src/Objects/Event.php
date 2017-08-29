@@ -104,9 +104,7 @@ class Event extends BaseObject
 
     public function toEntity()
     {
-        $item = [];
         $item = [
-            'id' => $this->getAttribute('id'),
             'calendar_id' => $this->getAttribute('calendar_id'),
             'source' => $this->getAttribute('source'),
             'source_id' => $this->getAttribute('source_id'),
@@ -121,6 +119,10 @@ class Event extends BaseObject
             'diff_status' => $this->getAttribute('diff_status'),
             'attendees' => $this->getAttribute('attendees'),
         ];
+
+        if (!empty($this->getAttribute('id'))) {
+            $item['id'] = $this->getAttribute('id');
+        }
 
         $table = TableRegistry::get('Qobo/Calendar.CalendarEvents');
 
