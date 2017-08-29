@@ -197,60 +197,6 @@ class CalendarsTable extends Table
     }
 
     /**
-     * Synchronize calendar events
-     *
-     * @param \Model\Entity\Calendar $calendar instance from the db
-     * @param array $data with extra configs
-     *
-     * @return array $result with events responses.
-     */
-    public function syncEventsAttendees($calendar, $data = [])
-    {
-        $result = [];
-        $table = TableRegistry::get('Qobo/Calendar.CalendarEvents');
-        $attendeeTable = TableRegistry::get('Qobo/Calendar.CalendarAttendees');
-
-        if (empty($data)) {
-            return $result;
-        }
-
-        foreach ($data['modified'] as $k => $item) {
-            if (empty($item['attendees'])) {
-                continue;
-            }
-
-            foreach ($item['attendees'] as $attendee) {
-                $diff = $this->getAttendeeDifferences(
-                    $attendeeTable,
-                    $attendee,
-                    [
-                        'source_id' => 'contact_details',
-                    ]
-                );
-                $savedAttendee = $this->saveAttendeeDifferences($attendeeTable, $diff, [
-                    'entity_options' => [
-                        'associated' => ['CalendarEvents'],
-                    ],
-                    'extra_fields' => [
-                        'calendar_events' => [
-                            [
-                                'id' => $item->id,
-                                '_joinData' => [
-                                    'response_status' => $attendee['response_status'],
-                                ]
-                            ]
-                        ],
-                    ],
-                ]);
-
-                $result['modified'][] = $savedAttendee;
-            }
-        }
-
-        return $result;
-    }
-
-    /**
      * Collect calendars difference.
      *
      * @param \Cake\ORM\Table $table related instance.
@@ -384,6 +330,7 @@ class CalendarsTable extends Table
         $saved = $errors = [];
 
         $table = TableRegistry::get('Qobo/Calendar.CalendarEvents');
+        $attendeesTable = TableRegistry::get('Qobo/Calendar.CalendarAttendees');
 
         foreach ($eventObjects as $object) {
             $attendees = $object->getAttribute('attendees');
@@ -391,6 +338,7 @@ class CalendarsTable extends Table
             $entity->set('attendees', []);
 
             $data = $entity->toArray();
+            $data['calendar_id'] = $calendarEntity->id;
 
             $entity = $table->patchEntity($entity, $data);
 
@@ -406,9 +354,28 @@ class CalendarsTable extends Table
             }
 
             foreach ($attendees as $attObject) {
+                if (!in_array($attObject->getAttribute('diff_status'), ['add', 'update'])) {
+                    continue;
+                }
                 $attendeeEntity = $attObject->toEntity();
-                debug($attendeeEntity);
-                dd($attObject);
+                $attendeeData = $attendeeEntity->toArray();
+                $attendeeData['calendar_events'] = [
+                    [
+                        'id' => $savedEvent->id,
+                        '_joinData' => [
+                            'response_status' => $attendeeEntity->response_status
+                        ],
+                    ]
+                ];
+                $ent = $attendeesTable->patchEntity(
+                    $attendeeEntity,
+                    $attendeeData,
+                    [
+                        'associated' => ['CalendarEvents']
+                    ]
+                );
+
+                $savedAtt = $attendeesTable->save($ent);
             }
         }
 
