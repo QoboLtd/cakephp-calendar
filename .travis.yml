@@ -10,6 +10,17 @@ php:
   - 7.1
   - nightly
 
+node_js:
+  - "7"
+
+addons:
+  chrome: stable
+
+cache:
+  yarn: true
+  directories:
+    - node_modules
+
 env:
   matrix:
     - DB=mysql db_dsn='mysql://root@0.0.0.0/cakephp_test'
@@ -24,6 +35,7 @@ matrix:
 install:
   - composer install --no-interaction --no-progress --no-suggest
   - mkdir -p build/logs
+  - yarn
 
 before_script:
   - sh -c "if [ '$DB' = 'mysql' ]; then mysql -e 'CREATE DATABASE IF NOT EXISTS cakephp_test DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;'; fi"
@@ -31,6 +43,7 @@ before_script:
 script:
   - vendor/bin/phpunit
   - vendor/bin/phpcs
+  - yarn test
 
 after_success:
   - curl -s https://codecov.io/bash > /tmp/codecov.sh
