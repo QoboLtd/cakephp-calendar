@@ -30,5 +30,5 @@
     <file>./src/</file>
     <file>./tests/</file>
     <file>./webroot/</file>
-    <arg name="ignore" value="webroot/js/external/"/>
+    <arg name="ignore" value="webroot/js/external/, tests/Frontend/"/>
 </ruleset>
