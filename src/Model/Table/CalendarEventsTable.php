@@ -11,6 +11,9 @@ use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\Utility\Inflector;
 use Cake\Validation\Validator;
+use Qobo\Calendar\Objects\CalendarObjectInterface;
+use Qobo\Calendar\Objects\Event as EventObject;
+use Qobo\Calendar\Objects\Attendee as AttendeeObject;
 use \ArrayObject;
 use \RRule\RRule;
 
@@ -129,10 +132,18 @@ class CalendarEventsTable extends Table
         if (!empty($data['recurrence'])) {
             $data['recurrence'] = json_encode($data['recurrence']);
         }
+
+        if (empty($data['is_allday'])) {
+            $data['is_allday'] = false;
+        }
     }
 
     /**
-     * Get Events of specific calendar
+     * Get Calendar Events
+     *
+     * Get Calendar Events method used for the
+     * Event-broadcasted calls and return array
+     * of generic event objects
      *
      * @param \Cake\ORM\Table $calendar record
      * @param array $options with filter params
@@ -147,16 +158,48 @@ class CalendarEventsTable extends Table
             return $result;
         }
 
-        $options = array_merge($options, ['calendar_id' => $calendar->id]);
+        $options = array_merge($options, ['calendar_id' => $calendar->getAttribute('id')]);
         $resultSet = $this->findCalendarEvents($options);
         if (empty($resultSet)) {
             return $result;
         }
 
         foreach ($resultSet as $k => $event) {
-            $eventItem = $this->prepareEventData($event, $calendar);
+            $attendees = [];
+            $object = new EventObject();
 
-            array_push($result, $eventItem);
+            $object->setId($event->id);
+            $object->setCalendarId($event->calendar_id);
+            $object->setSource($event->source);
+            $object->setSourceId($event->source_id);
+            $object->setTitle($event->title);
+            $object->setContent($event->content);
+            $object->setStartDate($event->start_date);
+            $object->setEndDate($event->end_date);
+            $object->setEventType($event->event_type);
+            $object->setIsRecurring($event->is_recurring);
+            $object->setIsAllday($event->is_allday);
+            $object->setRecurrence($event->recurrence);
+
+            if (!empty($event->calendar_attendees)) {
+                foreach ($event->calendar_attendees as $attendee) {
+                    $attendeeObject = new AttendeeObject();
+
+                    $attendeeObject->setId($attendee->id);
+                    $attendeeObject->setDisplayName($attendee->display_name);
+                    $attendeeObject->setContactDetails($attendee->contact_details);
+                    $attendeeObject->setSource($attendee->source);
+                    $attendeeObject->setSourceId($attendee->source_id);
+                    $attendeeObject->setResponseStatus($attendee->response_status);
+
+                    array_push($attendees, $attendeeObject);
+                    unset($attendeeObject);
+                }
+            }
+
+            $object->setAttendees($attendees);
+
+            array_push($result, $object);
         }
 
         return $result;
@@ -335,27 +378,6 @@ class CalendarEventsTable extends Table
     }
 
     /**
-     * Set ID suffix for recurring events
-     *
-     * We attach timestamp suffix for recurring events
-     * that haven't been saved in the DB yet.
-     *
-     * @param array $entity of the event
-     *
-     * @return string $result with suffix.
-     */
-    public function setIdSuffix($entity = null)
-    {
-        if (is_object($entity)) {
-            $result = strtotime($entity->start_date) . '_' . strtotime($entity->end_date);
-        } else {
-            $result = strtotime($entity['start_date']) . '_' . strtotime($entity['end_date']);
-        }
-
-        return $result;
-    }
-
-    /**
      * Get RRULE configuration from the event
      *
      * @param array $recurrence received from the calendar
@@ -384,15 +406,15 @@ class CalendarEventsTable extends Table
      *
      * @param \Cake\ORM\Table $calendar record
      *
-     * @return array $result containing event types for select2 dropdown
+     * @return array $eventTypes containing event types for select2 dropdown
      */
-    public function getEventTypes($calendar = null)
+    public function getEventTypes(EntityInterface $calendar = null)
     {
         $type = 'default';
-        $result = $eventTypes = [];
+        $eventTypes = [];
 
         if (!$calendar) {
-            return $result;
+            return $eventTypes;
         }
 
         if (!empty($calendar->calendar_type)) {
@@ -401,9 +423,7 @@ class CalendarEventsTable extends Table
 
         if (!empty($calendar->event_types)) {
             $eventTypes = $calendar->event_types;
-        }
-
-        if (empty($eventTypes)) {
+        } else {
             $types = Configure::read('Calendar.Types');
 
             if (!empty($types)) {
@@ -413,13 +433,12 @@ class CalendarEventsTable extends Table
                     }
                 }
             }
+
         }
 
-        foreach ($eventTypes as $eventType) {
-            array_push($result, $eventType);
-        }
+        $eventTypes = array_values($eventTypes);
 
-        return $result;
+        return $eventTypes;
     }
 
     /**
@@ -474,10 +493,17 @@ class CalendarEventsTable extends Table
      *
      * @return array $item containing calendar event record.
      */
-    protected function prepareEventData($event, $calendar, $options = [])
+    public function prepareEventData($event, $calendar, $options = [])
     {
-        $item = [];
+        if ($calendar instanceof \Qobo\Calendar\Objects\Calendar) {
+            $calendar = $calendar->toEntity();
+        }
 
+        if (is_object($event)) {
+            $event = $event->toArray();
+        }
+
+        $item = [];
         $item = [
             'id' => $event['id'],
             'title' => (!empty($options['title']) ? $options['title'] : $event['title']),
@@ -485,8 +511,8 @@ class CalendarEventsTable extends Table
             'start_date' => date('Y-m-d H:i:s', strtotime($event['start_date'])),
             'end_date' => date('Y-m-d H:i:s', strtotime($event['end_date'])),
             'color' => (empty($event['color']) ? $calendar->color : $event['color']),
-            'source' => $event['source'],
-            'source_id' => $event['source_id'],
+            'source' => (!empty($event['source']) ? $event['source'] : null),
+            'source_id' => (!empty($event['source_id']) ? $event['source_id'] : null),
             'calendar_id' => $calendar->id,
             'event_type' => (!empty($event['event_type']) ? $event['event_type'] : null),
             'is_recurring' => $event['is_recurring'],
@@ -524,6 +550,27 @@ class CalendarEventsTable extends Table
                 ->where($conditions)
                 ->contain(['CalendarAttendees'])
                 ->toArray();
+
+        return $result;
+    }
+
+    /**
+     * Set ID suffix for recurring events
+     *
+     * We attach timestamp suffix for recurring events
+     * that haven't been saved in the DB yet.
+     *
+     * @param array $entity of the event
+     *
+     * @return string $result with suffix.
+     */
+    public function setIdSuffix($entity = null)
+    {
+        if (is_object($entity)) {
+            $result = strtotime($entity->start_date) . '_' . strtotime($entity->end_date);
+        } else {
+            $result = strtotime($entity['start_date']) . '_' . strtotime($entity['end_date']);
+        }
 
         return $result;
     }

@@ -16,65 +16,11 @@ class GetCalendarsListener implements EventListenerInterface
     public function implementedEvents()
     {
         return [
-            'Plugin.Calendars.Model.getCalendars' => 'sendGetCalendarsToApp',
-            'Plugin.Calendars.Model.getCalendarEvents' => 'sendGetCalendarEventsToApp',
-            'App.Calendars.Model.getCalendars' => 'getPluginCalendars',
-            'App.Calendars.Model.getCalendarEvents' => 'getPluginCalendarEvents',
+            'Plugin.Calendars.Model.getCalendars' => 'getPluginCalendars',
+            'Plugin.Calendars.Model.getCalendarEvents' => 'getPluginCalendarEvents',
         ];
     }
 
-    /**
-     * Re-broadcasting the event outside of the plugin
-     *
-     * @param Cake\Event\Event $event received by the plugin
-     * @param array $options for calendar conditions
-     *
-     * @return void
-     */
-    public function sendGetCalendarsToApp(Event $event, $options = [])
-    {
-        $eventName = preg_replace('/^(Plugin)/', 'App', $event->name());
-
-        $ev = new Event($eventName, $this, [
-            'options' => $options
-        ]);
-
-        EventManager::instance()->dispatch($ev);
-
-        $event->result = $ev->result;
-    }
-
-    /**
-     * Re-broadcasting the event outside of the plugin
-     *
-     * @param Cake\Event\Event $event received by the plugin
-     * @param \Cake\ORM\Entity $calendar instance
-     * @param array $options for calendar conditions
-     *
-     * @return void
-     */
-    public function sendGetCalendarEventsToApp(Event $event, $calendar, $options = [])
-    {
-        $eventName = preg_replace('/^(Plugin)/', 'App', $event->name());
-
-        $ev = new Event($eventName, $this, [
-            'calendar' => $calendar,
-            'options' => $options
-        ]);
-
-        EventManager::instance()->dispatch($ev);
-
-        $event->result = $ev->result;
-    }
-
-    /**
-     * Get calendars from the plugin only.
-     *
-     * @param Cake\Event\Event $event passed through
-     * @param array $options for calendars
-     *
-     * @return void
-     */
     public function getPluginCalendars(Event $event, $options = [])
     {
         $content = $result = [];
@@ -97,13 +43,8 @@ class GetCalendarsListener implements EventListenerInterface
             return;
         }
 
-        foreach ($calendars as $k => $calendar) {
-            unset($calendar->calendar_events);
-            $content[$k]['calendar'] = json_decode(json_encode($calendar), true);
-        }
-
-        if (!empty($content)) {
-            $result = array_merge($result, $content);
+        foreach ($calendars as $calendar) {
+            array_push($result, $calendar);
         }
 
         $event->result = $result;

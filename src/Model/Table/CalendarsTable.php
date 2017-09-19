@@ -9,7 +9,9 @@ use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
+use Cake\Utility\Inflector;
 use Cake\Validation\Validator;
+use Qobo\Calendar\Objects\Calendar as CalendarObject;
 use \ArrayObject;
 
 /**
@@ -172,314 +174,23 @@ class CalendarsTable extends Table
     /**
      * Get Calendar Types
      *
-     * @param array $options with extra filters
+     * Each Calendar type embeds different event types, with
+     * various start/end event configurations.
      *
      * @return array $result containing calendar types.
      */
-    public function getCalendarTypes($options = [])
+    public function getTypes()
     {
         $result = [];
 
         $config = Configure::read('Calendar.Types');
 
-        if (!empty($config)) {
-            foreach ($config as $k => $val) {
-                $result[$val['value']] = $val['name'];
-            }
-        }
-
-        return $result;
-    }
-
-    /**
-     * Synchronize calendars
-     *
-     * @param array $options passed from the outside.
-     *
-     * @return array $result of the synchronize method.
-     */
-    public function syncCalendars($options = [])
-    {
-        $result = [];
-
-        $event = new Event('Plugin.Calendars.Model.getCalendars', $this, [
-            'options' => $options,
-        ]);
-
-        EventManager::instance()->dispatch($event);
-
-        if (empty($event->result)) {
+        if (empty($config)) {
             return $result;
         }
 
-        $appCalendars = $event->result;
-
-        foreach ($appCalendars as $k => $calendarData) {
-            $calendar = !empty($calendarData['calendar']) ? $calendarData['calendar'] : [];
-
-            if (empty($calendar)) {
-                continue;
-            }
-
-            // we don't pass period as it doesn't have time limits.
-            $diffCalendar = $this->getItemDifferences(
-                $this,
-                $calendar
-            );
-
-            $result['modified'][] = $this->saveItemDifferences($this, $diffCalendar);
-        }
-
-        $ignored = $this->itemsToDelete($this, $result['modified']);
-
-        $result['removed'] = $this->saveItemDifferences($this, ['delete' => $ignored]);
-
-        return $result;
-    }
-
-    /**
-     * Synchronize calendar events
-     *
-     * @param \Model\Entity\Calendar $calendar instance from the db
-     * @param array $data with extra configs
-     *
-     * @return array $result with events responses.
-     */
-    public function syncEventsAttendees($calendar, $data = [])
-    {
-        $result = [];
-        $table = TableRegistry::get('Qobo/Calendar.CalendarEvents');
-        $attendeeTable = TableRegistry::get('Qobo/Calendar.CalendarAttendees');
-
-        if (empty($data)) {
-            return $result;
-        }
-
-        foreach ($data['modified'] as $k => $item) {
-            if (empty($item['attendees'])) {
-                continue;
-            }
-
-            foreach ($item['attendees'] as $attendee) {
-                $diff = $this->getAttendeeDifferences(
-                    $attendeeTable,
-                    $attendee,
-                    [
-                        'source_id' => 'contact_details',
-                    ]
-                );
-                $savedAttendee = $this->saveAttendeeDifferences($attendeeTable, $diff, [
-                    'entity_options' => [
-                        'associated' => ['CalendarEvents'],
-                    ],
-                    'extra_fields' => [
-                        'calendar_events' => [
-                            [
-                                'id' => $item->id,
-                                '_joinData' => [
-                                    'response_status' => $attendee['response_status'],
-                                ]
-                            ]
-                        ],
-                    ],
-                ]);
-
-                $result['modified'][] = $savedAttendee;
-            }
-        }
-
-        return $result;
-    }
-
-    /**
-     * Synchronize calendar events
-     *
-     * @param \Model\Entity\Calendar $calendar instance from the db
-     * @param array $options with extra configs
-     *
-     * @return array $result with events responses.
-     */
-    public function syncCalendarEvents($calendar, $options = [])
-    {
-        $result = [];
-        $table = TableRegistry::get('Qobo/Calendar.CalendarEvents');
-
-        if (empty($calendar)) {
-            return $result;
-        }
-
-        $event = new Event('Plugin.Calendars.Model.getCalendarEvents', $this, [
-            'calendar' => $calendar,
-            'options' => $options,
-        ]);
-
-        EventManager::instance()->dispatch($event);
-
-        $calendarEvents = $event->result;
-        if (empty($calendarEvents)) {
-            return $result;
-        }
-
-        foreach ($calendarEvents as $k => $calendarInfo) {
-            if (empty($calendarInfo['events'])) {
-                continue;
-            }
-
-            foreach ($calendarInfo['events'] as $item) {
-                $diff = $this->getItemDifferences(
-                    $table,
-                    $item,
-                    $options
-                );
-
-                $savedDiff = $this->saveItemDifferences($table, $diff, [
-                    'extra_fields' => [
-                        'calendar_id' => $calendarInfo['calendar']->id
-                    ],
-                ]);
-
-                $result['modified'][] = $savedDiff;
-            }
-
-            $ignored = $this->itemsToDelete($table, $result['modified'], [
-                'extra_fields' => [
-                    'calendar_id' => $calendarInfo['calendar']->id
-                ],
-            ]);
-            $result['removed'] = $this->saveItemDifferences($table, ['delete' => $ignored]);
-        }
-
-        return $result;
-    }
-
-    /**
-     * saveCalendarDifferences method
-     *
-     * Updating calendar DB with differences
-     *
-     * @param \Cake\ORM\Table $table of the instance
-     * @param array $diff prepopulated calendars
-     * @param array $options with extra configs if any.
-     *
-     * @return array $result with updated/deleted/added calendars.
-     */
-    public function saveItemDifferences($table, $diff = [], $options = [])
-    {
-        $result = [];
-        $entityOptions = [];
-
-        if (empty($diff)) {
-            return $result;
-        }
-
-        foreach ($diff as $actionName => $items) {
-            if (empty($items)) {
-                continue;
-            }
-
-            foreach ($items as $k => $item) {
-                $data = [];
-
-                if (empty($item)) {
-                    continue;
-                }
-
-                switch ($actionName) {
-                    case 'add':
-                        $entity = $table->newEntity();
-                        $data = $item;
-                        break;
-                    case 'update':
-                        $entity = $item['entity'];
-                        $data = $item['data'];
-                        break;
-                }
-
-                if (in_array($actionName, ['add', 'update']) && !empty($data)) {
-                    if (!empty($options['extra_fields'])) {
-                        $data = array_merge($data, $options['extra_fields']);
-                    }
-
-                    if (!empty($options['entity_options'])) {
-                        $entityOptions = array_merge($entityOptions, $options['entity_options']);
-                    }
-
-                    $entity = $table->patchEntity($entity, $data, $entityOptions);
-                    $result = $table->save($entity);
-                }
-
-                if (in_array($actionName, ['delete']) && !empty($item)) {
-                    if ($table->delete($item)) {
-                        $result[] = $item;
-                    }
-                }
-            }
-        }
-
-        return $result;
-    }
-
-    /**
-     * Save Attendee Differences
-     *
-     * Checkes whether attendee should be added/updated/removed
-     *
-     * @param ORM\Table $table instance
-     * @param array $diff containing the data
-     * @param array $options with extra settings/fields to save/modify
-     *
-     * @return array $result containing diff results
-     */
-    public function saveAttendeeDifferences($table, $diff = [], $options = [])
-    {
-        $result = [];
-        $entityOptions = [];
-
-        if (empty($diff)) {
-            return $result;
-        }
-
-        foreach ($diff as $actionName => $items) {
-            if (empty($items)) {
-                continue;
-            }
-
-            foreach ($items as $k => $item) {
-                $data = [];
-
-                if (empty($item)) {
-                    continue;
-                }
-
-                switch ($actionName) {
-                    case 'add':
-                        $entity = $table->newEntity();
-                        $data = $item;
-                        break;
-                    case 'update':
-                        $entity = $item['entity'];
-                        $data = $item['data'];
-                        break;
-                }
-
-                if (in_array($actionName, ['add', 'update']) && !empty($data)) {
-                    if (!empty($options['extra_fields'])) {
-                        $data = array_merge($data, $options['extra_fields']);
-                    }
-
-                    if (!empty($options['entity_options'])) {
-                        $entityOptions = array_merge($entityOptions, $options['entity_options']);
-                    }
-
-                    $entity = $table->patchEntity($entity, $data, $entityOptions);
-                    $savedAttendee = $table->save($entity);
-                }
-                if (in_array($actionName, ['delete']) && !empty($item)) {
-                    if ($table->delete($item)) {
-                        $result[] = $item;
-                    }
-                }
-            }
+        foreach ($config as $k => $item) {
+            $result[$item['value']] = $item['name'];
         }
 
         return $result;
@@ -489,215 +200,254 @@ class CalendarsTable extends Table
      * Collect calendars difference.
      *
      * @param \Cake\ORM\Table $table related instance.
-     * @param array $item to be checked for add/update (aka calendar or event).
-     * @param array $options with extra configs
+     * @param object $calendarObject to be checked for add/update (aka calendar or event).
      *
-     * @return $calendarDiff containing the list of calendars to add/update/delete.
+     * @return array $result containing the diff.
      */
-    public function getItemDifferences($table, $item = null, $options = [])
+    public function getDifferences($calendarObject)
     {
-        $conditions = [];
-        $source = empty($options['source']) ? 'source' : $options['source'];
-        $sourceId = empty($options['source_id']) ? 'source_id' : $options['source_id'];
+        $calendarObject = $this->setObjectDifference(
+            $this,
+            $calendarObject,
+            ['source', 'source_id']
+        );
 
-        $diff = [
-            'add' => [],
-            'update' => [],
-            'delete' => [],
-        ];
+        $eventObjects = $calendarObject->getAttribute('events');
 
-        if (empty($item)) {
-            return $diff;
+        if (empty($eventObjects)) {
+            return $calendarObject;
         }
 
-        if (is_null($item[$source])) {
-            $conditions[$source . ' IS'] = $item[$source];
-        } else {
-            $conditions[$source] = $item[$source];
-        }
+        $eventsTable = TableRegistry::get('Qobo/Calendar.CalendarEvents');
+        $attendeesTable = TableRegistry::get('Qobo/Calendar.CalendarAttendees');
 
-        $conditions[$sourceId] = $item[$sourceId];
-
-        $query = $table->find()
-                ->where($conditions);
-
-        $query->all();
-        $dbItems = $query->toArray();
-
-        $toAdd = $this->itemsToAdd($item, $dbItems, $sourceId);
-        if (!empty($toAdd)) {
-            $diff['add'][] = $toAdd;
-        }
-
-        $toUpdate = $this->itemsToUpdate($item, $dbItems, $sourceId);
-        if (!empty($toUpdate)) {
-            $diff['update'][] = $toUpdate;
-        }
-
-        return $diff;
-    }
-
-    /**
-     * Get Attendee difference
-     *
-     * @param ORM\Table $table instance of attendees
-     * @param array $item of the record
-     * @param array $options for extra fields/conditions
-     *
-     * @return array $diff with sorted differences for the item.
-     */
-    public function getAttendeeDifferences($table, $item = null, $options = [])
-    {
-        $conditions = [];
-        $sourceId = empty($options['source_id']) ? 'source_id' : $options['source_id'];
-
-        $diff = [
-            'add' => [],
-            'update' => [],
-            'delete' => [],
-        ];
-
-        if (empty($item)) {
-            return $diff;
-        }
-
-        $conditions[$sourceId] = $item[$sourceId];
-
-        $query = $table->find()
-                ->where($conditions);
-
-        $query->all();
-        $dbItems = $query->toArray();
-
-        $toAdd = $this->itemsToAdd($item, $dbItems, $sourceId);
-        if (!empty($toAdd)) {
-            $diff['add'][] = $toAdd;
-        }
-
-        $toUpdate = $this->itemsToUpdate($item, $dbItems, $sourceId);
-        if (!empty($toUpdate)) {
-            $diff['update'][] = $toUpdate;
-        }
-
-        return $diff;
-    }
-
-    /**
-     * Check if calendar should be added
-     *
-     * @param array $item to inspect for adding
-     * @param array $dbItems to be compared with
-     * @param string $fieldToCheck lookup field name
-     *
-     * @return array $result with the comparison result.
-     */
-    public function itemsToAdd($item, $dbItems = [], $fieldToCheck = null)
-    {
-        $result = $item;
-
-        if (empty($dbItems)) {
-            return $result;
-        }
-
-        foreach ($dbItems as $k => $dbItem) {
-            if ($dbItem->$fieldToCheck == $item[$fieldToCheck]) {
-                $result = [];
-                break;
-            }
-        }
-
-        return $result;
-    }
-
-    /**
-     * Check if the calendar should be updated
-     *
-     * @param array $item to be checked for update
-     * @param array $dbItems to be checked against
-     * @param string $fieldToCheck lookup field name
-     *
-     * @return array $result containing comparison result
-     */
-    public function itemsToUpdate($item, $dbItems = [], $fieldToCheck = null)
-    {
-        $found = null;
-        $result = [
-            'entity' => [],
-            'data' => []
-        ];
-
-        if (empty($dbItems)) {
-            return $result;
-        }
-
-        foreach ($dbItems as $dbItem) {
-            if ($dbItem->$fieldToCheck == $item[$fieldToCheck]) {
-                $found = $dbItem;
-            }
-        }
-
-        if (empty($found)) {
-            return $result;
-        }
-
-        $result['entity'] = $found;
-        $result['data'] = $item;
-
-        return $result;
-    }
-
-    /**
-     * Remove item from from the set
-     *
-     * @param ORM\Table $table instance of the target
-     * @param array $items containing current items
-     * @param array $options with extra config
-     *
-     * @return array $result containing the items that should be deleted.
-     */
-    public function itemsToDelete($table, $items, $options = [])
-    {
-        $result = $conditions = [];
-        $source = empty($options['source']) ? 'source' : $options['source'];
-        $sourceId = empty($options['source_id']) ? 'source_id' : $options['source_id'];
-
-        if (!empty($options['period'])) {
-            if (!empty($options['period']['start_date'])) {
-                $conditions['start_date >='] = $options['period']['start_date'];
+        foreach ($eventObjects as $eventObject) {
+            // if we found calendar in db, we match its id foreign key.
+            if ('update' == $calendarObject->getAttribute('diff_status')) {
+                $eventObject->setAttribute(
+                    'calendar_id',
+                    $calendarObject->getAttribute('id')
+                );
             }
 
-            if (!empty($options['period']['end_date'])) {
-                $conditions['end_date <='] = $options['period']['end_date'];
-            }
-        }
+            $eventObject = $this->setObjectDifference(
+                $eventsTable,
+                $eventObject,
+                ['source', 'source_id']
+            );
 
-        if (!empty($options['extra_fields']['calendar_id'])) {
-            $conditions['calendar_id'] = $options['extra_fields']['calendar_id'];
-        }
+            $attendeeObjects = $eventObject->getAttribute('attendees');
 
-        $query = $table->find()
-                    ->where($conditions);
-
-        $query->all();
-        $dbItems = $query->toArray();
-
-        if (empty($dbItems) || empty($items)) {
-            return $result;
-        }
-
-        foreach ($dbItems as $key => $dbItem) {
-            foreach ($items as $k => $item) {
-                if ($dbItem->$source == $item->$source
-                    && $dbItem->$sourceId == $item->$sourceId) {
-                    unset($dbItems[$key]);
+            if (!empty($attendeeObjects)) {
+                foreach ($attendeeObjects as $attendeeObject) {
+                    $attendeeObject = $this->setObjectDifference(
+                        $attendeesTable,
+                        $attendeeObject,
+                        ['display_name', 'contact_details']
+                    );
                 }
             }
         }
 
-        if (!empty($dbItems)) {
-            $result = $dbItems;
+        $calendarObject->setAttribute('events', $eventObjects);
+
+        return $calendarObject;
+    }
+
+    /**
+     * Sycnrhonize calendars with corresponding events and attendees
+     *
+     * @param array $options with extra configs
+     */
+    public function sync(array $options = [])
+    {
+        $status = false;
+        $data = $calendars = [];
+        $event = new Event('App.Calendars.Model.getCalendars', $this, [
+            'options' => $options
+        ]);
+
+        EventManager::instance()->dispatch($event);
+
+        if (!empty($event->result)) {
+            $calendars = $event->result;
+        }
+
+        if (empty($calendars)) {
+            return $status;
+        }
+        unset($event);
+
+        foreach ($calendars as $k => $calendarObject) {
+            $event = new Event('App.Calendars.Model.getCalendarEvents', $this, [
+                'calendar' => $calendarObject,
+                'options' => $options,
+            ]);
+
+            EventManager::instance()->dispatch($event);
+
+            if (!empty($event->result)) {
+                $calendarObject->setEvents($event->result);
+            }
+        }
+
+        foreach ($calendars as $k => $calendarObject) {
+            $diff = $this->getDifferences($calendarObject);
+
+            if (!empty($diff)) {
+                array_push($data, $diff);
+            }
+        }
+
+        if (!empty($data)) {
+            foreach ($data as $k => $calendarObject) {
+                $calendarEntity = $this->syncSaveCalendarObject($calendarObject);
+
+                if (!$calendarEntity) {
+                    continue;
+                }
+
+                $events = $calendarObject->getAttribute('events');
+
+                if (empty($events)) {
+                    continue;
+                }
+
+                $eventEntities = $this->syncSaveCalendarEventObjects($calendarEntity, $events);
+            }
+        }
+        return $data;
+    }
+
+    protected function syncSaveCalendarEventObjects($calendarEntity, array $eventObjects = [])
+    {
+        $result = false;
+
+        if (empty($eventObjects)) {
+            return $result;
+        }
+
+        $saved = $errors = [];
+
+        $table = TableRegistry::get('Qobo/Calendar.CalendarEvents');
+        $attendeesTable = TableRegistry::get('Qobo/Calendar.CalendarAttendees');
+
+        foreach ($eventObjects as $object) {
+            $attendees = $object->getAttribute('attendees');
+            $entity = $object->toEntity();
+            $entity->set('attendees', []);
+
+            $data = $entity->toArray();
+            $data['calendar_id'] = $calendarEntity->id;
+
+            $entity = $table->patchEntity($entity, $data);
+
+            $savedEvent = $table->save($entity);
+
+            if (!$savedEvent) {
+                array_push($errors, $entity);
+                continue;
+            }
+
+            if (empty($attendees)) {
+                continue;
+            }
+
+            foreach ($attendees as $attObject) {
+                if (!in_array($attObject->getAttribute('diff_status'), ['add', 'update'])) {
+                    continue;
+                }
+                $attendeeEntity = $attObject->toEntity();
+                $attendeeData = $attendeeEntity->toArray();
+                $attendeeData['calendar_events'] = [
+                    [
+                        'id' => $savedEvent->id,
+                        '_joinData' => [
+                            'response_status' => $attendeeEntity->response_status
+                        ],
+                    ]
+                ];
+                $ent = $attendeesTable->patchEntity(
+                    $attendeeEntity,
+                    $attendeeData,
+                    [
+                        'associated' => ['CalendarEvents']
+                    ]
+                );
+
+                $savedAtt = $attendeesTable->save($ent);
+            }
         }
 
         return $result;
+    }
+
+    protected function syncSaveCalendarObject($object = null)
+    {
+        $result = false;
+        $events = [];
+        $status = $object->getAttribute('diff_status');
+
+        if (!in_array($status, ['add','update'])) {
+            return $result;
+        }
+
+        $calendarsTable = TableRegistry::get('Qobo/Calendar.Calendars');
+
+        $calendarEntity = $object->toEntity();
+        $events = $calendarEntity->events;
+
+        $calendarEntity->set('events', []);
+        $calendarData = $calendarEntity->toArray();
+        $entity = $calendarsTable->patchEntity($calendarEntity, $calendarData);
+
+        $savedCalendar = $calendarsTable->save($entity);
+
+        if ($savedCalendar) {
+            $result = $savedCalendar;
+        }
+
+        return $result;
+    }
+
+    protected function getObjectConditions($object, array $fields = [])
+    {
+        $conditions = [];
+
+        if (empty($fields)) {
+            return $conditions;
+        }
+
+        foreach ($fields as $name) {
+            $conditions[$name] = $object->getAttribute($name);
+        }
+
+        foreach ($conditions as $name => $val) {
+            if (is_null($val)) {
+                $conditions["$name IS"] = $val;
+                unset($conditions[$name]);
+            }
+        }
+
+        return $conditions;
+    }
+
+    protected function setObjectDifference($table, $object, $fields = [])
+    {
+        $status = 'add';
+        $conditions = $this->getObjectConditions($object, $fields);
+
+        $query = $table->find()
+                ->where($conditions);
+        $record = $query->first();
+
+        if ($record) {
+            $status = 'update';
+            $object->setAttribute('id', $record->id);
+        }
+
+        $object->setAttribute('diff_status', $status);
+
+        return $object;
     }
 }

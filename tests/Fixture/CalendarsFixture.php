@@ -53,7 +53,7 @@ class CalendarsFixture extends TestFixture
             'created' => '2017-05-22 11:19:02',
             'modified' => '2017-05-22 11:19:02',
             'trashed' => null,
-            'calendar_type' => null,
+            'calendar_type' => 'foobar',
         ],
         [
             'id' => '9390cbc1-dc1d-474a-a372-de92dce85aaa',

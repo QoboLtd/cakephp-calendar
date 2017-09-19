@@ -18,49 +18,6 @@ use Qobo\Calendar\Controller\AppController;
 class CalendarEventsController extends AppController
 {
     /**
-     * Edit method
-     *
-     * @param string|null $id Calendar Event id.
-     * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
-     * @throws \Cake\Network\Exception\NotFoundException When record not found.
-     */
-    public function edit($id = null)
-    {
-        $eventTypes = [];
-
-        $calendarEvent = $this->CalendarEvents->get($id, [
-            'contain' => ['Calendars', 'CalendarAttendees']
-        ]);
-
-        $calendars = $this->CalendarEvents->Calendars->find('list', ['limit' => 200]);
-
-        $calendarType = $calendarEvent->calendar->calendar_type;
-        $types = Configure::read('Calendar.Types');
-
-        foreach ($types as $typeInfo) {
-            if ($typeInfo['value'] === $calendarType) {
-                foreach ($typeInfo['types'] as $type) {
-                    $eventTypes[$type['value']] = $type['name'];
-                }
-            }
-        }
-
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $calendarEvent = $this->CalendarEvents->patchEntity($calendarEvent, $this->request->getData(), ['associated' => ['CalendarAttendees']]);
-            if ($this->CalendarEvents->save($calendarEvent, ['associated' => ['CalendarAttendees']])) {
-                $this->Flash->success(__('The calendar event has been saved.'));
-
-                return $this->redirect(['plugin' => 'Qobo/Calendar', 'controller' => 'Calendars', 'action' => 'index']);
-            }
-            $this->Flash->error(__('The calendar event could not be saved. Please, try again.'));
-        }
-
-        $this->set('eventTypes', $eventTypes);
-        $this->set(compact('calendarEvent', 'calendars'));
-        $this->set('_serialize', ['calendarEvent']);
-    }
-
-    /**
      * Delete method
      *
      * @param string|null $id Calendar Event id.
@@ -91,6 +48,7 @@ class CalendarEventsController extends AppController
         $calendarEvent = $this->CalendarEvents->newEntity(null, [
             'associated' => ['CalendarAttendees'],
         ]);
+
         $this->Calendars = TableRegistry::get('Calendars');
 
         if ($this->request->is(['patch', 'post', 'put'])) {
@@ -103,27 +61,14 @@ class CalendarEventsController extends AppController
             $calendarEvent = $this->CalendarEvents->patchEntity(
                 $calendarEvent,
                 $data,
-                [
-                    'associated' => ['CalendarAttendees'],
-                ]
+                ['associated' => ['CalendarAttendees']]
             );
 
             $saved = $this->CalendarEvents->save($calendarEvent);
-
-            $entity = [
-                'id' => $saved->id,
-                'title' => $saved->title,
-                'content' => $saved->content,
-                'start_date' => $saved->start_date,
-                'end_date' => $saved->end_date,
-                'color' => $calendar->color,
-                'calendar_id' => $calendar->id,
-                'event_type' => $saved->event_type,
-                'is_recurring' => $saved->is_recurring,
-                'source' => $saved->source,
-                'source_id' => $saved->source_id,
-                'recurrence' => json_decode($saved->recurrence, true),
-            ];
+            $entity = $this->CalendarEvents->prepareEventData(
+                $saved->toArray(),
+                $calendar
+            );
 
             if ($saved) {
                 $result['entity'] = $entity;

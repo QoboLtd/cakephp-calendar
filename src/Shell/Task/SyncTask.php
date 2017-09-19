@@ -56,9 +56,6 @@ class SyncTask extends Shell
         $calendarsProcessed = 1;
         $output = [];
 
-        $progress = $this->helper('Progress');
-        $progress->init();
-
         $this->info('Preparing for calendar sync...');
 
         $result = $options = [];
@@ -72,32 +69,9 @@ class SyncTask extends Shell
             $options['period']['end_date'] = $this->params['end'];
         }
 
-        $result['calendars'] = $table->syncCalendars($options);
+        $status = $table->sync($options);
 
-        if (empty($result['calendars'])) {
-            $this->abort('No calendars found for synchronization');
-        }
-
-        foreach ($result['calendars'] as $actionName => $calendars) {
-            foreach ($calendars as $k => $calendar) {
-                $resultEvents = $table->syncCalendarEvents($calendar, $options);
-
-                $resultAttendees = $table->syncEventsAttendees($calendar, $resultEvents);
-
-                $output[] = [
-                    'action' => $actionName,
-                    'calendar' => $calendar,
-                    'events' => $resultEvents,
-                    'attendees' => $resultAttendees,
-                ];
-
-                $progress->increment(100 / ++$calendarsProcessed);
-                $progress->draw();
-            }
-        }
-
-        $this->syncAttendees();
-        $birthdays = $this->syncBirthdays($table);
+        dd('w00t');
 
         $this->out(null);
         $this->success('Synchronization complete!');

@@ -26,7 +26,7 @@ class CalendarsController extends AppController
         $icons = Utility::getIcons();
         $colors = Utility::getColors();
 
-        $calendarTypes = $this->Calendars->getCalendarTypes();
+        $calendarTypes = $this->Calendars->getTypes();
 
         $this->set('calendarTypes', $calendarTypes);
         $this->set('icons', $icons);
@@ -47,7 +47,7 @@ class CalendarsController extends AppController
             $data = $this->request->getData();
 
             if (!empty($data['public'])) {
-                $options['conditions'] = ['is_public' => true];
+                $options['conditions']['is_public'] = (bool)$data['public'];
             }
         }
 
@@ -160,17 +160,5 @@ class CalendarsController extends AppController
         }
 
         return $this->redirect(['action' => 'index']);
-    }
-
-    /**
-     * Get Events method
-     *
-     * Return events array based on calendar_id passed
-     *
-     * @return void
-     */
-    public function events()
-    {
-        throw new \Cake\Network\Exception\NotImplementedException("events call moved to calendar-events controller as index");
     }
 }
