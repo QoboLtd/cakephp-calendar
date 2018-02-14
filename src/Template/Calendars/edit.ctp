@@ -57,7 +57,7 @@ foreach ($icons as $k => $v) {
         <div class="box-body">
             <div class="row">
                 <div class="col-xs-12 col-md-6">
-                    <?= $this->Form->control('name', ['class' => 'form-control']); ?>
+                    <?= $this->Form->input('name'); ?>
                     <?= $this->Form->hidden('source_id');?>
                     <?= $this->Form->hidden('source');?>
 

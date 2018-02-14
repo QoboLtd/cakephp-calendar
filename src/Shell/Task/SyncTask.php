@@ -21,6 +21,11 @@ use Qobo\Utils\Utility\FileLock;
  */
 class SyncTask extends Shell
 {
+    protected $usersTable;
+
+    protected $attendeesTable;
+
+    protected $calendarsTable;
 
     /**
      * Manage available options via Parser
@@ -64,26 +69,21 @@ class SyncTask extends Shell
             $this->abort('Import is already in progress');
         }
 
+        $this->attendeesTable = TableRegistry::get('Qobo/Calendar.CalendarAttendees');
+        $this->calendarsTable = TableRegistry::get('Qobo/Calendar.Calendars');
+        $this->usersTable = TableRegistry::get('Users');
+
         $calendarsProcessed = 1;
-        $output = [];
+        $output = $result = $options = [];
 
         $progress = $this->helper('Progress');
         $progress->init();
 
         $this->info('Preparing for calendar sync...');
 
-        $result = $options = [];
-        $table = TableRegistry::get('Qobo/Calendar.Calendars');
+        $options = $this->setDefaultTimePeriod($this->params);
 
-        if (!empty($this->params['start'])) {
-            $options['period']['start_date'] = $this->params['start'];
-        }
-
-        if (!empty($this->params['end'])) {
-            $options['period']['end_date'] = $this->params['end'];
-        }
-
-        $result['calendars'] = $table->syncCalendars($options);
+        $result['calendars'] = $this->calendarsTable->syncCalendars($options);
 
         if (empty($result['calendars'])) {
             $this->abort('No calendars found for synchronization');
@@ -91,9 +91,9 @@ class SyncTask extends Shell
 
         foreach ($result['calendars'] as $actionName => $calendars) {
             foreach ($calendars as $k => $calendar) {
-                $resultEvents = $table->syncCalendarEvents($calendar, $options);
+                $resultEvents = $this->calendarsTable->syncCalendarEvents($calendar, $options);
 
-                $resultAttendees = $table->syncEventsAttendees($calendar, $resultEvents);
+                $resultAttendees = $this->calendarsTable->syncEventsAttendees($calendar, $resultEvents);
 
                 $output[] = [
                     'action' => $actionName,
@@ -124,6 +124,26 @@ class SyncTask extends Shell
     }
 
     /**
+     * Set Default Time period
+     *
+     * @param array $params with CLI period options
+     * @return array $options with prepopulated opts.
+     */
+    protected function setDefaultTimePeriod(array $params = [])
+    {
+        $options = [];
+        if (!empty($params['start'])) {
+            $options['period']['start_date'] = $params['start'];
+        }
+
+        if (!empty($params['end'])) {
+            $options['period']['end_date'] = $params['end'];
+        }
+
+        return $options;
+    }
+
+    /**
      * syncAttendees method
      *
      * Synchronizing attendees (users) for calendar events auto-complete
@@ -133,9 +153,7 @@ class SyncTask extends Shell
     protected function syncAttendees()
     {
         //sync all the attendees from users.
-        $usersTable = TableRegistry::get('Users');
-        $users = $usersTable->find()->all();
-        $attendeesTable = TableRegistry::get('Qobo/Calendar.CalendarAttendees');
+        $users = $this->usersTable->find()->all();
         $result = [];
 
         $progress = $this->helper('Progress');
@@ -149,15 +167,15 @@ class SyncTask extends Shell
                 continue;
             }
 
-            $existing = $attendeesTable->exists(['contact_details' => $user->email]);
+            $existing = $this->attendeesTable->exists(['contact_details' => $user->email]);
 
             if (!$existing) {
-                $entity = $attendeesTable->newEntity();
+                $entity = $this->attendeesTable->newEntity();
 
                 $entity->display_name = $user->name;
                 $entity->contact_details = $user->email;
 
-                $saved = $attendeesTable->save($entity);
+                $saved = $this->attendeesTable->save($entity);
                 if ($saved) {
                     array_push($result, $saved);
                 }
@@ -195,8 +213,8 @@ class SyncTask extends Shell
         ];
 
         $eventsTable = TableRegistry::get('Qobo/Calendar.CalendarEvents');
-        $usersTable = TableRegistry::get('Users');
-        $users = $usersTable->find()->all();
+        $this->usersTable = TableRegistry::get('Users');
+        $users = $this->usersTable->find()->all();
 
         $progress = $this->helper('Progress');
         $progress->init();
