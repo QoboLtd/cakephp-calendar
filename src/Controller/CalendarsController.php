@@ -18,6 +18,7 @@ use Cake\ORM\TableRegistry;
 use Qobo\Calendar\Controller\AppController;
 use Qobo\Calendar\Event\EventName;
 use Qobo\Utils\Utility;
+
 /**
  * Calendars Controller
  *
