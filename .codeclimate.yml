@@ -10,6 +10,7 @@ exclude_paths:
 - config/
 - tests/
 - webroot/plugins/
+- webroot/js/
 ratings:
   paths:
   - "src/**/*"
