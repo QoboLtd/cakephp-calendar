@@ -16,6 +16,7 @@ use Cake\Event\Event;
 use Cake\Event\EventManager;
 use Cake\ORM\TableRegistry;
 use Qobo\Calendar\Controller\AppController;
+use Qobo\Calendar\Event\EventName;
 use Qobo\Utils\Utility;
 
 /**
@@ -63,7 +64,7 @@ class CalendarsController extends AppController
 
         $calendars = $this->Calendars->getCalendars($options);
 
-        $event = new Event('App.Calendars.checkCalendarsPermissions', $this, [
+        $event = new Event((string)EventName::APP_CALENDARS_CHECK_PERMISSIONS(), $this, [
             'entities' => $calendars,
             'user' => $this->Auth->user(),
             'options' => []

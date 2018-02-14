@@ -2,7 +2,7 @@
 
 use Cake\Core\Configure;
 use Cake\Event\EventManager;
-use Qobo\Calendar\Events\GetCalendarsListener;
+use Qobo\Calendar\Event\Plugin\GetCalendarsListener;
 
 $config = Configure::read('Calendar');
 if (empty($config)) {

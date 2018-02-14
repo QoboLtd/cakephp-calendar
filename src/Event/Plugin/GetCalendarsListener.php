@@ -9,7 +9,7 @@
  * @copyright     Copyright (c) Qobo Ltd. (https://www.qobo.biz)
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Qobo\Calendar\Events;
+namespace Qobo\Calendar\Event\Plugin;
 
 use Cake\Core\Configure;
 use Cake\Event\Event;
@@ -17,19 +17,22 @@ use Cake\Event\EventListenerInterface;
 use Cake\Event\EventManager;
 use Cake\Network\Request;
 use Cake\ORM\TableRegistry;
+use Qobo\Calendar\Event\EventName;
 
 class GetCalendarsListener implements EventListenerInterface
 {
     /**
-     * {@inheritDoc}
+     * Implemented Events
+     *
+     * @return array
      */
     public function implementedEvents()
     {
         return [
-            'Plugin.Calendars.Model.getCalendars' => 'sendGetCalendarsToApp',
-            'Plugin.Calendars.Model.getCalendarEvents' => 'sendGetCalendarEventsToApp',
-            'App.Calendars.Model.getCalendars' => 'getPluginCalendars',
-            'App.Calendars.Model.getCalendarEvents' => 'getPluginCalendarEvents',
+            (string)EventName::APP_MODEL_GET_CALENDARS => 'getPluginCalendars',
+            (string)EventName::APP_MODEL_GET_EVENTS => 'getPluginCalendarEvents',
+            (string)EventName::PLUGIN_CALENDAR_MODEL_GET_CALENDARS => 'sendGetCalendarsToApp',
+            (string)EventName::PLUGIN_CALENDAR_MODEL_GET_EVENTS => 'sendGetCalendarEventsToApp',
         ];
     }
 
