@@ -20,9 +20,9 @@ use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
+use Qobo\Calendar\Event\EventName;
 use Qobo\Calendar\Model\Table\CalendarEventsTable;
 use \ArrayObject;
-
 /**
  * Calendars Model
  *
@@ -213,7 +213,7 @@ class CalendarsTable extends Table
     {
         $result = [];
 
-        $event = new Event('Plugin.Calendars.Model.getCalendars', $this, [
+        $event = new Event((string)EventName::PLUGIN_CALENDAR_MODEL_GET_CALENDARS(), $this, [
             'options' => $options,
         ]);
 
@@ -319,7 +319,7 @@ class CalendarsTable extends Table
             return $result;
         }
 
-        $event = new Event('Plugin.Calendars.Model.getCalendarEvents', $this, [
+        $event = new Event((string)EventName::PLUGIN_CALENDAR_MODEL_GET_EVENTS(), $this, [
             'calendar' => $calendar,
             'options' => $options,
         ]);
