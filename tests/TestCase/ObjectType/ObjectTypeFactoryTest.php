@@ -56,4 +56,14 @@ class ObjectTypeFactoryTest extends TestCase
         $this->assertEquals($calendar->name, $object->getName());
         $this->assertEquals($calendar->id, $object->getId());
     }
+
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testGetParserWithFakePath()
+    {
+        $path = TESTS . 'data' . DS . 'ObjectType' . DS . 'Calendars' . DS . 'Parsers';
+        $data = ['foo' => 'bar'];
+        $result = ObjectTypeFactory::getCalendarParser('Test', ['path' => $path]);
+    }
 }
