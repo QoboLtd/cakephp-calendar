@@ -1,13 +1,21 @@
 <?php
 namespace Qobo\Calendar\ObjectType\Calendars\Parsers;
 
-use Qobo\Calendar\ObjectType\Calendars\Calendar;
 use Cake\ORM\Entity;
 use Cake\Utility\Inflector;
+use Qobo\Calendar\ObjectType\Calendars\Calendar;
 use \InvalidArgumentException;
 
 class AppEntityParser implements ParserInterface
 {
+    /**
+     * Parse Data received as Cake\ORM\Entity object
+     *
+     * Converts to Calendar generic object type
+     *
+     * @param object $data received for parser
+     * @return \Qobo\Calendar\ObjectType\Calendars\Calendar $calendar being set.
+     */
     public function parse($data)
     {
         $calendar = new Calendar();

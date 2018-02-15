@@ -7,6 +7,17 @@ use RuntimeException;
 
 class ObjectTypeFactory
 {
+    /**
+     * Get Calendar Object Instance
+     *
+     * Pass entry calendar and specify source type to parse
+     * data into Calendar Object.
+     *
+     * @param mixed $data with calendar information
+     * @param string $type of parser to be used
+     *
+     * @return \Qobo\Calendar\ObjectType\Calendars\Calendar $instance of the calendar
+     */
     public static function getCalendarInstance($data = null, $type = null)
     {
         $instance = null;
@@ -22,6 +33,14 @@ class ObjectTypeFactory
         return $instance;
     }
 
+    /**
+     * Get Calendar Parser object
+     *
+     * @param string $name of the parser to be used
+     * @param array $options with extra configs
+     *
+     * @return \Qobo\Calendar\ObjectType\Calendars\Parsers\ParserInterface $object
+     */
     public static function getParser($name, array $options = [])
     {
         $target = null;
