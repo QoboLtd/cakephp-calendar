@@ -11,6 +11,7 @@
  */
 namespace Qobo\Calendar\Shell\Task;
 
+use CakeDC\Users\Controller\Traits\CustomUsersTableTrait;
 use Cake\Console\Shell;
 use Cake\ORM\TableRegistry;
 use Exception;
@@ -21,6 +22,8 @@ use Qobo\Utils\Utility\FileLock;
  */
 class SyncTask extends Shell
 {
+    use CustomUsersTableTrait;
+
     protected $usersTable;
 
     protected $attendeesTable;
@@ -71,7 +74,7 @@ class SyncTask extends Shell
 
         $this->attendeesTable = TableRegistry::get('Qobo/Calendar.CalendarAttendees');
         $this->calendarsTable = TableRegistry::get('Qobo/Calendar.Calendars');
-        $this->usersTable = TableRegistry::get('Users');
+        $this->usersTable = $this->getUsersTable();
 
         $calendarsProcessed = 1;
         $output = $result = $options = [];
@@ -108,7 +111,7 @@ class SyncTask extends Shell
         }
 
         $this->syncAttendees();
-        $birthdays = $this->syncBirthdays($table);
+        $birthdays = $this->syncBirthdays($this->calendarsTable);
 
         $this->out(null);
         $this->success('Synchronization complete!');
@@ -213,7 +216,6 @@ class SyncTask extends Shell
         ];
 
         $eventsTable = TableRegistry::get('Qobo/Calendar.CalendarEvents');
-        $this->usersTable = TableRegistry::get('Users');
         $users = $this->usersTable->find()->all();
 
         $progress = $this->helper('Progress');
