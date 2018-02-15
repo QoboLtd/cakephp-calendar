@@ -27,6 +27,9 @@ class CalendarsFixture extends TestFixture
         'modified' => ['type' => 'datetime', 'length' => null, 'null' => false, 'default' => null, 'comment' => '', 'precision' => null],
         'trashed' => ['type' => 'datetime', 'length' => null, 'null' => true, 'default' => null, 'comment' => '', 'precision' => null],
         'calendar_type' => ['type' => 'string', 'length' => 255, 'null' => true, 'default' => null, 'collate' => 'utf8_general_ci', 'comment' => '', 'precision' => null, 'fixed' => null],
+        'active' => ['type' => 'boolean', 'length' => 1, 'null' => false, 'default' => 0, 'collate' => 'utf8_general_ci', 'comment' => '', 'precision' => null, 'fixed' => null],
+        'is_public' => ['type' => 'boolean', 'length' => 1, 'null' => true, 'default' => 0, 'collate' => 'utf8_general_ci', 'comment' => '', 'precision' => null, 'fixed' => null],
+        'editable' => ['type' => 'boolean', 'length' => 1, 'null' => true, 'default' => 1, 'collate' => 'utf8_general_ci', 'comment' => '', 'precision' => null, 'fixed' => null],
         '_constraints' => [
             'primary' => ['type' => 'primary', 'columns' => ['id'], 'length' => []],
         ],
@@ -54,6 +57,9 @@ class CalendarsFixture extends TestFixture
             'modified' => '2017-05-22 11:19:02',
             'trashed' => null,
             'calendar_type' => null,
+            'active' => 1,
+            'is_public' => 1,
+            'editable' => 0,
         ],
         [
             'id' => '9390cbc1-dc1d-474a-a372-de92dce85aaa',
@@ -66,6 +72,9 @@ class CalendarsFixture extends TestFixture
             'modified' => '2017-05-22 11:19:02',
             'trashed' => null,
             'calendar_type' => 'default',
+            'active' => 1,
+            'is_public' => 1,
+            'editable' => 0,
         ],
         [
             'id' => '9390cbc1-dc1d-474a-a372-de92dce85aac',
@@ -78,6 +87,9 @@ class CalendarsFixture extends TestFixture
             'modified' => '2017-05-22 11:19:02',
             'trashed' => null,
             'calendar_type' => null,
+            'active' => 1,
+            'is_public' => 1,
+            'editable' => 0,
         ],
         [
             'id' => '9390cbc1-dc1d-474a-a372-de92dce85aba',
@@ -89,7 +101,10 @@ class CalendarsFixture extends TestFixture
             'created' => '2017-05-22 11:19:02',
             'modified' => '2017-05-22 11:19:02',
             'trashed' => null,
-            'calendar_type' => null,
+            'calendar_type' => 'default',
+            'active' => 1,
+            'is_public' => 1,
+            'editable' => 0,
         ],
     ];
 }
