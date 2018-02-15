@@ -39,7 +39,7 @@ class ObjectTypeFactoryTest extends TestCase
      */
     public function testGetInstanceEmpty()
     {
-        $result = ObjectTypeFactory::getCalendarInstance([], 'AppEntity');
+        $result = ObjectTypeFactory::getCalendarInstance([], null);
     }
 
     public function testGetInstanceFromAppEntity()
