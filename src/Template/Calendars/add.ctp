@@ -53,7 +53,7 @@ foreach ($icons as $k => $v) {
         <div class="box-body">
             <div class="row">
                 <div class="col-xs-12 col-md-6">
-                    <?= $this->Form->control('name'); ?>
+                    <?= $this->Form->input('name'); ?>
 
                     <?= $this->Form->input('calendar_type', [
                         'type' => 'select',
