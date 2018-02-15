@@ -30,7 +30,7 @@ class ObjectTypeFactoryTest extends TestCase
 
     public function testGetParser()
     {
-        $result = ObjectTypeFactory::getParser('AppEntity');
+        $result = ObjectTypeFactory::getCalendarParser('AppEntity');
         $this->assertTrue(is_object($result));
     }
 

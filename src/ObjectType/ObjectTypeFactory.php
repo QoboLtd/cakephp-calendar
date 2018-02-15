@@ -25,7 +25,7 @@ class ObjectTypeFactory
             throw new InvalidArgumentException('Specify instance type');
         }
 
-        $parser = self::getParser($type);
+        $parser = self::getCalendarParser($type);
         if (is_object($parser)) {
             $instance = $parser->parse($data);
         }
@@ -41,7 +41,7 @@ class ObjectTypeFactory
      *
      * @return \Qobo\Calendar\ObjectType\Calendars\Parsers\ParserInterface $object
      */
-    public static function getParser($name, array $options = [])
+    public static function getCalendarParser($name, array $options = [])
     {
         $target = null;
         $path = empty($options['path']) ? dirname(__FILE__) . DS . 'Calendars' . DS . 'Parsers' : $options['path'];
