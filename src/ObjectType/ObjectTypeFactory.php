@@ -75,6 +75,5 @@ class ObjectTypeFactory
         $object = new $className();
 
         return $object;
-
     }
 }
