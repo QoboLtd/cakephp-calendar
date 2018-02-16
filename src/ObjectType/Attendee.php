@@ -109,4 +109,9 @@ class Attendee extends AbstractObjectType
     {
         return $this->sourceId;
     }
+
+    public function toEntity()
+    {
+
+    }
 }

@@ -1,6 +1,7 @@
 <?php
 namespace Qobo\Calendar\ObjectType;
 
+use Cake\Utility\Inflector;
 use Qobo\Calendar\Model\Entity\Calendar as CalendarEntity;
 
 class Calendar extends AbstractObjectType
@@ -19,9 +20,9 @@ class Calendar extends AbstractObjectType
 
     protected $sourceId;
 
-    protected $isActive;
+    protected $active;
 
-    protected $isEditable;
+    protected $editable;
 
     protected $isPublic;
 
@@ -153,39 +154,39 @@ class Calendar extends AbstractObjectType
     /**
      * Set Calendar Active flag
      *
-     * @param bool $isActive for the calendar
+     * @param bool $active for the calendar
      * @return void
      */
     public function setActive($isActive)
     {
-        $this->isActive = $isActive;
+        $this->active = $isActive;
     }
 
     /**
-     * @return bool $isActive calendar flag
+     * @return bool $active calendar flag
      */
     public function getActive()
     {
-        return $this->isActive;
+        return $this->active;
     }
 
     /**
      * Set editable calendar flag
      *
-     * @param bool $isEditable for the calendar
+     * @param bool $editable for the calendar
      * @return void
      */
     public function setEditable($isEditable = false)
     {
-        $this->isEditable = $isEditable;
+        $this->editable = $isEditable;
     }
 
     /**
-     * @return bool $isEditable flag
+     * @return bool $editable flag
      */
     public function getEditable()
     {
-        return $this->isEditable;
+        return $this->editable;
     }
 
     /**
@@ -205,5 +206,31 @@ class Calendar extends AbstractObjectType
     public function getIsPublic()
     {
         return $this->isPublic;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function toEntity()
+    {
+        $data = [];
+
+        foreach ($this as $property => $value)
+        {
+            $method = Inflector::variable('get ' . $property);
+
+            if (method_exists($this, $method) && is_callable([$this, $method])) {
+                $field = Inflector::underscore($property);
+                $data[$field] = $this->$method();
+            }
+        }
+
+        $entity = new \Qobo\Calendar\Model\Entity\Calendar($data);
+
+        foreach ($data as $property => $value) {
+            $entity->setDirty($property, false);
+        }
+
+        return $entity;
     }
 }

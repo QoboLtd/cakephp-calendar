@@ -237,4 +237,9 @@ class Event extends AbstractObjectType
     {
         return $this->isAllday;
     }
+
+    public function toEntity()
+    {
+
+    }
 }
