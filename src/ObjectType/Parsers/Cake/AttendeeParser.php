@@ -1,8 +1,11 @@
 <?php
 namespace Qobo\Calendar\ObjectType\Parsers\Cake;
 
+use Cake\ORM\Entity;
+use Cake\Utility\Inflector;
 use Qobo\Calendar\ObjectType\Attendee;
 use Qobo\Calendar\ObjectType\Parsers\ParserInterface;
+use \InvalidArgumentException;
 
 class AttendeeParser implements ParserInterface
 {
@@ -17,7 +20,7 @@ class AttendeeParser implements ParserInterface
         $object = new Attendee();
 
         if (!$data instanceof Entity) {
-            throw new InvalidArgumentException("AppEntity Parser expects \Cake\ORM\Entity object");
+            throw new InvalidArgumentException("[Cake] Parser expects \Cake\ORM\Entity object");
         }
 
         $properties = $data->visibleProperties();

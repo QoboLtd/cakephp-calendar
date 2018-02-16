@@ -1,10 +1,13 @@
 <?php
 namespace Qobo\Calendar\ObjectType;
 
-use Qobo\Calendar\Model\Table\Attendee as AttendeeEntity;
+use Cake\Utility\Inflector;
 
 class Attendee extends AbstractObjectType
 {
+
+    protected $entityProvider = '\Qobo\Calendar\Model\Entity\CalendarAttendee';
+
     protected $id;
 
     protected $displayName;
@@ -14,25 +17,6 @@ class Attendee extends AbstractObjectType
     protected $source;
 
     protected $sourceId;
-
-    /**
-     * Set Id of Attendee
-     *
-     * @param mixed $id of the attendeee
-     * @return void
-     */
-    public function setId($id)
-    {
-        $this->id = $id;
-    }
-
-    /**
-     * @return mixed $id of the instance
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
 
     /**
      * Set Display Name of Attendee
@@ -69,7 +53,7 @@ class Attendee extends AbstractObjectType
      */
     public function getContactDetails()
     {
-        return $this->contactDetals;
+        return $this->contactDetails;
     }
 
     /**
@@ -108,10 +92,5 @@ class Attendee extends AbstractObjectType
     public function getSourceId()
     {
         return $this->sourceId;
-    }
-
-    public function toEntity()
-    {
-
     }
 }

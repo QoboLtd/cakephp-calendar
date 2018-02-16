@@ -5,6 +5,8 @@ use Qobo\Calendar\Model\Table\Event as EventEntity;
 
 class Event extends AbstractObjectType
 {
+    protected $entityProvider = '\Qobo\Calendar\Model\Entity\CalendarEvent';
+
     protected $id;
 
     protected $calendarId;
@@ -28,25 +30,6 @@ class Event extends AbstractObjectType
     protected $recurrence;
 
     protected $isAllday;
-
-    /**
-     * Set Events Id
-     *
-     * @param mixed $id of the event
-     * @return void
-     */
-    public function setId($id)
-    {
-        $this->id = $id;
-    }
-
-    /**
-     * @return mixed $id of event
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
 
     /**
      * Set Calendar Id key
@@ -236,10 +219,5 @@ class Event extends AbstractObjectType
     public function getIsAllday()
     {
         return $this->isAllday;
-    }
-
-    public function toEntity()
-    {
-
     }
 }
