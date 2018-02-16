@@ -49,6 +49,15 @@ class ObjectTypeFactoryTest extends TestCase
     }
 
     /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testGetInstanceWithWrongData()
+    {
+        $data = ['foo' => 'bar'];
+        $object = ObjectTypeFactory::getInstance($data, 'Calendar', 'Cake');
+    }
+
+    /**
      * @expectedException \RuntimeException
      */
     public function testGetParserWithFakePath()
