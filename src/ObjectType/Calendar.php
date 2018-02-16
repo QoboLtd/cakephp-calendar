@@ -1,5 +1,5 @@
 <?php
-namespace Qobo\Calendar\ObjectType\Calendars;
+namespace Qobo\Calendar\ObjectType;
 
 use Qobo\Calendar\Model\Entity\Calendar as CalendarEntity;
 

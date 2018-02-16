@@ -44,10 +44,11 @@ class ObjectTypeFactory
     public static function getCalendarParser($name, array $options = [])
     {
         $target = null;
-        $path = empty($options['path']) ? dirname(__FILE__) . DS . 'Calendars' . DS . 'Parsers' : $options['path'];
+        $path = empty($options['path']) ? dirname(__FILE__) . DS . 'Parsers' . DS . $name : $options['path'];
+        $model = 'Calendar';
 
         $dir = new Folder($path);
-        $fileName = $name . 'Parser.php';
+        $fileName = $model . 'Parser.php';
 
         foreach ($dir->find('.*Parser\.php$') as $file) {
             if ($file == $fileName) {
@@ -61,7 +62,7 @@ class ObjectTypeFactory
 
         // chomp extension
         $target = substr($target, 0, -4);
-        $className = __NAMESPACE__ . '\\Calendars\\Parsers\\' . $target;
+        $className = __NAMESPACE__ . '\\Parsers\\' . $name . '\\' . $target;
 
         if (!class_exists($className)) {
             throw new RuntimeException("No class [$className] found");

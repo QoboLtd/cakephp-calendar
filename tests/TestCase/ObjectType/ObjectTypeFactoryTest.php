@@ -30,7 +30,7 @@ class ObjectTypeFactoryTest extends TestCase
 
     public function testGetParser()
     {
-        $result = ObjectTypeFactory::getCalendarParser('AppEntity');
+        $result = ObjectTypeFactory::getCalendarParser('Cake');
         $this->assertTrue(is_object($result));
     }
 
@@ -49,10 +49,10 @@ class ObjectTypeFactoryTest extends TestCase
             ->where(['id' => $calendarId])
             ->first();
 
-        $object = ObjectTypeFactory::getCalendarInstance($calendar, 'AppEntity');
+        $object = ObjectTypeFactory::getCalendarInstance($calendar, 'Cake');
 
         $this->assertTrue(is_object($object));
-        $this->assertInstanceOf('Qobo\Calendar\ObjectType\Calendars\Calendar', $object);
+        $this->assertInstanceOf('Qobo\Calendar\ObjectType\Calendar', $object);
         $this->assertEquals($calendar->name, $object->getName());
         $this->assertEquals($calendar->id, $object->getId());
     }
