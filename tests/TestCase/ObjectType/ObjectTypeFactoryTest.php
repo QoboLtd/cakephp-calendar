@@ -33,6 +33,14 @@ class ObjectTypeFactoryTest extends TestCase
         $this->assertTrue(is_object($result));
     }
 
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testBadParser()
+    {
+        $result = ObjectTypeFactory::getParser('FooBlya', 'Cake');
+    }
+
     public function testGetInstanceFromAppEntity()
     {
         $calendarId = '9390cbc1-dc1d-474a-a372-de92dce85aaa';
@@ -55,6 +63,15 @@ class ObjectTypeFactoryTest extends TestCase
     {
         $data = ['foo' => 'bar'];
         $object = ObjectTypeFactory::getInstance($data, 'Calendar', 'Cake');
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testGetInstanceWithoutData()
+    {
+        $data = ['foo' => 'bar'];
+        $object = ObjectTypeFactory::getInstance($data, null, null);
     }
 
     /**
