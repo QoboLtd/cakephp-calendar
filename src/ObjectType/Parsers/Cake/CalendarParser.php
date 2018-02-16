@@ -15,11 +15,11 @@ class CalendarParser implements ParserInterface
      * Converts to Calendar generic object type
      *
      * @param object $data received for parser
-     * @return \Qobo\Calendar\ObjectType\Calendars\Calendar $calendar being set.
+     * @return \Qobo\Calendar\ObjectType\Calendars\Calendar $object being set.
      */
     public function parse($data)
     {
-        $calendar = new Calendar();
+        $object = new Calendar();
 
         if (!$data instanceof Entity) {
             throw new InvalidArgumentException("AppEntity Parser expects \Cake\ORM\Entity object");
@@ -30,11 +30,11 @@ class CalendarParser implements ParserInterface
         foreach ($properties as $property) {
             $setter = 'set' . Inflector::variable($property);
 
-            if (method_exists($calendar, $setter)) {
-                $calendar->$setter($data->$property);
+            if (method_exists($object, $setter)) {
+                $object->$setter($data->$property);
             }
         }
 
-        return $calendar;
+        return $object;
     }
 }

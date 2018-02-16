@@ -3,7 +3,7 @@ namespace Qobo\Calendar\ObjectType;
 
 use Qobo\Calendar\Model\Table\Event as EventEntity;
 
-class Event
+class Event extends AbstractObjectType
 {
     protected $id;
 

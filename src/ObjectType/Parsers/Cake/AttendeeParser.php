@@ -14,5 +14,22 @@ class AttendeeParser implements ParserInterface
      */
     public function parse($data)
     {
+        $object = new Attendee();
+
+        if (!$data instanceof Entity) {
+            throw new InvalidArgumentException("AppEntity Parser expects \Cake\ORM\Entity object");
+        }
+
+        $properties = $data->visibleProperties();
+
+        foreach ($properties as $property) {
+            $setter = 'set' . Inflector::variable($property);
+
+            if (method_exists($object, $setter)) {
+                $object->$setter($data->$property);
+            }
+        }
+
+        return $object;
     }
 }

@@ -3,7 +3,7 @@ namespace Qobo\Calendar\ObjectType;
 
 use Qobo\Calendar\Model\Table\Attendee as AttendeeEntity;
 
-class Attendee
+class Attendee extends AbstractObjectType
 {
     protected $id;
 
