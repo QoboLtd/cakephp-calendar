@@ -1,5 +1,5 @@
 <?php
-namespace Qobo\Calendar\ObjectType\Parsers;
+namespace Qobo\Calendar\ObjectType\Parsers\Cake;
 
 use Qobo\Calendar\ObjectType\Attendee;
 use Qobo\Calendar\ObjectType\Parsers\ParserInterface;

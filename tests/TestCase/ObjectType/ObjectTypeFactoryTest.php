@@ -27,19 +27,10 @@ class ObjectTypeFactoryTest extends TestCase
 
         parent::tearDown();
     }
-
     public function testGetParser()
     {
-        $result = ObjectTypeFactory::getCalendarParser('Cake');
+        $result = ObjectTypeFactory::getParser('Calendar', 'Cake');
         $this->assertTrue(is_object($result));
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testGetInstanceEmpty()
-    {
-        $result = ObjectTypeFactory::getCalendarInstance([], null);
     }
 
     public function testGetInstanceFromAppEntity()
@@ -49,7 +40,7 @@ class ObjectTypeFactoryTest extends TestCase
             ->where(['id' => $calendarId])
             ->first();
 
-        $object = ObjectTypeFactory::getCalendarInstance($calendar, 'Cake');
+        $object = ObjectTypeFactory::getInstance($calendar, 'Calendar', 'Cake');
 
         $this->assertTrue(is_object($object));
         $this->assertInstanceOf('Qobo\Calendar\ObjectType\Calendar', $object);
@@ -62,8 +53,8 @@ class ObjectTypeFactoryTest extends TestCase
      */
     public function testGetParserWithFakePath()
     {
-        $path = TESTS . 'data' . DS . 'ObjectType' . DS . 'Calendars' . DS . 'Parsers';
-        $data = ['foo' => 'bar'];
-        $result = ObjectTypeFactory::getCalendarParser('Test', ['path' => $path]);
+        $path = TESTS . 'data' . DS . 'ObjectType' . DS . 'Parsers' . DS . 'Cake';
+        $result = ObjectTypeFactory::getParser('Test', 'Cake', ['path' => $path]);
+        dd($result);
     }
 }
