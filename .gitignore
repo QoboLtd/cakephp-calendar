@@ -1,5 +1,7 @@
 build/
 vendor/
-composer.lock
+node_modules/
+.env
+webroot/uploads/
 config/Migrations/schema-dump-default.lock
 config/Migrations/schema-dump-test.lock
