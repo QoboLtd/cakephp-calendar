@@ -5,8 +5,9 @@
   </div>
 </template>
 <script>
-import jQuery from 'jquery'
+import * as $ from 'jquery'
 import moment from 'moment'
+import daterangepicker from 'daterangepicker'
 
 export default {
   props: ['name', 'className', 'label', 'disabled', 'isStart', 'dateMoment', 'format', 'isUp'],
@@ -23,9 +24,9 @@ export default {
   },
   mounted: function () {
     var self = this
-    self.instance = jQuery(self.$el).find('input').daterangepicker(this.pickerOptions).data('daterangepicker')
+    self.instance = $(self.$el).find('input').daterangepicker(this.pickerOptions).data('daterangepicker')
 
-    jQuery(self.$el).find('input').on('apply.daterangepicker', function (ev, picker) {
+    $(self.$el).find('input').on('apply.daterangepicker', function (ev, picker) {
       self.momentObject = moment(picker.startDate)
       self.value = picker.startDate.format(self.pickerOptions.format)
       self.$emit('date-changed', self.value, self.momentObject)

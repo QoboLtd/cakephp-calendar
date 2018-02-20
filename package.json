@@ -55,8 +55,11 @@
     "webpack-merge": "^4.1.1"
   },
   "dependencies": {
-    "fullcalendar": "^3.8.2",
+    "daterangepicker": "^2.1.27",
+    "fullcalendar": "3.4.0",
     "moment": "^2.20.1",
-    "vue": "^2.5.2"
+    "rrule": "^2.2.9",
+    "vue": "^2.5.2",
+    "vue-select": "^2.4.0"
   }
 }

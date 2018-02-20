@@ -24,8 +24,12 @@
 </template>
 <script>
 import moment from 'moment'
+import InputDatepicker from './InputDatepicker.vue'
 
 export default {
+  components: {
+    'input-datepicker': InputDatepicker
+  },
   props: ['startName', 'endName', 'startLabel', 'endLabel', 'startClass', 'endClass', 'configs', 'eventClick'],
   data: function () {
     return {

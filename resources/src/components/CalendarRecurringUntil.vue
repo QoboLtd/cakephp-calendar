@@ -31,7 +31,12 @@
 </template>
 <script>
 
+import InputDatepicker from './InputDatepicker.vue'
+
 export default {
+  components: {
+    'import-datepicker': InputDatepicker
+  },
   data: function () {
     return {
       rtype: null,

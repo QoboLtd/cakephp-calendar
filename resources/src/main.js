@@ -1,17 +1,17 @@
 import Vue from 'vue'
-import IconComponent from './components/IconComponent.vue'
 import CalendarLink from './components/CalendarLink.vue'
 import CalendarItem from './components/CalendarItem.vue'
-import jQuery from 'jQuery'
-
-window.jQuery = jQuery
+import CalendarModal from './components/CalendarModal.vue'
+import Calendar from './components/Calendar.vue'
+import $ from 'jquery'
 
 new Vue({
   el: '#qobo-calendar-app',
   components: {
-    'icon-component': IconComponent,
+    'calendar': Calendar,
+    'calendar-item': CalendarItem,
     'calendar-link': CalendarLink,
-    'calendar-item': CalendarItem
+    'calendar-modal': CalendarModal
   },
   data: {
     ids: [],
@@ -78,7 +78,7 @@ new Vue({
       var self = this
       var postdata = {}
 
-      jQuery.ajax({
+      $.ajax({
         method: 'post',
         dataType: 'json',
         url: '/calendars/calendars/index'
@@ -90,7 +90,7 @@ new Vue({
       var self = this
       var postdata = {}
 
-      jQuery.ajax({
+      $.ajax({
         method: 'post',
         dataType: 'json',
         url: '/calendars/calendars/index',
@@ -110,7 +110,7 @@ new Vue({
     getEvents (id) {
       var self = this
       var url = '/calendars/calendar-events/index'
-      jQuery.ajax({
+      $.ajax({
         method: 'POST',
         dataType: 'json',
         url: url,
@@ -173,21 +173,21 @@ new Vue({
         event_type: calendarEvent.event_type
       }
 
-      jQuery.ajax({
+      $.ajax({
         method: 'POST',
         url: url,
         data: post
       }).done(function (resp) {
         if (resp) {
-          jQuery('#calendar-modal-view-event').find('.modal-content').empty()
-          jQuery('#calendar-modal-view-event').find('.modal-content').append(resp)
-          jQuery('#calendar-modal-view-event').modal('toggle')
+          $('#calendar-modal-view-event').find('.modal-content').empty()
+          $('#calendar-modal-view-event').find('.modal-content').append(resp)
+          $('#calendar-modal-view-event').modal('toggle')
         }
       })
     },
     addCalendarEvent (date, event, view) {
       this.eventClick = date
-      jQuery('#calendar-modal-add-event').modal('toggle')
+      $('#calendar-modal-add-event').modal('toggle')
     },
     addEventToResources (event) {
       if (event) {

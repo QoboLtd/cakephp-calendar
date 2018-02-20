@@ -1,9 +1,10 @@
 <template>
-    <div></div>
+    <div ref="calendar"></div>
 </template>
 <script>
-import { jQuery } from 'jquery'
+import * as $ from 'jquery'
 import moment from 'moment'
+import fullCalendar from 'fullcalendar'
 
 export default {
   props: ['ids', 'events', 'editable', 'start', 'end', 'timezone', 'public', 'showPrintButton'],
@@ -24,28 +25,30 @@ export default {
         return
       }
 
-      this.events.forEach((event, index) => {
+      let event = this.events[0]
+      this.events.forEach(function (event, index) {
         self.calendarEvents.push({
           id: event.id,
           title: event.title,
           color: event.color,
-          start: moment().format(event.start_date),
-          end: moment().format(event.end_date),
+          start: event.start_date,
+          end: event.end_date,
           calendar_id: event.calendar_id,
-          allDay: event.is_allday,
-          event_type: event.event_type
+          event_type: event.event_type,
+          allDay: true
         })
       })
     },
     calendarEvents: function () {
       this.calendarInstance.fullCalendar('removeEvents')
       this.calendarInstance.fullCalendar('addEventSource', this.calendarEvents)
+      this.calendarInstance.fullCalendar('rerenderEvents');
     }
   },
 
   mounted () {
     var self = this
-    self.calendarInstance = jQuery(self.$el)
+    self.calendarInstance = $(self.$refs.calendar)
 
     var args = {
       header: {
@@ -86,7 +89,7 @@ export default {
       }
     }
 
-    this.calendarInstance.fullCalendar(args)
+    self.calendarInstance.fullCalendar(args)
   }
 }
 </script>

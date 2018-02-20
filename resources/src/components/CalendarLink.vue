@@ -3,9 +3,7 @@
         <icon-component v-if="itemIcon" :name="itemIcon"></icon-component>
     </a>
 </template>
-
 <script>
-
 import IconComponent from './IconComponent.vue'
 
 export default {

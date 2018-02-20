@@ -125,13 +125,23 @@
 
 </template>
 <script>
-import jQuery from 'jquery'
+import * as $ from 'jquery'
 import RRule from 'rrule'
 import moment from 'moment'
-
-window.jQuery = jQuery
+import vSelect from 'vue-select'
+import InputDatepickerRange from './InputDatepickerRange.vue'
+import InputSelect from './InputSelect.vue'
+import InputCheckboxes from './InputCheckboxes.vue'
+import CalendarRecurringUntil from './CalendarRecurringUntil.vue'
 
 export default {
+  components: {
+    'v-select': vSelect,
+    'input-datepicker-range': InputDatepickerRange,
+    'input-select': InputSelect,
+    'input-checkboxes': InputCheckboxes,
+    'calendar-recurring-until': CalendarRecurringUntil
+  },
   props: ['calendarsList', 'timezone', 'eventClick'],
   data: function () {
     return {
@@ -222,7 +232,7 @@ export default {
       }
     },
     dismissModal () {
-      jQuery('#calendar-modal-add-event').modal('hide')
+      $('#calendar-modal-add-event').modal('hide')
     },
     submitEvent () {
       var self = this
@@ -250,7 +260,7 @@ export default {
         })
       }
 
-      jQuery.ajax({
+      $.ajax({
         url: '/calendars/calendar-events/add',
         method: 'POST',
         dataType: 'json',
@@ -265,7 +275,7 @@ export default {
       if (search.length > 2) {
         loading(true)
 
-        jQuery.ajax({
+        $.ajax({
           url: '/calendars/calendar-attendees/lookup',
           dataType: 'json',
           method: 'get',
@@ -317,7 +327,7 @@ export default {
       this.eventTypesList = []
 
       if (this.calendarId.value) {
-        jQuery.ajax({
+        $.ajax({
           url: '/calendars/calendar-events/get-event-types',
           data: { calendar_id: this.calendarId.value },
           dataType: 'json',

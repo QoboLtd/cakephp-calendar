@@ -7,7 +7,6 @@
   </div>
 </template>
 <script>
-
 import IconComponent from './IconComponent.vue'
 
 export default {
