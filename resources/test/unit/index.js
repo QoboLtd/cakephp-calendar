@@ -2,6 +2,12 @@ import Vue from 'vue'
 
 Vue.config.productionTip = false
 
+// require all src files for coverage.
+// you can also change this to match only the subset of files that
+// you want coverage for.
+const srcContext = require.context('../src', true, /^\.\/(?!index(\.js)?$)/)
+srcContext.keys().forEach(srcContext)
+
 // run the tests inside div elements
 before(function () {
   const el = document.createElement('DIV')
