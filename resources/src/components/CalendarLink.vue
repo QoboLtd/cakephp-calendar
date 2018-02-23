@@ -1,15 +1,20 @@
 <template>
     <a :href="getUrl(itemUrl, itemValue)" :class="itemClass">
-        <icon-component v-if="itemIcon" :name="itemIcon"></icon-component>
+      <i v-if="itemIcon" class="fa" v-bind:class="iconClass"></i>
     </a>
 </template>
 <script>
-import IconComponent from './IconComponent.vue'
-
 export default {
   props: ['itemIcon', 'itemValue', 'itemUrl', 'itemClass', 'itemDelete', 'itemConfirmMsg'],
-  components: {
-    'icon-component': IconComponent
+  data () {
+    return {
+      iconClass: null
+    }
+  },
+  beforeMount() {
+    if (this.itemIcon) {
+      this.iconClass = 'fa-' + this.itemIcon
+    }
   },
   methods: {
     getUrl (url, id) {

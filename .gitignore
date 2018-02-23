@@ -1,4 +1,5 @@
-/build/
+build/
+!resources/build
 vendor/
 node_modules/
 .env
