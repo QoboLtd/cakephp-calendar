@@ -11,24 +11,24 @@ import daterangepicker from 'daterangepicker'
 
 export default {
   props: ['name', 'className', 'label', 'disabled', 'isStart', 'dateMoment', 'format', 'isUp'],
-  beforeMount: function () {
+  beforeMount () {
     if (this.format) {
-      this.pickerOptions.format = this.format
+      this.options.format = this.format
     } else {
-      this.pickerOptions.format = 'YYYY-MM-DD HH:mm'
+      this.options.format = 'YYYY-MM-DD HH:mm'
     }
 
     if (this.isUp) {
-      this.pickerOptions.drops = 'up'
+      this.options.drops = 'up'
     }
   },
-  mounted: function () {
-    var self = this
-    self.instance = $(self.$el).find('input').daterangepicker(this.pickerOptions).data('daterangepicker')
+  mounted () {
+    let self = this
+    self.instance = $(self.$el).find('input').daterangepicker(this.options).data('daterangepicker')
 
     $(self.$el).find('input').on('apply.daterangepicker', function (ev, picker) {
       self.momentObject = moment(picker.startDate)
-      self.value = picker.startDate.format(self.pickerOptions.format)
+      self.value = picker.startDate.format(self.options.format)
       self.$emit('date-changed', self.value, self.momentObject)
     })
   },
@@ -37,15 +37,15 @@ export default {
       this.momentObject = moment(this.dateMoment)
       this.instance.setStartDate(this.momentObject)
       this.instance.setEndDate(this.momentObject)
-      this.value = this.momentObject.format(this.pickerOptions.format)
+      this.value = this.momentObject.format(this.options.format)
     }
   },
-  data: function () {
+  data () {
     return {
       instance: null,
       value: null,
       momentObject: null,
-      pickerOptions: {
+      options: {
         singleDatePicker: true,
         showDropdowns: true,
         timePicker: true,
