@@ -3,7 +3,6 @@
 </template>
 <script>
 import * as $ from 'jquery'
-import moment from 'moment'
 import fullCalendar from 'fullcalendar'
 
 export default {
@@ -41,7 +40,7 @@ export default {
     calendarEvents: function () {
       this.cal.fullCalendar('removeEvents')
       this.cal.fullCalendar('addEventSource', this.calendarEvents)
-      this.cal.fullCalendar('rerenderEvents');
+      this.cal.fullCalendar('rerenderEvents')
     }
   },
 

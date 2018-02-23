@@ -76,7 +76,6 @@ new Vue({
     },
     getCalendars () {
       var self = this
-      var postdata = {}
 
       $.ajax({
         method: 'post',
@@ -88,7 +87,6 @@ new Vue({
     },
     getPublicCalendars () {
       var self = this
-      var postdata = {}
 
       $.ajax({
         method: 'post',
@@ -127,12 +125,12 @@ new Vue({
           return
         }
 
-        var event_ids = self.events.map((element) => {
+        var eventIds = self.events.map((element) => {
           return element.id
         })
 
         resp.forEach(function (elem, index) {
-          if (!event_ids.includes(elem.id)) {
+          if (!eventIds.includes(elem.id)) {
             self.events.push(elem)
           }
         })
@@ -192,7 +190,7 @@ new Vue({
     addEventToResources (event) {
       if (event) {
         this.events.push(event)
-        location.reload()
+        window.location.reload()
       }
     }
   }

@@ -23,7 +23,7 @@ export default {
     }
   },
   mounted () {
-    let self = this
+    const self = this
     self.instance = $(self.$el).find('input').daterangepicker(this.options).data('daterangepicker')
 
     $(self.$el).find('input').on('apply.daterangepicker', function (ev, picker) {
