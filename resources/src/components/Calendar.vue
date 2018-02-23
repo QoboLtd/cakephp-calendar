@@ -10,7 +10,7 @@ export default {
   props: ['ids', 'events', 'editable', 'start', 'end', 'timezone', 'public', 'showPrintButton'],
   data () {
     return {
-      calendarInstance: null,
+      cal: null,
       calendarEvents: [],
       format: 'YYYY-MM-DD'
     }
@@ -25,7 +25,6 @@ export default {
         return
       }
 
-      let event = this.events[0]
       this.events.forEach(function (event, index) {
         self.calendarEvents.push({
           id: event.id,
@@ -40,15 +39,15 @@ export default {
       })
     },
     calendarEvents: function () {
-      this.calendarInstance.fullCalendar('removeEvents')
-      this.calendarInstance.fullCalendar('addEventSource', this.calendarEvents)
-      this.calendarInstance.fullCalendar('rerenderEvents');
+      this.cal.fullCalendar('removeEvents')
+      this.cal.fullCalendar('addEventSource', this.calendarEvents)
+      this.cal.fullCalendar('rerenderEvents');
     }
   },
 
   mounted () {
     var self = this
-    self.calendarInstance = $(self.$refs.calendar)
+    self.cal = $(self.$refs.calendar)
 
     var args = {
       header: {
@@ -89,7 +88,7 @@ export default {
       }
     }
 
-    self.calendarInstance.fullCalendar(args)
+    self.cal.fullCalendar(args)
   }
 }
 </script>
