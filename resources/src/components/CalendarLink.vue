@@ -11,7 +11,7 @@ export default {
       iconClass: null
     }
   },
-  beforeMount() {
+  beforeMount () {
     if (this.itemIcon) {
       this.iconClass = 'fa-' + this.itemIcon
     }

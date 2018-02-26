@@ -54,7 +54,7 @@ new Vue({
       }
     }
   },
-  beforeMount: function () {
+  beforeMount () {
     this.start = this.$el.attributes.start.value
     this.end = this.$el.attributes.end.value
     this.timezone = this.$el.attributes.timezone.value

@@ -1,7 +1,7 @@
 <template>
   <div class="form-group text">
     <label v-if="label">{{label}}</label>
-    <input type="text" :disabled="disabled" :name="name" :value="value" :class="className" class="form-control"/>
+    <input ref="daterangepicker" type="text" :disabled="disabled" :name="name" :value="value" :class="className" class="form-control"/>
   </div>
 </template>
 <script>
