@@ -21,7 +21,7 @@ module.exports = {
         test: /\.vue$/,
         loader: 'vue-loader',
         options: {
-          extractCSS: false
+          extractCSS: true
         }
       },
       {
@@ -46,5 +46,8 @@ module.exports = {
       jquery: resolve(join(__dirname, '../..', 'node_modules', 'jquery')),
       fullcalendar: 'fullcalendar/dist/fullcalendar'
     }
-  }
+  },
+  plugins: [
+    new ExtractTextPlugin('style.css')
+  ]
 }

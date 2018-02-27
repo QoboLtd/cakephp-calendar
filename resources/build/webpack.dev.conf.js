@@ -4,6 +4,7 @@ const webpack = require('webpack')
 const merge = require('webpack-merge')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const baseWebpackConfig = require('./webpack.base.conf')
+const ExtractTextPlugin = require('extract-text-webpack-plugin')
 
 const rootDir = resolve(__dirname, '../test/unit')
 const buildPath = resolve(rootDir, 'dist')
@@ -21,6 +22,7 @@ module.exports = merge(baseWebpackConfig, {
     path: buildPath
   },
   plugins: [
+    new ExtractTextPlugin('style.css'),
     new webpack.DefinePlugin({
       'process.env': {
         NODE_ENV: '"development"'

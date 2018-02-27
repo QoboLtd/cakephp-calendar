@@ -120,18 +120,16 @@ new Vue({
           },
           'timezone': this.timezone
         }
-      }).then(function (resp) {
-        if (!resp) {
+      }).then(function (response) {
+        if (!response) {
           return
         }
 
-        var eventIds = self.events.map((element) => {
-          return element.id
-        })
+        let eventIds = self.events.map(element => element.id)
 
-        resp.forEach(function (elem, index) {
-          if (!eventIds.includes(elem.id)) {
-            self.events.push(elem)
+        response.forEach(function (element, index) {
+          if (!eventIds.includes(element.id)) {
+            self.events.push(element)
           }
         })
       })
@@ -176,9 +174,9 @@ new Vue({
         url: url,
         data: post
       }).done(function (resp) {
-        if (resp) {
+        if (response) {
           $('#calendar-modal-view-event').find('.modal-content').empty()
-          $('#calendar-modal-view-event').find('.modal-content').append(resp)
+          $('#calendar-modal-view-event').find('.modal-content').append(response)
           $('#calendar-modal-view-event').modal('toggle')
         }
       })
