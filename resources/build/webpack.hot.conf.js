@@ -6,23 +6,27 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const baseWebpackConfig = require('./webpack.base.conf')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 
-const rootDir = resolve(__dirname, '../test/unit')
-const buildPath = resolve(rootDir, 'dist')
+const buildPath = resolve(__dirname, '../../webroot/dist')
 
 baseWebpackConfig.plugins = []
 
-delete baseWebpackConfig.entry
-
 module.exports = merge(baseWebpackConfig, {
-  devtool: '#eval-source-map',
-  entry: {
-    app: resolve(rootDir, 'visual.js')
-  },
-  output: {
-    path: buildPath
-  },
+  devtool: 'inline-sourcemap',
   plugins: [
     new ExtractTextPlugin('style.css'),
+    new webpack.optimize.CommonsChunkPlugin({
+      names: ['vendor'],
+      minChunks: function (module, count) {
+        // any required modules inside node_modules are extracted to vendor
+        return (
+          module.resource &&
+          /\.js$/.test(module.resource) && // This seems unnecessary
+          module.resource.indexOf(
+            join(__dirname, '../node_modules')
+          ) === 0
+        )
+      }
+    }),
     new webpack.DefinePlugin({
       'process.env': {
         NODE_ENV: '"development"'
