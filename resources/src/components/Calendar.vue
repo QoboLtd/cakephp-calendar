@@ -24,18 +24,7 @@ export default {
         return
       }
 
-      this.events.forEach(function (event, index) {
-        self.calendarEvents.push({
-          id: event.id,
-          title: event.title,
-          color: event.color,
-          start: event.start_date,
-          end: event.end_date,
-          calendar_id: event.calendar_id,
-          event_type: event.event_type,
-          allDay: true
-        })
-      })
+      self.setCalendarEvents(this.events)
     },
     calendarEvents: function () {
       this.cal.fullCalendar('removeEvents')
@@ -88,6 +77,29 @@ export default {
     }
 
     self.cal.fullCalendar(args)
+  },
+  methods: {
+    setCalendarEvents (events) {
+      const self = this
+
+      if (!events.length) {
+        return
+      }
+
+      events.forEach( (event) => {
+        self.calendarEvents.push({
+          id: event.id,
+          title: event.title,
+          color: event.color,
+          start: event.start_date,
+          end: event.end_date,
+          calendar_id: event.calendar_id,
+          event_type: event.event_type,
+          allDay: true
+        })
+      })
+
+    }
   }
 }
 </script>
