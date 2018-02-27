@@ -12,6 +12,9 @@ baseWebpackConfig.plugins = []
 
 module.exports = merge(baseWebpackConfig, {
   devtool: 'inline-sourcemap',
+  externals: {
+    jquery: 'jQuery',
+  },
   plugins: [
     new ExtractTextPlugin('style.css'),
     new webpack.optimize.CommonsChunkPlugin({

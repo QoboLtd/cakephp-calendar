@@ -81,8 +81,8 @@ new Vue({
         method: 'post',
         dataType: 'json',
         url: '/calendars/calendars/index'
-      }).done(function (resp) {
-        self.calendars = resp
+      }).done(function (response) {
+        self.calendars = response
       })
     },
     getPublicCalendars () {
@@ -173,7 +173,7 @@ new Vue({
         method: 'POST',
         url: url,
         data: post
-      }).done(function (resp) {
+      }).done(function (response) {
         if (response) {
           $('#calendar-modal-view-event').find('.modal-content').empty()
           $('#calendar-modal-view-event').find('.modal-content').append(response)

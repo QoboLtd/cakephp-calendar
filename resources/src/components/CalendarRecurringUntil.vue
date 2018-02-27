@@ -35,7 +35,7 @@ import Datepicker from './Datepicker.vue'
 
 export default {
   components: {
-    'import-datepicker': Datepicker
+    'input-datepicker': Datepicker
   },
   data: function () {
     return {
