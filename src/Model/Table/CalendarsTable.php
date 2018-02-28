@@ -153,7 +153,7 @@ class CalendarsTable extends Table
      *
      * @return array $result containing calendar entities with event_types
      */
-    public function getCalendars($options = [])
+    public function getCalendars(array $options = [])
     {
         $result = $conditions = [];
 
@@ -194,10 +194,12 @@ class CalendarsTable extends Table
 
         $config = Configure::read('Calendar.Types');
 
-        if (!empty($config)) {
-            foreach ($config as $k => $val) {
-                $result[$val['value']] = $val['name'];
-            }
+        if (empty($config)) {
+            return $result;
+        }
+
+        foreach ($config as $k => $val) {
+            $result[$val['value']] = $val['name'];
         }
 
         return $result;

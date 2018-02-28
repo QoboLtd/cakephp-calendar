@@ -20,26 +20,12 @@ echo $this->Html->css(
     ]
 );
 
-echo $this->Html->script(
-    [
-        'AdminLTE./plugins/daterangepicker/moment.min',
-        'Qobo/Calendar.external/fullcalendar.min',
-        'AdminLTE./plugins/daterangepicker/daterangepicker',
-        'AdminLTE./plugins/select2/select2.min',
-    ],
-    ['block' => 'scriptBottom']
-);
-
-echo $this->Html->script(
-    [
-        'Qobo/Calendar.external/nlp',
-        'Qobo/Calendar.external/rrule',
-        'Qobo/Utils./plugins/vuejs/vue.min',
-        'Qobo/Utils./plugins/vuejs/extensions/vue-select',
-        'Qobo/Calendar.calendar.js',
-    ],
-    ['block' => 'scriptBottom']
-);
+echo $this->Html->script([
+    'Qobo/Calendar./dist/vendor',
+    'Qobo/Calendar./dist/app',
+], [
+    'block' => 'scriptBottom'
+]);
 
 $start = date('Y-m-01');
 $end = date('Y-m-t');

@@ -61,6 +61,10 @@ class CalendarsTableTest extends TestCase
         Configure::write('Calendar.Types', ['foo' => ['name' => 'bar', 'value' => 'bar']]);
         $result = $this->Calendars->getCalendarTypes();
         $this->assertEquals(['bar' => 'bar'], $result);
+
+        Configure::write('Calendar.Types', []);
+        $result = $this->Calendars->getCalendarTypes();
+        $this->assertEquals($result, []);
     }
 
     public function testGetCalendars()
@@ -78,6 +82,9 @@ class CalendarsTableTest extends TestCase
 
         Configure::write('Calendar.Types', ['foo' => ['name' => 'bar', 'value' => 'bar']]);
         $result = $this->Calendars->getCalendars(['conditions' => ['id' => '9390cbc1-dc1d-474a-a372-de92dce85aaa']]);
+
+        $result = $this->Calendars->getCalendars(['conditions' => ['id' => '9390cbc1-dc1d-474a-a372-de92dce85fake']]);
+        $this->assertEquals($result, []);
     }
 
     public function testItemsToAdd()
