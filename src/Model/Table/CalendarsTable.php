@@ -244,10 +244,6 @@ class CalendarsTable extends Table
             $result['modified'][] = $this->saveItemDifferences($this, $diffCalendar);
         }
 
-        $ignored = $this->itemsToDelete($this, $result['modified']);
-
-        $result['removed'] = $this->saveItemDifferences($this, ['delete' => $ignored]);
-
         return $result;
     }
 
@@ -354,13 +350,6 @@ class CalendarsTable extends Table
 
                 $result['modified'][] = $savedDiff;
             }
-
-            $ignored = $this->itemsToDelete($table, $result['modified'], [
-                'extra_fields' => [
-                    'calendar_id' => $calendarInfo['calendar']->id
-                ],
-            ]);
-            $result['removed'] = $this->saveItemDifferences($table, ['delete' => $ignored]);
         }
 
         return $result;
@@ -375,7 +364,7 @@ class CalendarsTable extends Table
      * @param array $diff prepopulated calendars
      * @param array $options with extra configs if any.
      *
-     * @return array $result with updated/deleted/added calendars.
+     * @return array $result with updated/added calendars.
      */
     public function saveItemDifferences($table, $diff = [], $options = [])
     {
@@ -420,14 +409,6 @@ class CalendarsTable extends Table
 
                     $entity = $table->patchEntity($entity, $data, $entityOptions);
                     $result = $table->save($entity);
-                }
-
-                if ($table instanceof CalendarEventsTable) {
-                    if (in_array($actionName, ['delete']) && !empty($item)) {
-                        if ($table->delete($item)) {
-                            $result[] = $item;
-                        }
-                    }
                 }
             }
         }
@@ -490,11 +471,6 @@ class CalendarsTable extends Table
                     $entity = $table->patchEntity($entity, $data, $entityOptions);
                     $savedAttendee = $table->save($entity);
                 }
-                if (in_array($actionName, ['delete']) && !empty($item)) {
-                    if ($table->delete($item)) {
-                        $result[] = $item;
-                    }
-                }
             }
         }
 
@@ -508,7 +484,7 @@ class CalendarsTable extends Table
      * @param array $item to be checked for add/update (aka calendar or event).
      * @param array $options with extra configs
      *
-     * @return $calendarDiff containing the list of calendars to add/update/delete.
+     * @return $calendarDiff containing the list of calendars to add/update.
      */
     public function getItemDifferences($table, $item = null, $options = [])
     {
@@ -519,7 +495,6 @@ class CalendarsTable extends Table
         $diff = [
             'add' => [],
             'update' => [],
-            'delete' => [],
         ];
 
         if (empty($item)) {
@@ -570,7 +545,6 @@ class CalendarsTable extends Table
         $diff = [
             'add' => [],
             'update' => [],
-            'delete' => [],
         ];
 
         if (empty($item)) {
@@ -658,61 +632,6 @@ class CalendarsTable extends Table
 
         $result['entity'] = $found;
         $result['data'] = $item;
-
-        return $result;
-    }
-
-    /**
-     * Remove item from from the set
-     *
-     * @param \Cake\ORM\Table $table instance of the target
-     * @param array $items containing current items
-     * @param array $options with extra config
-     *
-     * @return array $result containing the items that should be deleted.
-     */
-    public function itemsToDelete($table, $items, $options = [])
-    {
-        $result = $conditions = [];
-        $source = empty($options['source']) ? 'source' : $options['source'];
-        $sourceId = empty($options['source_id']) ? 'source_id' : $options['source_id'];
-
-        if (!empty($options['period'])) {
-            if (!empty($options['period']['start_date'])) {
-                $conditions['start_date >='] = $options['period']['start_date'];
-            }
-
-            if (!empty($options['period']['end_date'])) {
-                $conditions['end_date <='] = $options['period']['end_date'];
-            }
-        }
-
-        if (!empty($options['extra_fields']['calendar_id'])) {
-            $conditions['calendar_id'] = $options['extra_fields']['calendar_id'];
-        }
-
-        $query = $table->find()
-                    ->where($conditions);
-
-        $query->all();
-        $dbItems = $query->toArray();
-
-        if (empty($dbItems) || empty($items)) {
-            return $result;
-        }
-
-        foreach ($dbItems as $key => $dbItem) {
-            foreach ($items as $k => $item) {
-                if ($dbItem->$source == $item->$source
-                    && $dbItem->$sourceId == $item->$sourceId) {
-                    unset($dbItems[$key]);
-                }
-            }
-        }
-
-        if (!empty($dbItems)) {
-            $result = $dbItems;
-        }
 
         return $result;
     }
