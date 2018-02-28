@@ -183,23 +183,21 @@ class CalendarEventsController extends AppController
      */
     public function getEventTypes()
     {
+        $this->request->allowMethod(['post', 'patch', 'put']);
         $eventTypes = [];
 
-        if ($this->request->is(['post', 'patch', 'put'])) {
-            $data = $this->request->getData();
+        $data = $this->request->getData();
+        $this->Calendars = TableRegistry::Get('Qobo/Calendar.Calendars');
 
-            $this->Calendars = TableRegistry::Get('Qobo/Calendar.Calendars');
+        $calendars = $this->Calendars->getCalendars([
+            'conditions' => [
+                'id' => $data['calendar_id'],
+            ],
+        ]);
 
-            $calendars = $this->Calendars->getCalendars([
-                'conditions' => [
-                    'id' => $data['calendar_id'],
-                ],
-            ]);
-
-            if (!empty($calendars)) {
-                $calendar = array_shift($calendars);
-                $eventTypes = $this->CalendarEvents->getEventTypes($calendar);
-            }
+        if (!empty($calendars)) {
+            $calendar = array_shift($calendars);
+            $eventTypes = $this->CalendarEvents->getEventTypes($calendar);
         }
 
         $this->set(compact('eventTypes'));
@@ -214,23 +212,22 @@ class CalendarEventsController extends AppController
     public function index()
     {
         $events = [];
+        $this->request->allowMethod(['post', 'put', 'patch']);
 
-        if ($this->request->is(['post', 'put', 'patch'])) {
-            $data = $this->request->getData();
-            $this->Calendars = TableRegistry::get('Qobo/Calendar.Calendars');
+        $data = $this->request->getData();
+        $this->Calendars = TableRegistry::get('Qobo/Calendar.Calendars');
 
-            if (!empty($data['calendar_id'])) {
-                $calendar = null;
+        if (!empty($data['calendar_id'])) {
+            $calendar = null;
 
-                $calendars = $this->Calendars->getCalendars([
-                    'conditions' => [
-                        'id' => $data['calendar_id'],
-                    ]
-                ]);
+            $calendars = $this->Calendars->getCalendars([
+                'conditions' => [
+                    'id' => $data['calendar_id'],
+                ]
+            ]);
 
-                if (!empty($calendars)) {
-                    $events = $this->CalendarEvents->getEvents($calendars[0], $data);
-                }
+            if (!empty($calendars)) {
+                $events = $this->CalendarEvents->getEvents($calendars[0], $data);
             }
         }
 

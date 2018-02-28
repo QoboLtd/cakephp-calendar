@@ -571,7 +571,7 @@ class CalendarEventsTable extends Table
      *
      * @return array $result with events responses.
      */
-    public function syncCalendarEvents($calendar, $options = [])
+    public function sync($calendar, $options = [])
     {
         $result = [];
         $table = TableRegistry::get('Qobo/Calendar.CalendarEvents');

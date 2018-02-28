@@ -55,54 +55,6 @@ class CalendarAttendeesController extends AppController
     }
 
     /**
-     * Add method
-     *
-     * @return \Cake\Http\Response|null Redirects on successful add, renders view otherwise.
-     */
-    public function add()
-    {
-        $calendarAttendee = $this->CalendarAttendees->newEntity();
-        if ($this->request->is('post')) {
-            $calendarAttendee = $this->CalendarAttendees->patchEntity($calendarAttendee, $this->request->getData());
-            if ($this->CalendarAttendees->save($calendarAttendee)) {
-                $this->Flash->success(__('The calendar attendee has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The calendar attendee could not be saved. Please, try again.'));
-        }
-        $calendarEvents = $this->CalendarAttendees->CalendarEvents->find('list', ['limit' => 200]);
-        $this->set(compact('calendarAttendee', 'calendarEvents'));
-        $this->set('_serialize', ['calendarAttendee']);
-    }
-
-    /**
-     * Edit method
-     *
-     * @param string|null $id Calendar Attendee id.
-     * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
-     * @throws \Cake\Network\Exception\NotFoundException When record not found.
-     */
-    public function edit($id = null)
-    {
-        $calendarAttendee = $this->CalendarAttendees->get($id, [
-            'contain' => ['CalendarEvents']
-        ]);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $calendarAttendee = $this->CalendarAttendees->patchEntity($calendarAttendee, $this->request->getData());
-            if ($this->CalendarAttendees->save($calendarAttendee)) {
-                $this->Flash->success(__('The calendar attendee has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The calendar attendee could not be saved. Please, try again.'));
-        }
-        $calendarEvents = $this->CalendarAttendees->CalendarEvents->find('list', ['limit' => 200]);
-        $this->set(compact('calendarAttendee', 'calendarEvents'));
-        $this->set('_serialize', ['calendarAttendee']);
-    }
-
-    /**
      * Delete method
      *
      * @param string|null $id Calendar Attendee id.
