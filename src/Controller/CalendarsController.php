@@ -37,7 +37,7 @@ class CalendarsController extends AppController
         $icons = Utility::getIcons();
         $colors = Utility::getColors();
 
-        $calendarTypes = $this->Calendars->getCalendarTypes();
+        $calendarTypes = $this->Calendars->getTypes();
 
         $this->set('calendarTypes', $calendarTypes);
         $this->set('icons', $icons);
