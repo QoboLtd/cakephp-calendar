@@ -2,8 +2,11 @@
 namespace Qobo\Calendar\Test\TestCase\Model\Table;
 
 use Cake\Core\Configure;
+use Cake\Event\EventList;
+use Cake\Event\EventManager;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
+use Qobo\Calendar\Event\EventName;
 use Qobo\Calendar\Model\Table\CalendarsTable;
 
 /**
@@ -39,6 +42,11 @@ class CalendarsTableTest extends TestCase
         parent::setUp();
         $config = TableRegistry::exists('Calendars') ? [] : ['className' => 'Qobo\Calendar\Model\Table\CalendarsTable'];
         $this->Calendars = TableRegistry::get('Calendars', $config);
+
+        // @TODO: return something useful to test sync method.
+        EventManager::instance()->on((string)EventName::PLUGIN_CALENDAR_MODEL_GET_CALENDARS(), function ($event, $table) {
+            return [];
+        });
     }
 
     /**
@@ -64,6 +72,16 @@ class CalendarsTableTest extends TestCase
         $saved = $this->Calendars->save($entity);
         $this->assertEquals($saved->source, 'Plugin__');
         $this->assertEquals($saved->color, $this->Calendars->getColor());
+    }
+
+    public function testSync()
+    {
+        EventManager::instance()->setEventList(new EventList());
+        $data = [];
+
+        $foo = $this->Calendars->sync($data);
+
+        $this->assertEventFired((string)EventName::PLUGIN_CALENDAR_MODEL_GET_CALENDARS(), EventManager::instance());
     }
 
     public function testGetCalendarTypes()
