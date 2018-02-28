@@ -53,17 +53,30 @@ class CalendarsTableTest extends TestCase
         parent::tearDown();
     }
 
+    public function testBeforeSave()
+    {
+        $data = [
+            'id' => '6d2b932f-b79a-4523-a2d2-3ddaadfa805c',
+            'name' => 'Test Calendar for BeforeSave',
+        ];
+
+        $entity = $this->Calendars->newEntity($data);
+        $saved = $this->Calendars->save($entity);
+        $this->assertEquals($saved->source, 'Plugin__');
+        $this->assertEquals($saved->color, $this->Calendars->getColor());
+    }
+
     public function testGetCalendarTypes()
     {
-        $result = $this->Calendars->getCalendarTypes();
+        $result = $this->Calendars->getTypes();
         $this->assertTrue(is_array($result));
 
-        Configure::write('Calendar.Types', ['foo' => ['name' => 'bar', 'value' => 'bar']]);
-        $result = $this->Calendars->getCalendarTypes();
+        Configure::write('Calendar.Types', [['name' => 'bar', 'value' => 'bar']]);
+        $result = $this->Calendars->getTypes();
         $this->assertEquals(['bar' => 'bar'], $result);
 
         Configure::write('Calendar.Types', []);
-        $result = $this->Calendars->getCalendarTypes();
+        $result = $this->Calendars->getTypes();
         $this->assertEquals($result, []);
     }
 
@@ -85,87 +98,5 @@ class CalendarsTableTest extends TestCase
 
         $result = $this->Calendars->getCalendars(['conditions' => ['id' => '9390cbc1-dc1d-474a-a372-de92dce85fake']]);
         $this->assertEquals($result, []);
-    }
-
-    public function testItemsToAdd()
-    {
-        $dbItems = $this->Calendars->getCalendars();
-        $item = $dbItems[0];
-
-        $result = $this->Calendars->itemsToAdd($item, $dbItems, 'source');
-        $this->assertTrue(is_array($result));
-
-        $result = $this->Calendars->itemsToAdd($item, [], 'source');
-        $this->assertEquals($result, $item);
-
-        $item->source = 'foobar';
-        $dbItems = $this->Calendars->getCalendars();
-
-        $result = $this->Calendars->itemsToAdd($item, $dbItems, 'source');
-        $this->assertNotEmpty($result);
-        $this->assertEquals($item->id, $result->id);
-    }
-
-    public function testItemsToUpdate()
-    {
-        $result = $this->Calendars->itemsToUpdate([]);
-        $this->assertEquals($result, ['entity' => [], 'data' => []]);
-
-        $dbItems = $this->Calendars->getCalendars();
-        $item = $dbItems[0];
-
-        $result = $this->Calendars->itemsToUpdate($item, $dbItems, 'source');
-        $this->assertNotEmpty($result['data']);
-        $this->assertNotEmpty($result['entity']);
-
-        $item->source = 'foobar';
-        $dbItems = $this->Calendars->getCalendars();
-        $result = $this->Calendars->itemsToUpdate($item, $dbItems, 'source');
-        $this->assertEquals($result['entity'], []);
-        $this->assertEquals($result['data'], []);
-    }
-
-    public function testItemsToDelete()
-    {
-        $items = [];
-        $options = [];
-
-        $result = $this->Calendars->itemsToDelete($this->Calendars, $items, $options);
-        $this->assertTrue(is_array($result));
-        $this->assertEmpty($result);
-
-        $dbItems = $this->Calendars->getCalendars();
-        $result = $this->Calendars->itemsToDelete($this->Calendars, [$dbItems[0]], $options);
-        $this->assertTrue(is_array($result));
-        $this->assertNotEmpty($result);
-    }
-
-    public function testSyncCalendars()
-    {
-        $result = $this->Calendars->syncCalendars();
-        $this->assertTrue(is_array($result));
-    }
-
-    public function testSyncCalendarEvents()
-    {
-        $dbItems = $this->Calendars->getCalendars();
-        $result = $this->Calendars->syncCalendarEvents($dbItems[0]);
-        $this->assertTrue(is_array($result));
-
-        $result = $this->Calendars->syncCalendarEvents([]);
-        $this->assertEmpty($result);
-    }
-
-    public function testSaveItemDifferences()
-    {
-        $result = $this->Calendars->saveItemDifferences($this->Calendars);
-        $this->assertEmpty($result);
-    }
-
-    public function testGetItemDifferences()
-    {
-        $result = $this->Calendars->getItemDifferences($this->Calendars);
-        $this->assertTrue(is_array($result));
-        $this->assertEquals($result, ['add' => [], 'update' => [], 'delete' => []]);
     }
 }
