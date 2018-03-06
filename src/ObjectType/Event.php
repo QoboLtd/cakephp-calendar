@@ -69,6 +69,16 @@ class Event extends AbstractObjectType
         return $this->source;
     }
 
+    public function setSourceId($sourceId)
+    {
+        $this->sourceId = $sourceId;
+    }
+
+    public function getSourceId()
+    {
+        return $this->sourceId;
+    }
+
     /**
      * Set Event title
      *

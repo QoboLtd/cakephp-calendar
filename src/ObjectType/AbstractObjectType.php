@@ -3,7 +3,7 @@ namespace Qobo\Calendar\ObjectType;
 
 use Cake\Utility\Inflector;
 
-abstract class AbstractObjectType
+abstract class AbstractObjectType implements ObjectTypeInterface
 {
     /**
      * Set Calendar Id
@@ -50,7 +50,6 @@ abstract class AbstractObjectType
         $data = [];
 
         $entityProvider = $this->getEntityProvider();
-
         foreach ($this as $property => $value) {
             $method = Inflector::variable('get ' . $property);
 
@@ -63,7 +62,7 @@ abstract class AbstractObjectType
         $entity = new $entityProvider($data);
 
         foreach ($data as $property => $value) {
-            $entity->setDirty($property, false);
+            //$entity->setDirty($property, false);
         }
 
         return $entity;

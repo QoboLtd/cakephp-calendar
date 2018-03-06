@@ -24,19 +24,4 @@ class EventTest extends TestCase
     {
         parent::tearDown();
     }
-
-    public function testToEntity()
-    {
-        $entityId = '688580e6-2224-4dcb-a8df-32337b82e1e6';
-        $entity = $this->table->find()
-            ->where(['id' => $entityId])
-            ->first();
-
-        $object = ObjectTypeFactory::getInstance($entity, 'Event', 'Cake');
-
-        $cakeEntity = $object->toEntity();
-        $this->assertTrue(is_object($cakeEntity));
-        $this->assertInstanceOf('\Qobo\Calendar\Model\Entity\CalendarEvent', $cakeEntity);
-        $this->assertEquals($cakeEntity->id, $entityId);
-    }
 }

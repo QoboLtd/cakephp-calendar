@@ -228,7 +228,6 @@ class CalendarsTable extends Table
     public function sync(array $options = [])
     {
         $result = [];
-
         $event = new Event((string)EventName::PLUGIN_CALENDAR_MODEL_GET_CALENDARS(), $this, [
             'options' => $options,
         ]);

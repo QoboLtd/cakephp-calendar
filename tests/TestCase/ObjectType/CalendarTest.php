@@ -24,19 +24,4 @@ class CalendarTest extends TestCase
     {
         parent::tearDown();
     }
-
-    public function testToEntity()
-    {
-        $calendarId = '9390cbc1-dc1d-474a-a372-de92dce85aaa';
-        $calendar = $this->calendarsTable->find()
-            ->where(['id' => $calendarId])
-            ->first();
-
-        $object = ObjectTypeFactory::getInstance($calendar, 'Calendar', 'Cake');
-
-        $cakeEntity = $object->toEntity();
-        $this->assertTrue(is_object($cakeEntity));
-        $this->assertInstanceOf('\Qobo\Calendar\Model\Entity\Calendar', $cakeEntity);
-        $this->assertEquals($cakeEntity->id, $calendarId);
-    }
 }
