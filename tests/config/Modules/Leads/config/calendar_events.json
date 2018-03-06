@@ -1,0 +1,53 @@
+{
+  "description": "Leads Parsing Map for Calendar Events",
+  "type": "object",
+  "configurations": {
+    "duration": 1800
+  },
+  "properties": {
+    "id": {
+      "type": "field",
+      "value": "id"
+    },
+    "calendar_id": {
+      "type": "field",
+      "value": "getCalendarId"
+    },
+    "source": {
+      "type": "field",
+      "value": "getSource"
+    },
+    "source_id": {
+      "type": "field",
+      "value": "id"
+    },
+    "event_type": {
+      "type": "field",
+      "value": "getEventType"
+    },
+    "title": {
+      "type": "field",
+      "value": "title"
+    },
+    "content": {
+      "type": "field",
+      "value": "description"
+    },
+    "start_date": {
+      "type": "field",
+      "value": "next_follow_up_date"
+    },
+    "is_recurring": {
+      "type": "value",
+      "value": false
+    },
+    "recurrence": {
+      "type": "field",
+      "value": "getRecurrence"
+    },
+    "is_allday": {
+      "type": "field",
+      "value": "getIsAllday"
+    }
+  }
+}

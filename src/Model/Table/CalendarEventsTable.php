@@ -57,7 +57,6 @@ class CalendarEventsTable extends Table
 
         $this->addBehavior('Timestamp');
         $this->addBehavior('Muffin/Trash.Trash');
-        $this->addBehavior('AuditStash.AuditLog');
 
         $this->belongsTo('Calendars', [
             'foreignKey' => 'calendar_id',
@@ -392,6 +391,7 @@ class CalendarEventsTable extends Table
     /**
      * Get Calendar Event types based on configuration
      *
+     * @TODO: restructure the code to use \Cake\Utility\Hash mixin
      * @param \Cake\ORM\Table $calendar record
      *
      * @return array $result containing event types for select2 dropdown
@@ -561,5 +561,43 @@ class CalendarEventsTable extends Table
         }
 
         return $title;
+    }
+
+    /**
+     * Synchronize calendar events
+     *
+     * @param \Cake\ORM\Entity $calendar instance from the db
+     * @param array $options with extra configs
+     *
+     * @return array $result with events responses.
+     */
+    public function sync($calendar, $options = [])
+    {
+        $result = [];
+        $table = TableRegistry::get('Qobo/Calendar.CalendarEvents');
+
+        if (empty($calendar)) {
+            return $result;
+        }
+
+        $event = new Event((string)EventName::PLUGIN_CALENDAR_MODEL_GET_EVENTS(), $this, [
+            'calendar' => $calendar,
+            'options' => $options,
+        ]);
+
+        EventManager::instance()->dispatch($event);
+
+        $calendarEvents = $event->result;
+        if (empty($calendarEvents)) {
+            return $result;
+        }
+
+        foreach ($calendarEvents as $k => $calendarInfo) {
+            if (empty($calendarInfo['events'])) {
+                continue;
+            }
+        }
+
+        return $result;
     }
 }

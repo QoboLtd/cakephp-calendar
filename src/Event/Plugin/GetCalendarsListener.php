@@ -12,12 +12,16 @@
 namespace Qobo\Calendar\Event\Plugin;
 
 use Cake\Core\Configure;
+use Cake\Datasource\EntityInterface;
 use Cake\Event\Event;
 use Cake\Event\EventListenerInterface;
 use Cake\Event\EventManager;
 use Cake\Network\Request;
 use Cake\ORM\TableRegistry;
 use Qobo\Calendar\Event\EventName;
+use Qobo\Calendar\ObjectType\ObjectTypeFactory;
+use Qobo\Calendar\ObjectType\ObjectTypeInterface;
+use \ArrayObject;
 
 class GetCalendarsListener implements EventListenerInterface
 {
@@ -33,7 +37,53 @@ class GetCalendarsListener implements EventListenerInterface
             (string)EventName::APP_MODEL_GET_EVENTS => 'getPluginCalendarEvents',
             (string)EventName::PLUGIN_CALENDAR_MODEL_GET_CALENDARS => 'sendGetCalendarsToApp',
             (string)EventName::PLUGIN_CALENDAR_MODEL_GET_EVENTS => 'sendGetCalendarEventsToApp',
+            (string)EventName::APP_ADD_EVENT => 'addEvent',
         ];
+    }
+
+    /**
+     * Add CalendarEvent from App
+     *
+     * Adding Calendar event based on the entity table.
+     *
+     * @param \Cake\Event\Event $event received from the app
+     * @param \Qobo\Calendar\ObjectType\ObjectTypeInterface $entity being recently saved.
+     * @param \ArrayObject $options with extra configs for adding reminder
+     *
+     * @return void
+     */
+    public function addEvent(Event $event, ObjectTypeInterface $entity, ArrayObject $options = null)
+    {
+        $table = TableRegistry::get('Qobo/Calendar.CalendarEvents');
+
+        // Converting to \Cake\ORM\Entity
+        $data = $entity->toEntity();
+
+        if (empty($data->id)) {
+            unset($data->id);
+        }
+
+        $query = $table->find();
+        $query->where([
+            'source' => $data->source,
+            'source_id' => $data->source_id,
+        ]);
+
+        $query->execute();
+
+        if (!$query->count()) {
+            $saved = $table->save($data);
+        } else {
+            $existing = $query->first();
+            $patch = $data->toArray();
+            $data = $table->patchEntity($existing, $patch);
+        }
+
+        $saved = $table->save($data);
+        if (!$saved) {
+            dd($data->getErrors());
+        }
+        $event->result = $saved;
     }
 
     /**

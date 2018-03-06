@@ -70,6 +70,25 @@ class Event extends AbstractObjectType
     }
 
     /**
+     * Set SourceId of the entity
+     *
+     * @param string $sourceId passed
+     * @return void
+     */
+    public function setSourceId($sourceId)
+    {
+        $this->sourceId = $sourceId;
+    }
+
+    /**
+     * @return string $sourceId of the object
+     */
+    public function getSourceId()
+    {
+        return $this->sourceId;
+    }
+
+    /**
      * Set Event title
      *
      * @param string $title of event

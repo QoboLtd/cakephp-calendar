@@ -23,4 +23,6 @@ class EventName extends Enum
     const APP_CALENDARS_CHECK_PERMISSIONS = 'App.Calendars.checkCalendarsPermissions';
     const APP_MODEL_GET_CALENDARS = 'App.Calendars.Model.getCalendars';
     const APP_MODEL_GET_EVENTS = 'App.Calendars.Model.getCalendarEvents';
+    const APP_ADD_EVENT = 'Plugin.Calendar.addEvent';
+    const APP_GET_DEFAULT_CALENDAR = 'Plugin.Calendar.getDefaultCalendar';
 }

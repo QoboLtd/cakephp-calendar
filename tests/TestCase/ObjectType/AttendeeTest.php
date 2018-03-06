@@ -24,18 +24,4 @@ class AttendeeTest extends TestCase
     {
         parent::tearDown();
     }
-
-    public function testToEntity()
-    {
-        $entityId = '12613e81-aa1b-4c59-9eb4-e4016ac47aef';
-        $entity = $this->table->find()
-            ->where(['id' => $entityId])
-            ->first();
-
-        $object = ObjectTypeFactory::getInstance($entity, 'Attendee', 'Cake');
-        $cakeEntity = $object->toEntity();
-        $this->assertTrue(is_object($cakeEntity));
-        $this->assertInstanceOf('\Qobo\Calendar\Model\Entity\CalendarAttendee', $cakeEntity);
-        $this->assertEquals($cakeEntity->id, $entityId);
-    }
 }
