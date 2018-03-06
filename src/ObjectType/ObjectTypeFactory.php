@@ -43,7 +43,7 @@ class ObjectTypeFactory
         }
 
         $object = json_decode($content);
-        $object = (object) $object;
+        $object = (object)$object;
 
         return $object;
     }

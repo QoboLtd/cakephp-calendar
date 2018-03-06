@@ -1,9 +1,9 @@
 <?php
 namespace Qobo\Calendar\Model\Table\Traits;
 
-use Cake\ORM\TableRegistry;
-use Cake\Event\Event;
 use Cake\Datasource\EntityInterface;
+use Cake\Event\Event;
+use Cake\ORM\TableRegistry;
 use Cake\Utility\Inflector;
 use Qobo\Calendar\ObjectType\Event as EventObject;
 use \ArrayObject;
@@ -18,7 +18,7 @@ trait ObjectTypeTrait
      *
      * Return prepopulated ObjectType instance for being later saved in the db.
      *
-     * @param \Cake\Datasource\EntityInterface $entity
+     * @param \Cake\Datasource\EntityInterface $entity to be converted
      * @param \stdClass $map containing ORM\Entity translation to ObjectType instance
      * @param \ArrayObject $options with passed from the app
      *
@@ -51,6 +51,14 @@ trait ObjectTypeTrait
         return $object;
     }
 
+    /**
+     * Get Default Calendar method
+     *
+     * @param \Cake\Datasource\EntityInterface $entity passed from the app
+     * @param \ArrayObject $options passed from the trait
+     *
+     * @return \Cake\ORM\Entity $result containing calendar record.
+     */
     public function getDefaultCalendar(EntityInterface $entity, ArrayObject $options)
     {
         $result = null;
@@ -82,6 +90,11 @@ trait ObjectTypeTrait
 
     /**
      * Get Calendar ID.
+     *
+     * @param \Cake\Datasource\EntityInterface $entity of the received record
+     * @param \ArrayObject $options passed from the event
+     *
+     * @return string|null $calendarId of the record
      */
     public function getCalendarId(EntityInterface $entity, ArrayObject $options)
     {
@@ -95,5 +108,4 @@ trait ObjectTypeTrait
 
         return $calendarId;
     }
-
 }

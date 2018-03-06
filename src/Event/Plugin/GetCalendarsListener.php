@@ -12,11 +12,11 @@
 namespace Qobo\Calendar\Event\Plugin;
 
 use Cake\Core\Configure;
+use Cake\Datasource\EntityInterface;
 use Cake\Event\Event;
 use Cake\Event\EventListenerInterface;
 use Cake\Event\EventManager;
 use Cake\Network\Request;
-use Cake\Datasource\EntityInterface;
 use Cake\ORM\TableRegistry;
 use Qobo\Calendar\Event\EventName;
 use Qobo\Calendar\ObjectType\ObjectTypeFactory;
