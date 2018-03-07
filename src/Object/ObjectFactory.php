@@ -1,14 +1,15 @@
 <?php
-namespace Qobo\Calendar\ObjectType;
+namespace Qobo\Calendar\Object;
 
 use Cake\Core\Configure;
 use Cake\Filesystem\Folder;
 use Cake\Utility\Inflector;
+use Qobo\Calendar\Object\Parsers\Json\EventParser;
 use \ArrayObject;
 use \InvalidArgumentException;
 use \RuntimeException;
 
-class ObjectTypeFactory
+class ObjectFactory
 {
     /**
      * Get ObjectType
@@ -31,11 +32,10 @@ class ObjectTypeFactory
             $path = $config['path'];
         }
 
-        $prefix = 'calendar_';
         $ext = '.json';
 
-        $filename = $prefix . Inflector::underscore(Inflector::pluralize($target)) . $ext;
-
+        $filename = Inflector::underscore(Inflector::pluralize($target)) . $ext;
+        /*
         $content = file_get_contents($path . $filename);
 
         if (empty($content)) {
@@ -44,7 +44,19 @@ class ObjectTypeFactory
 
         $object = json_decode($content);
         $object = (object)$object;
-
+        */
         return $object;
+    }
+
+    public static function foo()
+    {
+        $foo = new EventParser();
+        $path = TESTS . 'config' . DS . 'Modules' . DS . 'Leads' . DS . 'config' . DS . 'calendar_events.json';
+        pr($path);
+        pr($foo);
+
+        $parsed = $foo->parse($path);
+
+        dd($parsed);
     }
 }

@@ -1,9 +1,9 @@
 <?php
-namespace Qobo\Calendar\ObjectType;
+namespace Qobo\Calendar\Object\Objects;
 
 use Qobo\Calendar\Model\Table\Event as EventEntity;
 
-class Event extends AbstractObjectType
+class Event extends AbstractObject
 {
     protected $entityProvider = '\Qobo\Calendar\Model\Entity\CalendarEvent';
 

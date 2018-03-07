@@ -1,9 +1,9 @@
 <?php
-namespace Qobo\Calendar\ObjectType;
+namespace Qobo\Calendar\Object\Objects;
 
 use Cake\Utility\Inflector;
 
-class Attendee extends AbstractObjectType
+class Attendee extends AbstractObject
 {
 
     protected $entityProvider = '\Qobo\Calendar\Model\Entity\CalendarAttendee';
