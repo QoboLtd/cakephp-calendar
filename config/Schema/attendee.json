@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Attendee JSON Schema to translate ORM Entity to ObjectType instance",
+  "type": "object",
+  "definitions": {
+    "field": {
+      "type": "object",
+      "propeties": {
+        "type": {
+          "type": "string",
+          "enum": [ "value", "field", "callback" ]
+        },
+        "value": { "type": ["string", "boolean", "number"] },
+        "options": {
+          "type": "object"
+        }
+      }
+    }
+  },
+  "properties": {
+    "display_name": {
+      "$ref": "#/definitions/field"
+    },
+    "contact_details": {
+      "$ref": "#/definitions/field"
+    },
+    "source": {
+      "$ref": "#/definitions/field"
+    },
+    "source_id": {
+      "$ref": "#/definitions/field"
+    }
+  },
+  "required": ["source", "source_id"]
+}

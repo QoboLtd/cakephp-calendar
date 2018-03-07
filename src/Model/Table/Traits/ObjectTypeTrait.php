@@ -42,7 +42,7 @@ trait ObjectTypeTrait
             }
 
             if ('callback' == $config->type && method_exists($this, $config->value)) {
-                $calleeResult = $this->{$config->value}($entity, $options);
+                $calleeResult = $this->{$config->value}($entity, $options, $map);
 
                 $object->$method($calleeResult);
             }
@@ -59,7 +59,7 @@ trait ObjectTypeTrait
      *
      * @return \Cake\ORM\Entity $result containing calendar record.
      */
-    public function getDefaultCalendar(EntityInterface $entity, ArrayObject $options)
+    public function getDefaultCalendar(EntityInterface $entity, ArrayObject $options, $map = null)
     {
         $result = null;
         $tableName = $this->alias();
@@ -96,7 +96,7 @@ trait ObjectTypeTrait
      *
      * @return string|null $calendarId of the record
      */
-    public function getCalendarId(EntityInterface $entity, ArrayObject $options)
+    public function getCalendarId(EntityInterface $entity, ArrayObject $options, $map = null)
     {
         $calendarId = null;
 
