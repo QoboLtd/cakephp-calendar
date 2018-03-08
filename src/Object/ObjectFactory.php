@@ -4,7 +4,7 @@ namespace Qobo\Calendar\Object;
 use Cake\Core\Configure;
 use Cake\Filesystem\Folder;
 use Cake\Utility\Inflector;
-use Qobo\Calendar\Object\Parsers\Json\EventParser;
+use Qobo\Calendar\Object\Parsers\Json\Event as EventParser;
 use \ArrayObject;
 use \InvalidArgumentException;
 use \RuntimeException;
@@ -32,31 +32,16 @@ class ObjectFactory
             $path = $config['path'];
         }
 
-        $ext = '.json';
-
-        $filename = Inflector::underscore(Inflector::pluralize($target)) . $ext;
-        /*
-        $content = file_get_contents($path . $filename);
-
-        if (empty($content)) {
-            return $object;
+        if ('Event' == $target) {
+            $parser = new EventParser();
+            $path .= 'calendar_events';
+            $filename = 'default.json';
+        }
+        $filename = $path . DS . Inflector::underscore($filename);
+        if (file_exists($filename)) {
+            $object = $parser->parse($filename);
         }
 
-        $object = json_decode($content);
-        $object = (object)$object;
-        */
         return $object;
-    }
-
-    public static function foo()
-    {
-        $foo = new EventParser();
-        $path = TESTS . 'config' . DS . 'Modules' . DS . 'Leads' . DS . 'config' . DS . 'calendar_events.json';
-        pr($path);
-        pr($foo);
-
-        $parsed = $foo->parse($path);
-
-        dd($parsed);
     }
 }

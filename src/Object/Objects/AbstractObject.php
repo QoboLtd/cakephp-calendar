@@ -1,5 +1,5 @@
 <?php
-namespace Qobo\Calendar\ObjectType;
+namespace Qobo\Calendar\Object\Objects;
 
 use Cake\Utility\Inflector;
 

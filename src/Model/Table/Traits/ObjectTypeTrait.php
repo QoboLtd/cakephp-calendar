@@ -5,7 +5,7 @@ use Cake\Datasource\EntityInterface;
 use Cake\Event\Event;
 use Cake\ORM\TableRegistry;
 use Cake\Utility\Inflector;
-use Qobo\Calendar\ObjectType\Event as EventObject;
+use Qobo\Calendar\Object\Objects\Event as EventObject;
 use \ArrayObject;
 
 trait ObjectTypeTrait
@@ -29,8 +29,7 @@ trait ObjectTypeTrait
         $object = null;
 
         $object = new EventObject();
-
-        foreach ($map->properties as $field => $config) {
+        foreach ($map as $field => $config) {
             $method = Inflector::variable('set ' . Inflector::variable($field));
 
             if ('field' == $config->type) {
@@ -52,43 +51,6 @@ trait ObjectTypeTrait
     }
 
     /**
-     * Get Default Calendar method
-     *
-     * @param \Cake\Datasource\EntityInterface $entity passed from the app
-     * @param \ArrayObject $options passed from the trait
-     *
-     * @return \Cake\ORM\Entity $result containing calendar record.
-     */
-    public function getDefaultCalendar(EntityInterface $entity, ArrayObject $options, $map = null)
-    {
-        $result = null;
-        $tableName = $this->alias();
-        $table = TableRegistry::get('Qobo/Calendar.Calendars');
-
-        $source = 'App__' . $tableName . '__DEFAULT_CALENDAR';
-
-        $query = $table->find();
-        $query->where(['source' => $source]);
-
-        $query->execute();
-
-        if (!$query->count()) {
-            $calendar = $table->newEntity();
-            $calendar->name = Inflector::humanize($tableName);
-            $calendar->source = $source;
-            $calendar->calendar_type = 'default';
-            $calendar->color = '#337ab7';
-
-            $saved = $table->save($calendar);
-            $result = $saved;
-        } else {
-            $result = $query->first();
-        }
-
-        return $result;
-    }
-
-    /**
      * Get Calendar ID.
      *
      * @param \Cake\Datasource\EntityInterface $entity of the received record
@@ -100,11 +62,11 @@ trait ObjectTypeTrait
     {
         $calendarId = null;
 
-        if (!$this->defaultCalendar) {
-            $this->defaultCalendar = $this->getDefaultCalendar($entity, $options);
+        if (empty($options['calendar'])) {
+            return $calendarId;
         }
 
-        $calendarId = $this->defaultCalendar->id;
+        $calendarId = $options['calendar']->id;
 
         return $calendarId;
     }

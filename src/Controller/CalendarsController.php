@@ -110,6 +110,16 @@ class CalendarsController extends AppController
     {
         $calendar = $this->Calendars->newEntity();
 
+        $event = new Event('App.Calendars.getCalendarEventTypes', $this, [
+            'user' => $this->Auth->user()
+        ]);
+
+        $this->eventManager()->dispatch($event);
+
+        if (!empty($event->result)) {
+            $eventTypes = $event->result;
+        }
+
         if ($this->request->is('post')) {
             $data = $this->request->getData();
             $calendar = $this->Calendars->patchEntity($calendar, $data);
@@ -123,7 +133,7 @@ class CalendarsController extends AppController
             $this->Flash->error(__('The calendar could not be saved. Please, try again.'));
         }
 
-        $this->set(compact('calendar'));
+        $this->set(compact('calendar', 'eventTypes'));
         $this->set('_serialize', 'calendar');
     }
 
@@ -137,9 +147,25 @@ class CalendarsController extends AppController
     public function edit($id = null)
     {
         $calendar = $this->Calendars->get($id);
+        $eventTypes = [];
+
+        $event = new Event('App.Calendars.getCalendarEventTypes', $this, [
+            'user' => $this->Auth->user()
+        ]);
+
+        $this->eventManager()->dispatch($event);
+
+        if (!empty($event->result)) {
+            $eventTypes = $event->result;
+        }
 
         if ($this->request->is(['patch', 'post', 'put'])) {
-            $calendar = $this->Calendars->patchEntity($calendar, $this->request->getData());
+            $data = $this->request->getData();
+
+            if (!empty($data['event_types'])) {
+                $data['event_types'] = json_encode($data['event_types']);
+            }
+            $calendar = $this->Calendars->patchEntity($calendar, $data);
 
             if ($this->Calendars->save($calendar)) {
                 $this->Flash->success(__('The calendar has been saved.'));
@@ -149,7 +175,7 @@ class CalendarsController extends AppController
             $this->Flash->error(__('The calendar could not be saved. Please, try again.'));
         }
 
-        $this->set(compact('calendar'));
+        $this->set(compact('calendar', 'eventTypes'));
         $this->set('_serialize', 'calendar');
     }
 

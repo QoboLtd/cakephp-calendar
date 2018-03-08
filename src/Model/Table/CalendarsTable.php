@@ -171,9 +171,10 @@ class CalendarsTable extends Table
 
         $this->CalendarEvents = TableRegistry::get('Qobo/Calendar.CalendarEvents');
 
+        // @TODO: fix event types being merged properly within calendar.
         //adding event_types & events attached for the calendars
         foreach ($result as $k => $calendar) {
-            $result[$k]->event_types = $this->CalendarEvents->getEventTypes($calendar);
+        //    $result[$k]->event_types = $this->CalendarEvents->getEventTypes($calendar);
         }
 
         return $result;
@@ -245,6 +246,42 @@ class CalendarsTable extends Table
 
             if (empty($calendar)) {
                 continue;
+            }
+        }
+
+        return $result;
+    }
+
+    public function getByAllowedEventTypes($tableName = null, array $options = [])
+    {
+        $result = [];
+        $query = $this->find();
+
+        $query->where(['source LIKE' => "%$tableName%"]);
+
+        $query->execute();
+
+        if (!$query->count()) {
+            return $result;
+        }
+
+        $resultSet = $query->all();
+
+        foreach ($resultSet as $calendar) {
+            if (empty($calendar->event_types)) {
+                continue;
+            }
+
+            $event_types = json_decode($calendar->event_types, true);
+
+            $found = array_filter($event_types, function ($item) use ($tableName) {
+                if (preg_match("/$tableName::/", $item, $matches)) {
+                    return $item;
+                }
+            });
+
+            if (!empty($found)) {
+                $result[] = $calendar;
             }
         }
 

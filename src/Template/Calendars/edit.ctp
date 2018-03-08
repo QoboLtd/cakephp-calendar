@@ -67,7 +67,11 @@ foreach ($icons as $k => $v) {
                         'class' => 'select2',
                         'empty' => true
                     ]) ?>
+                    <?php
+                        $selectedEventTypes = !empty($calendar->event_types) ? json_decode($calendar->event_types, true) : [];
+                    ?>
                     <?= $this->Form->control('is_public', ['label' => __('Publicly Accessible')]);?>
+                    <?= $this->Form->input('event_types', ['value' => $selectedEventTypes, 'type' => 'select', 'options' => $eventTypes, 'class' => 'select2', 'multiple' => 'multiple', 'empty' => true]);?>
                 </div>
                 <div class="col-xs-12 col-md-6">
                     <?= $this->Form->input('color', [

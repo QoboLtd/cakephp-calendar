@@ -19,8 +19,8 @@ use Cake\Event\EventManager;
 use Cake\Network\Request;
 use Cake\ORM\TableRegistry;
 use Qobo\Calendar\Event\EventName;
-use Qobo\Calendar\ObjectType\ObjectTypeFactory;
-use Qobo\Calendar\ObjectType\ObjectTypeInterface;
+use Qobo\Calendar\Object\ObjectFactory;
+use Qobo\Calendar\Object\Objects\ObjectInterface;
 use \ArrayObject;
 
 class GetCalendarsListener implements EventListenerInterface
@@ -47,43 +47,63 @@ class GetCalendarsListener implements EventListenerInterface
      * Adding Calendar event based on the entity table.
      *
      * @param \Cake\Event\Event $event received from the app
-     * @param \Qobo\Calendar\ObjectType\ObjectTypeInterface $entity being recently saved.
+     * @param \Cake\Datasource\EntityInterface $entity being recently saved.
      * @param \ArrayObject $options with extra configs for adding reminder
      *
      * @return void
      */
-    public function addEvent(Event $event, ObjectTypeInterface $entity, ArrayObject $options = null)
+    public function addEvent(Event $event, EntityInterface $entity, ArrayObject $options = null)
     {
-        $table = TableRegistry::get('Qobo/Calendar.CalendarEvents');
+        $entities = $result = [];
 
-        // Converting to \Cake\ORM\Entity
-        $data = $entity->toEntity();
+        $table = $event->subject();
+        $map = ObjectFactory::getParserConfig($table->alias(), 'Event');
+        $calendarsTable = TableRegistry::get('Qobo/Calendar.Calendars');
 
-        if (empty($data->id)) {
-            unset($data->id);
+        $calendars = $calendarsTable->getByAllowedEventTypes($table->alias());
+
+        if (!empty($calendars)) {
+            foreach ($calendars as $calendar) {
+                $options = array_merge($options->getArrayCopy(), ['calendar' => $calendar]);
+                $options = new ArrayObject($options);
+
+                $eventObject = $table->getObjectTypeInstance($entity, $map, $options);
+                $calendarEntity = $eventObject->toEntity();
+                $entities[] = $calendarEntity;
+            }
         }
 
-        $query = $table->find();
-        $query->where([
-            'source' => $data->source,
-            'source_id' => $data->source_id,
-        ]);
+        if (!empty($entities)) {
+            $eventsTable = TableRegistry::get('Qobo/Calendar.CalendarEvents');
+            foreach ($entities as $item) {
+                if (empty($item->id)) {
+                    unset($item->id);
+                }
 
-        $query->execute();
+                $query = $eventsTable->find();
+                $query->where([
+                    'source' => $item->source,
+                    'source_id' => $item->source_id
+                ]);
+                $query->execute();
+                if (!$query->count()) {
+                    $saved = $eventsTable->save($item);
+                } else {
+                    $existing = $query->first();
+                    $patch  = $item->toArray();
+                    $item = $eventsTable->patchEntity($existing, $patch);
+                }
 
-        if (!$query->count()) {
-            $saved = $table->save($data);
-        } else {
-            $existing = $query->first();
-            $patch = $data->toArray();
-            $data = $table->patchEntity($existing, $patch);
+                $saved = $eventsTable->save($item);
+                if ($saved) {
+                    $result[] = $saved;
+                } else {
+                    $result[] = $item->getErrors();
+                }
+            }
         }
 
-        $saved = $table->save($data);
-        if (!$saved) {
-            dd($data->getErrors());
-        }
-        $event->result = $saved;
+        $event->result = $result;
     }
 
     /**
