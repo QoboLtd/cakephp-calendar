@@ -3,11 +3,11 @@ namespace Qobo\Calendar\Test\TestCase\ObjectType;
 
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
-use Qobo\Calendar\ObjectType\ObjectTypeFactory;
+use Qobo\Calendar\Object\ObjectFactory;
 
-class ObjectTypeFactoryTest extends TestCase
+class CalendarTest extends TestCase
 {
-    protected $calendarsTable;
+    protected $caledarsTable;
 
     public $fixtures = [
         'plugin.qobo/calendar.calendars',
@@ -16,15 +16,12 @@ class ObjectTypeFactoryTest extends TestCase
     public function setUp()
     {
         parent::setUp();
-
         $config = TableRegistry::exists('Qobo/Calendars.Calendars') ? [] : ['className' => 'Qobo\Calendar\Model\Table\CalendarsTable'];
         $this->calendarsTable = TableRegistry::get('Qobo/Calendars.Calendars', $config);
     }
 
     public function tearDown()
     {
-        unset($this->calendarsTable);
-
         parent::tearDown();
     }
 }

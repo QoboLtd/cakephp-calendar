@@ -3,7 +3,7 @@ namespace Qobo\Calendar\Test\TestCase\ObjectType;
 
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
-use Qobo\Calendar\ObjectType\ObjectTypeFactory;
+use Qobo\Calendar\Object\ObjectFactory;
 
 class EventTest extends TestCase
 {
