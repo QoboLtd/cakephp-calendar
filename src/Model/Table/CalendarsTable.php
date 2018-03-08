@@ -252,6 +252,17 @@ class CalendarsTable extends Table
         return $result;
     }
 
+    /**
+     * Get the list of Calendar instances
+     *
+     * Getting the list of calendars where following module is listed
+     * in event_types field. For instance: Users::birthdays.
+     *
+     * @param string $tableName of the app's module
+     * @param array $options with extra data
+     *
+     * @return array $result with calendar instances
+     */
     public function getByAllowedEventTypes($tableName = null, array $options = [])
     {
         $result = [];

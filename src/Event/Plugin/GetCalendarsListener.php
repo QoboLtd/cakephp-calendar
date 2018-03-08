@@ -90,7 +90,7 @@ class GetCalendarsListener implements EventListenerInterface
                     $saved = $eventsTable->save($item);
                 } else {
                     $existing = $query->first();
-                    $patch  = $item->toArray();
+                    $patch = $item->toArray();
                     $item = $eventsTable->patchEntity($existing, $patch);
                 }
 
