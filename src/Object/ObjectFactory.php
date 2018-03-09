@@ -2,44 +2,48 @@
 namespace Qobo\Calendar\Object;
 
 use Cake\Core\Configure;
-use Cake\Filesystem\Folder;
 use Cake\Utility\Inflector;
-use Qobo\Calendar\Object\Parsers\Json\Event as EventParser;
-use \ArrayObject;
-use \InvalidArgumentException;
-use \RuntimeException;
+use Qobo\Calendar\Object\Parsers\Json\Event;
 
 class ObjectFactory
 {
     /**
-     * Get ObjectType
-     * The map is based on saved in config/Modules/<TableName>/config/calendar_events.json
+     * Get Parser Configuration
+     *
+     * The map object will simplify convertion of incoming EntityInterface
+     * into appropriate event_type based on the found map.
+     *
+     * Map configuration can be located on the app's level,
+     * or specified via `config/calendar.php` within `Calendar.Modules.<ModuleName>.path`.
+     *
+     * The base directory should contain one or more of the following subdirs:
+     * - event_types/<default>.json - default module conversion map. Aka Contacts -> Event.
+     * - calendars/<default>.json - convertion of Entity to Calendar.
+     * - attendees/<default>.json - convertion of Entity to Attendee record.
      *
      * @param string $name of the table to check within subdir of config
      * @param string $target name of the object type (calendars,events,attendees,etc.)
+     * @param array $options with defined parser type to use.
      *
      * @return object $result containing stdClass of configs.
      */
-    public static function getParserConfig($name, $target)
+    public static function getParserConfig($name, $target, array $options = [])
     {
         $object = null;
-        $name = Inflector::camelize(Inflector::pluralize($name));
-        $path = CONFIG . 'Modules' . DS . $name . DS . 'config' . DS;
+        $type = !empty($options['type']) ? $options['type'] : 'Json';
 
-        $config = Configure::read('Calendar.Modules.' . $name);
+        if ('Json' === $type) {
+            $name = Inflector::camelize(Inflector::pluralize($name));
+            $config = Configure::read('Calendar.Modules.' . $name);
 
-        if (!empty($config['path'])) {
-            $path = $config['path'];
-        }
+            $path = !empty($config['path']) ? $config['path'] : CONFIG . 'Modules' . DS . $name . DS . 'config' . DS;
+            $filename = !empty($options['event_type']) ? $options['event_type'] . '.json' : 'default.json';
 
-        if ('Event' == $target) {
-            $parser = new EventParser();
-            $path .= 'calendar_events';
-            $filename = 'default.json';
-        }
-        $filename = $path . DS . Inflector::underscore($filename);
-        if (file_exists($filename)) {
-            $object = $parser->parse($filename);
+            if ('Event' == $target) {
+                $parser = new Event();
+                $path .= 'calendar_events' . DS . $filename;
+                $object = $parser->parse($path);
+            }
         }
 
         return $object;
