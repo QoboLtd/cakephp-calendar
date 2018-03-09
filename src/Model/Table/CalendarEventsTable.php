@@ -296,7 +296,7 @@ class CalendarEventsTable extends Table
     {
         $result = [];
 
-        $rule = $this->getRRuleConfiguration(json_decode($origin['recurrence'],true));
+        $rule = $this->getRRuleConfiguration(json_decode($origin['recurrence'], true));
 
         if (empty($rule)) {
             return $result;
@@ -381,7 +381,7 @@ class CalendarEventsTable extends Table
         }
 
         if (is_string($recurrence)) {
-            $recurrence = json_decode($recurrence,true);
+            $recurrence = json_decode($recurrence, true);
         }
 
         foreach ($recurrence as $rule) {
