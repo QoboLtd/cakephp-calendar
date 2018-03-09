@@ -296,7 +296,7 @@ class CalendarEventsTable extends Table
     {
         $result = [];
 
-        $rule = $this->getRRuleConfiguration($origin['recurrence']);
+        $rule = $this->getRRuleConfiguration(json_decode($origin['recurrence'],true));
 
         if (empty($rule)) {
             return $result;
@@ -309,6 +309,7 @@ class CalendarEventsTable extends Table
             new \DateTime($options['period']['start_date']),
             new \DateTime($options['period']['end_date'])
         );
+
         $startDateTime = new \DateTime($origin['start_date'], new \DateTimeZone('UTC'));
         $endDateTime = new \DateTime($origin['end_date'], new \DateTimeZone('UTC'));
         $diff = $startDateTime->diff($endDateTime);
@@ -377,6 +378,10 @@ class CalendarEventsTable extends Table
 
         if (empty($recurrence) || is_null($recurrence)) {
             return $result;
+        }
+
+        if (is_string($recurrence)) {
+            $recurrence = json_decode($recurrence,true);
         }
 
         foreach ($recurrence as $rule) {

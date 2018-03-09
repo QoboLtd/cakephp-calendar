@@ -57,7 +57,8 @@ class GetCalendarsListener implements EventListenerInterface
         $entities = $result = [];
 
         $table = $event->subject();
-        $map = ObjectFactory::getParserConfig($table->alias(), 'Event');
+
+        $map = ObjectFactory::getParserConfig($table->alias(), 'Event', $options->getArrayCopy());
         $calendarsTable = TableRegistry::get('Qobo/Calendar.Calendars');
 
         $calendars = $calendarsTable->getByAllowedEventTypes($table->alias());

@@ -267,10 +267,8 @@ class CalendarsTable extends Table
     {
         $result = [];
         $query = $this->find();
-
-        $query->where(['source LIKE' => "%$tableName%"]);
-
         $query->execute();
+        $query->all();
 
         if (!$query->count()) {
             return $result;
