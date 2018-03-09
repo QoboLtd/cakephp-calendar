@@ -69,6 +69,11 @@ class GetCalendarsListener implements EventListenerInterface
 
                 $eventObject = $table->getObjectTypeInstance($entity, $map, $options);
                 $calendarEntity = $eventObject->toEntity();
+
+                if (!$calendarEntity) {
+                    continue;
+                }
+
                 $entities[] = $calendarEntity;
             }
         }
@@ -83,15 +88,14 @@ class GetCalendarsListener implements EventListenerInterface
                 $query = $eventsTable->find();
                 $query->where([
                     'source' => $item->source,
-                    'source_id' => $item->source_id
+                    'source_id' => $item->source_id,
+                    'calendar_id' => $item->calendar_id
                 ]);
+
                 $query->execute();
-                if (!$query->count()) {
-                    $saved = $eventsTable->save($item);
-                } else {
-                    $existing = $query->first();
-                    $patch = $item->toArray();
-                    $item = $eventsTable->patchEntity($existing, $patch);
+
+                if ($query->count()) {
+                    $item = $eventsTable->patchEntity($query->first(), $item->toArray());
                 }
 
                 $saved = $eventsTable->save($item);
