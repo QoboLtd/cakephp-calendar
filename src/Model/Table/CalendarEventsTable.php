@@ -296,7 +296,7 @@ class CalendarEventsTable extends Table
     {
         $result = [];
 
-        $rule = $this->getRRuleConfiguration(json_decode($origin['recurrence'], true));
+        $rule = $this->getRRuleConfiguration($origin['recurrence']);
 
         if (empty($rule)) {
             return $result;
@@ -393,6 +393,36 @@ class CalendarEventsTable extends Table
         return $result;
     }
 
+    public function getEventTypesConfigs(array $options = [])
+    {
+        $result = [];
+        $event = new Event('App.Calendars.getCalendarEventTypes', $this, [
+            'user' => $options['user'],
+        ]);
+
+        EventManager::instance()->dispatch($event);
+
+        if (!empty($event->result)) {
+            $result = array_merge($result, $event->result);
+        }
+
+        $configs = Configure::read('Calendar.Types');
+        foreach ($configs as $calendar) {
+            if (empty($calendar['event_types'])) {
+                continue;
+            }
+
+            foreach ($calendar['event_types'] as $type => $properties) {
+                $value = 'Config::' . $calendar['name'] . '::' . $type;
+                $result[$value] = $value;
+            }
+        }
+
+        asort($result);
+
+        return $result;
+    }
+
     /**
      * Get Calendar Event types based on configuration
      *
@@ -430,10 +460,13 @@ class CalendarEventsTable extends Table
             }
         }
 
-        foreach ($eventTypes as $eventType) {
-            array_push($result, $eventType);
+        if (!is_array($eventTypes)) {
+            $eventTypes = json_decode($eventTypes, true);
         }
-
+        dd($eventTypes);
+        foreach ($eventTypes as $eventType) {
+            $result[$eventType] = $eventType;
+        }
         return $result;
     }
 

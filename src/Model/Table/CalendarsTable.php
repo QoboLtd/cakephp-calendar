@@ -206,15 +206,15 @@ class CalendarsTable extends Table
      */
     public function getTypes($options = [])
     {
-        $result = [];
+        $result = ['Json' => 'Json'];
 
         $config = Configure::read('Calendar.Types');
 
-        if (empty($config)) {
-            return $result;
+        if (!empty($config)) {
+            $result['Config'] = 'Config';
         }
 
-        $result = Hash::combine($config, '{n}.value', '{n}.name');
+        asort($result);
 
         return $result;
     }

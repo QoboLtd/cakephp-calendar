@@ -11,7 +11,6 @@
  */
 namespace Qobo\Calendar\Controller;
 
-use Cake\Core\Configure;
 use Cake\Event\Event;
 use Cake\Event\EventManager;
 use Cake\ORM\TableRegistry;
@@ -108,17 +107,10 @@ class CalendarsController extends AppController
      */
     public function add()
     {
+        $this->CalendarEvents = TableRegistry::get('Qobo/Calendar.CalendarEvents');
         $calendar = $this->Calendars->newEntity();
 
-        $event = new Event('App.Calendars.getCalendarEventTypes', $this, [
-            'user' => $this->Auth->user()
-        ]);
-
-        $this->eventManager()->dispatch($event);
-
-        if (!empty($event->result)) {
-            $eventTypes = $event->result;
-        }
+        $eventTypes = $this->CalendarEvents->getEventTypesConfigs(['user' => $this->Auth->user()]);
 
         if ($this->request->is('post')) {
             $data = $this->request->getData();
@@ -146,18 +138,10 @@ class CalendarsController extends AppController
      */
     public function edit($id = null)
     {
+        $this->CalendarEvents = TableRegistry::get('Qobo/Calendar.CalendarEvents');
         $calendar = $this->Calendars->get($id);
-        $eventTypes = [];
 
-        $event = new Event('App.Calendars.getCalendarEventTypes', $this, [
-            'user' => $this->Auth->user()
-        ]);
-
-        $this->eventManager()->dispatch($event);
-
-        if (!empty($event->result)) {
-            $eventTypes = $event->result;
-        }
+        $eventTypes = $this->CalendarEvents->getEventTypesConfigs(['user' => $this->Auth->user()]);
 
         if ($this->request->is(['patch', 'post', 'put'])) {
             $data = $this->request->getData();

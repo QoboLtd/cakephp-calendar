@@ -184,7 +184,7 @@ class CalendarEventsController extends AppController
     public function getEventTypes()
     {
         $this->request->allowMethod(['post', 'patch', 'put']);
-        $eventTypes = [];
+        $eventTypes = $result = [];
 
         $data = $this->request->getData();
         $this->Calendars = TableRegistry::Get('Qobo/Calendar.Calendars');
@@ -197,7 +197,15 @@ class CalendarEventsController extends AppController
 
         if (!empty($calendars)) {
             $calendar = array_shift($calendars);
-            $eventTypes = $this->CalendarEvents->getEventTypes($calendar);
+            $result = $this->CalendarEvents->getEventTypes($calendar);
+        }
+
+        foreach ($result as $item) {
+            if (isset($item['name'])) {
+                $eventTypes[] = $item;
+            } else {
+                $eventTypes[] = ['name' => $item, 'value' => $item];
+            }
         }
 
         $this->set(compact('eventTypes'));

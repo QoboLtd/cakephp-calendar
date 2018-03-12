@@ -195,32 +195,6 @@ class CalendarEventsTableTest extends TestCase
         ];
     }
 
-    public function testGetEventTypes()
-    {
-        $calendars = TableRegistry::get('Qobo/Calendar.Calendars');
-        $dbItems = $calendars->getCalendars();
-
-        foreach ($dbItems as $item) {
-            $this->assertNotEmpty($item->event_types);
-        }
-
-        $this->assertEquals([], $this->CalendarEvents->getEventTypes());
-
-        $testType = [
-            'foo' => [
-                'name' => 'foo',
-                'value' => 'foo',
-            ]
-        ];
-
-        $testCalendar = clone $dbItems[0];
-
-        $testCalendar->event_types = $testType;
-
-        $result = $this->CalendarEvents->getEventTypes($testCalendar);
-        $this->assertEquals([ ['name' => 'foo', 'value' => 'foo'] ], $result);
-    }
-
     /**
      * @dataProvider testGetRRuleConfigurationProvider
      * @exp

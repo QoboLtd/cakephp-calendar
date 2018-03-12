@@ -88,14 +88,6 @@ class CalendarsTableTest extends TestCase
     {
         $result = $this->Calendars->getTypes();
         $this->assertTrue(is_array($result));
-
-        Configure::write('Calendar.Types', [['name' => 'bar', 'value' => 'bar']]);
-        $result = $this->Calendars->getTypes();
-        $this->assertEquals(['bar' => 'bar'], $result);
-
-        Configure::write('Calendar.Types', []);
-        $result = $this->Calendars->getTypes();
-        $this->assertEquals($result, []);
     }
 
     public function testGetCalendars()
