@@ -133,6 +133,11 @@ class CalendarEventsController extends AppController
         $this->set('_serialize', ['calEvent']);
     }
 
+    /**
+     * Get Type Config
+     *
+     * @return void
+     */
     public function getTypeConfig()
     {
         $this->request->allowMethod(['post', 'put', 'patch']);
