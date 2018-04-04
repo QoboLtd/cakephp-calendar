@@ -21,6 +21,7 @@ use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\Utility\Inflector;
 use Cake\Validation\Validator;
+use Qobo\Calendar\Object\ObjectFactory;
 use \ArrayObject;
 use \RRule\RRule;
 
@@ -393,80 +394,40 @@ class CalendarEventsTable extends Table
         return $result;
     }
 
-    public function getEventTypesConfigs(array $options = [])
+    public function getEventTypes(array $options = [])
     {
         $result = [];
-        $event = new Event('App.Calendars.getCalendarEventTypes', $this, [
-            'user' => $options['user'],
-        ]);
+        if (empty($options['calendar'])) {
+            $event = new Event('App.Calendars.getCalendarEventTypes', $this, [
+                'user' => $options['user'],
+            ]);
 
-        EventManager::instance()->dispatch($event);
+            EventManager::instance()->dispatch($event);
 
-        if (!empty($event->result)) {
-            $result = array_merge($result, $event->result);
-        }
-
-        $configs = Configure::read('Calendar.Types');
-        foreach ($configs as $calendar) {
-            if (empty($calendar['event_types'])) {
-                continue;
+            if (!empty($event->result)) {
+                $result = array_merge($result, $event->result);
             }
 
-            foreach ($calendar['event_types'] as $type => $properties) {
-                $value = 'Config::' . $calendar['name'] . '::' . $type;
-                $result[$value] = $value;
+            $configs = Configure::read('Calendar.Types');
+            foreach ($configs as $calendar) {
+                if (empty($calendar['event_types'])) {
+                    continue;
+                }
+
+                foreach ($calendar['event_types'] as $type => $properties) {
+                    $value = 'Config::' . $calendar['name'] . '::' . $type;
+                    $result[$value] = $value;
+                }
+            }
+        } else {
+            $types = json_decode($options['calendar']->event_types, true);
+            foreach ($types as $type) {
+                $result[$type] = $type;
             }
         }
 
         asort($result);
 
-        return $result;
-    }
-
-    /**
-     * Get Calendar Event types based on configuration
-     *
-     * @TODO: restructure the code to use \Cake\Utility\Hash mixin
-     * @param \Cake\ORM\Table $calendar record
-     *
-     * @return array $result containing event types for select2 dropdown
-     */
-    public function getEventTypes($calendar = null)
-    {
-        $type = 'default';
-        $result = $eventTypes = [];
-
-        if (!$calendar) {
-            return $result;
-        }
-
-        if (!empty($calendar->calendar_type)) {
-            $type = $calendar->calendar_type;
-        }
-
-        if (!empty($calendar->event_types)) {
-            $eventTypes = $calendar->event_types;
-        }
-
-        if (empty($eventTypes)) {
-            $types = Configure::read('Calendar.Types');
-
-            if (!empty($types)) {
-                foreach ($types as $k => $item) {
-                    if ($type == $item['value']) {
-                        $eventTypes = $item['types'];
-                    }
-                }
-            }
-        }
-
-        if (!is_array($eventTypes)) {
-            $eventTypes = json_decode($eventTypes, true);
-        }
-        dd($eventTypes);
-        foreach ($eventTypes as $eventType) {
-            $result[$eventType] = $eventType;
-        }
         return $result;
     }
 

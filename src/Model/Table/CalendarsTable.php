@@ -169,14 +169,6 @@ class CalendarsTable extends Table
             return $result;
         }
 
-        $this->CalendarEvents = TableRegistry::get('Qobo/Calendar.CalendarEvents');
-
-        // @TODO: fix event types being merged properly within calendar.
-        //adding event_types & events attached for the calendars
-        foreach ($result as $k => $calendar) {
-        //    $result[$k]->event_types = $this->CalendarEvents->getEventTypes($calendar);
-        }
-
         return $result;
     }
 
@@ -213,6 +205,8 @@ class CalendarsTable extends Table
         if (!empty($config)) {
             $result['Config'] = 'Config';
         }
+
+        $result['GoogleCalendar'] = 'Google Calendar API';
 
         asort($result);
 

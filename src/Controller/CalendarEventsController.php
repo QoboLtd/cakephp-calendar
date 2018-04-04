@@ -28,49 +28,6 @@ use Qobo\Calendar\Controller\AppController;
 class CalendarEventsController extends AppController
 {
     /**
-     * Edit method
-     *
-     * @param string|null $id Calendar Event id.
-     * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
-     * @throws \Cake\Network\Exception\NotFoundException When record not found.
-     */
-    public function edit($id = null)
-    {
-        $eventTypes = [];
-
-        $calendarEvent = $this->CalendarEvents->get($id, [
-            'contain' => ['Calendars', 'CalendarAttendees']
-        ]);
-
-        $calendars = $this->CalendarEvents->Calendars->find('list', ['limit' => 200]);
-
-        $calendarType = $calendarEvent->calendar->calendar_type;
-        $types = Configure::read('Calendar.Types');
-
-        foreach ($types as $typeInfo) {
-            if ($typeInfo['value'] === $calendarType) {
-                foreach ($typeInfo['types'] as $type) {
-                    $eventTypes[$type['value']] = $type['name'];
-                }
-            }
-        }
-
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $calendarEvent = $this->CalendarEvents->patchEntity($calendarEvent, $this->request->getData(), ['associated' => ['CalendarAttendees']]);
-            if ($this->CalendarEvents->save($calendarEvent, ['associated' => ['CalendarAttendees']])) {
-                $this->Flash->success(__('The calendar event has been saved.'));
-
-                return $this->redirect(['plugin' => 'Qobo/Calendar', 'controller' => 'Calendars', 'action' => 'index']);
-            }
-            $this->Flash->error(__('The calendar event could not be saved. Please, try again.'));
-        }
-
-        $this->set('eventTypes', $eventTypes);
-        $this->set(compact('calendarEvent', 'calendars'));
-        $this->set('_serialize', ['calendarEvent']);
-    }
-
-    /**
      * Delete method
      *
      * @param string|null $id Calendar Event id.
@@ -176,6 +133,18 @@ class CalendarEventsController extends AppController
         $this->set('_serialize', ['calEvent']);
     }
 
+    public function getTypeConfig()
+    {
+        $this->request->allowMethod(['post', 'put', 'patch']);
+        $data = $this->request->getData();
+
+        $eventType = $data['eventType'];
+        $eventTypeInfo = null;
+
+        $this->set(compact('eventTypeInfo', $eventTypeInfo));
+        $this->set('_serialize', 'eventTypeInfo');
+    }
+
     /**
      * Get Event types based on the calendar id
      *
@@ -184,23 +153,15 @@ class CalendarEventsController extends AppController
     public function getEventTypes()
     {
         $this->request->allowMethod(['post', 'patch', 'put']);
-        $eventTypes = $result = [];
-
-        $data = $this->request->getData();
         $this->Calendars = TableRegistry::Get('Qobo/Calendar.Calendars');
 
-        $calendars = $this->Calendars->getCalendars([
-            'conditions' => [
-                'id' => $data['calendar_id'],
-            ],
-        ]);
+        $eventTypes = [];
+        $data = $this->request->getData();
 
-        if (!empty($calendars)) {
-            $calendar = array_shift($calendars);
-            $result = $this->CalendarEvents->getEventTypes($calendar);
-        }
+        $calendar = $this->Calendars->get($data['calendar_id']);
+        $types = $this->CalendarEvents->getEventTypes(['calendar' => $calendar, 'user' => $this->Auth->user()]);
 
-        foreach ($result as $item) {
+        foreach ($types as $item) {
             if (isset($item['name'])) {
                 $eventTypes[] = $item;
             } else {
@@ -219,24 +180,15 @@ class CalendarEventsController extends AppController
      */
     public function index()
     {
-        $events = [];
         $this->request->allowMethod(['post', 'put', 'patch']);
-
-        $data = $this->request->getData();
         $this->Calendars = TableRegistry::get('Qobo/Calendar.Calendars');
 
+        $events = [];
+        $data = $this->request->getData();
+
         if (!empty($data['calendar_id'])) {
-            $calendar = null;
-
-            $calendars = $this->Calendars->getCalendars([
-                'conditions' => [
-                    'id' => $data['calendar_id'],
-                ]
-            ]);
-
-            if (!empty($calendars)) {
-                $events = $this->CalendarEvents->getEvents($calendars[0], $data);
-            }
+            $calendar = $this->Calendars->get($data['calendar_id']);
+            $events = $this->CalendarEvents->getEvents($calendar, $data);
         }
 
         $this->set(compact('events'));

@@ -33,14 +33,9 @@ class CalendarsController extends AppController
     public function beforeFilter(Event $event)
     {
         parent::beforeFilter($event);
-        $icons = Utility::getIcons();
-        $colors = Utility::getColors();
 
-        $calendarTypes = $this->Calendars->getTypes();
-
-        $this->set('calendarTypes', $calendarTypes);
-        $this->set('icons', $icons);
-        $this->set('colors', $colors);
+        $this->set('icons', Utility::getIcons());
+        $this->set('colors', Utility::getColors());
     }
 
     /**
@@ -86,15 +81,8 @@ class CalendarsController extends AppController
     public function view($id = null)
     {
         $calendar = null;
-        $calendars = $this->Calendars->getCalendars([
-            'conditions' => [
-                'id' => $id
-            ]
-        ]);
 
-        if (!empty($calendars)) {
-            $calendar = array_shift($calendars);
-        }
+        $calendar = $this->Calendars->get($id);
 
         $this->set('calendar', $calendar);
         $this->set('_serialize', 'calendar');
@@ -110,7 +98,7 @@ class CalendarsController extends AppController
         $this->CalendarEvents = TableRegistry::get('Qobo/Calendar.CalendarEvents');
         $calendar = $this->Calendars->newEntity();
 
-        $eventTypes = $this->CalendarEvents->getEventTypesConfigs(['user' => $this->Auth->user()]);
+        $eventTypes = $this->CalendarEvents->getEventTypes(['user' => $this->Auth->user()]);
 
         if ($this->request->is('post')) {
             $data = $this->request->getData();
@@ -141,7 +129,7 @@ class CalendarsController extends AppController
         $this->CalendarEvents = TableRegistry::get('Qobo/Calendar.CalendarEvents');
         $calendar = $this->Calendars->get($id);
 
-        $eventTypes = $this->CalendarEvents->getEventTypesConfigs(['user' => $this->Auth->user()]);
+        $eventTypes = $this->CalendarEvents->getEventTypes(['user' => $this->Auth->user()]);
 
         if ($this->request->is(['patch', 'post', 'put'])) {
             $data = $this->request->getData();
@@ -174,6 +162,7 @@ class CalendarsController extends AppController
     {
         $this->request->allowMethod(['post', 'delete']);
         $calendar = $this->Calendars->get($id);
+
         if ($this->Calendars->delete($calendar)) {
             $this->Flash->success(__('The calendar has been deleted.'));
         } else {

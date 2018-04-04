@@ -61,12 +61,6 @@ foreach ($icons as $k => $v) {
                     <?= $this->Form->hidden('source_id');?>
                     <?= $this->Form->hidden('source');?>
 
-                    <?= $this->Form->input('calendar_type', [
-                        'type' => 'select',
-                        'options' => $calendarTypes,
-                        'class' => 'select2',
-                        'empty' => true
-                    ]) ?>
                     <?php
                         $selectedEventTypes = !empty($calendar->event_types) ? json_decode($calendar->event_types, true) : [];
                     ?>
