@@ -394,6 +394,12 @@ class CalendarEventsTable extends Table
         return $result;
     }
 
+    /**
+     * Get Event types for the calendar event
+     *
+     * @param array $options of the data including user
+     * @return array $result with event types.
+     */
     public function getEventTypes(array $options = [])
     {
         $result = [];
