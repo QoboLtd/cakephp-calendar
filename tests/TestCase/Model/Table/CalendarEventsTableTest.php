@@ -243,7 +243,6 @@ class CalendarEventsTableTest extends TestCase
         $this->assertEmpty($result);
     }
 
-
     public function testGetEventTypeFromConfg()
     {
         $result = $this->CalendarEvents->getEventTypeFromConf('Config::Shifts::morning_shift');
