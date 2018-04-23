@@ -1,5 +1,5 @@
 <?php
-namespace Qobo\Calendar\Test\TestCase\ObjectType;
+namespace Qobo\Calendar\Test\TestCase\Object\Objects;
 
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
