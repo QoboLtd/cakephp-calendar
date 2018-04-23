@@ -55,42 +55,4 @@ class Attendee extends AbstractObject
     {
         return $this->contactDetails;
     }
-
-    /**
-     * Set Source of Attendee
-     *
-     * @param string $source of attendee instance
-     * @return void
-     */
-    public function setSource($source)
-    {
-        $this->source = $source;
-    }
-
-    /**
-     * @return string $source of attendee
-     */
-    public function getSource()
-    {
-        return $this->source;
-    }
-
-    /**
-     * Set Source Id of attendee received
-     *
-     * @param string $sourceId of attendee
-     * @return void
-     */
-    public function setSourceId($sourceId)
-    {
-        $this->sourceId = $sourceId;
-    }
-
-    /**
-     * @return string $sourceId of attendee
-     */
-    public function getSourceId()
-    {
-        return $this->sourceId;
-    }
 }

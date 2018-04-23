@@ -51,44 +51,6 @@ class Event extends AbstractObject
     }
 
     /**
-     * Set Source of the calendar
-     *
-     * @param string $source of calendar event
-     * @return void
-     */
-    public function setSource($source)
-    {
-        $this->source = $source;
-    }
-
-    /**
-     * @return mixed $source of the calendar event
-     */
-    public function getSource()
-    {
-        return $this->source;
-    }
-
-    /**
-     * Set SourceId of the entity
-     *
-     * @param string $sourceId passed
-     * @return void
-     */
-    public function setSourceId($sourceId)
-    {
-        $this->sourceId = $sourceId;
-    }
-
-    /**
-     * @return string $sourceId of the object
-     */
-    public function getSourceId()
-    {
-        return $this->sourceId;
-    }
-
-    /**
      * Set Event title
      *
      * @param string $title of event

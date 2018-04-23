@@ -9,6 +9,7 @@
  * @copyright     Copyright (c) Qobo Ltd. (https://www.qobo.biz)
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
+use Cake\Core\Configure;
 
 echo $this->Html->css(
     [
@@ -52,7 +53,7 @@ $timezone = date_default_timezone_get();
         </div>
     </div>
 </section>
-<section class="content" id="qobo-calendar-app" start="<?= $start;?>" end="<?= $end;?>" timezone="<?= $timezone; ?>">
+<section class="content" id="qobo-calendar-app" start="<?= $start;?>" end="<?= $end;?>" timezone="<?= $timezone; ?>" token="<?= Configure::read('API.token');?>">
     <div class="row">
        <div class="col-md-4">
             <div class='box'>

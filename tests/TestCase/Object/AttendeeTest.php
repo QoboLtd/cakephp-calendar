@@ -4,6 +4,7 @@ namespace Qobo\Calendar\Test\TestCase\ObjectType;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 use Qobo\Calendar\Object\ObjectFactory;
+use Qobo\Calendar\Object\Objects\Attendee;
 
 class AttendeeTest extends TestCase
 {
@@ -23,5 +24,22 @@ class AttendeeTest extends TestCase
     public function tearDown()
     {
         parent::tearDown();
+    }
+
+    public function testSetDisplayName()
+    {
+        $name = 'Francis';
+        $obj = new Attendee();
+        $obj->setDisplayName($name);
+        $this->assertEquals($name, $obj->getDisplayName());
+    }
+
+    public function testSetContactDetails()
+    {
+        $details = 'mymymy@example.com';
+        $obj = new Attendee();
+        $obj->setContactDetails($details);
+
+        $this->assertEquals($details, $obj->getContactDetails());
     }
 }

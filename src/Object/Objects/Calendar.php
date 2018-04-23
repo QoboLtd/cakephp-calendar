@@ -102,37 +102,6 @@ class Calendar extends AbstractObject
     {
         return $this->calendarType;
     }
-
-    /**
-     * Set Calendar Source
-     *
-     * @param string $source from where calendar derives
-     * @return void
-     */
-    public function setSource($source)
-    {
-        $this->source = $source;
-    }
-
-    /**
-     * @return string $source of the calendar
-     */
-    public function getSource()
-    {
-        return $this->source;
-    }
-
-    /**
-     * Set Calendar Source ID of the origin source
-     *
-     * @param string $sourceId of calendar source
-     * @return void
-     */
-    public function setSourceId($sourceId)
-    {
-        $this->sourceId = $sourceId;
-    }
-
     /**
      * Set Calendar Active flag
      *

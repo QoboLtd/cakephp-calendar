@@ -23,7 +23,8 @@ new Vue({
     end: null,
     timezone: null,
     eventClick: null,
-    public: null
+    public: null,
+    apiToken:null
   },
   computed: {
     isIntervalChanged: function () {
@@ -58,6 +59,7 @@ new Vue({
     this.start = this.$el.attributes.start.value
     this.end = this.$el.attributes.end.value
     this.timezone = this.$el.attributes.timezone.value
+    this.apiToken = this.$el.attributes.token.value
 
     if (this.$el.attributes.public) {
       this.public = this.$el.attributes.public.value
@@ -80,6 +82,9 @@ new Vue({
       $.ajax({
         method: 'post',
         dataType: 'json',
+        headers: {
+          Authorization: 'Bearer ' + this.apiToken
+        },
         url: '/calendars/calendars/index'
       }).done(function (response) {
         self.calendars = response

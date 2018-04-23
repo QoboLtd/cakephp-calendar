@@ -50,7 +50,7 @@ class CalendarAttendeesController extends AppController
             'contain' => ['CalendarEvents']
         ]);
 
-        $this->set('calendarAttendee', $calendarAttendee);
+        $this->set(compact('calendarAttendee'));
         $this->set('_serialize', ['calendarAttendee']);
     }
 
