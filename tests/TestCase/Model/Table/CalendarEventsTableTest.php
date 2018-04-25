@@ -4,6 +4,7 @@ namespace Qobo\Calendar\Test\TestCase\Model\Table;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 use Qobo\Calendar\Model\Table\CalendarEventsTable;
+use Qobo\Calendar\Model\Table\CalendarsTable;
 
 /**
  * Qobo\Calendar\Model\Table\CalendarEventsTable Test Case
@@ -38,8 +39,11 @@ class CalendarEventsTableTest extends TestCase
     public function setUp()
     {
         parent::setUp();
-        $config = TableRegistry::exists('CalendarEvents') ? [] : ['className' => 'Qobo\Calendar\Model\Table\CalendarEventsTable'];
+        $config = TableRegistry::exists('CalendarEvents') ? [] : ['className' => CalendarEventsTable::class];
         $this->CalendarEvents = TableRegistry::get('CalendarEvents', $config);
+
+        $config = TableRegistry::exists('Calendars') ? [] : ['className' => CalendarsTable::class];
+        $this->Calendars = TableRegistry::get('Calendars', $config);
     }
 
     /**
@@ -244,6 +248,11 @@ class CalendarEventsTableTest extends TestCase
 
     public function testGetEventTypes()
     {
+        $calendarId = '00000000-0000-0000-0000-000000000001';
 
+        $calendar = $this->Calendars->get($calendarId);
+        $result = $this->CalendarEvents->getEventTypes(['calendar' => $calendar, 'user' => null]);
+        $this->assertNotEmpty($result);
+        $this->assertTrue(is_array($result));
     }
 }

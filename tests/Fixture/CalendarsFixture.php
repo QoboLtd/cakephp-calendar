@@ -58,7 +58,7 @@ class CalendarsFixture extends TestFixture
             'modified' => '2017-05-22 11:19:02',
             'trashed' => null,
             'calendar_type' => null,
-            'event_types' => null,
+            'event_types' => '["Config::Default::default","Json::Calls::default"]',
             'active' => 1,
             'is_public' => 1,
             'editable' => 0,
