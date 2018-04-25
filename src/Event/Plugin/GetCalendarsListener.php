@@ -68,7 +68,7 @@ class GetCalendarsListener implements EventListenerInterface
                 $options = array_merge($options->getArrayCopy(), ['calendar' => $calendar]);
                 $options = new ArrayObject($options);
 
-                $eventObject = $table->getObjectTypeInstance($entity, $map, $options);
+                $eventObject = $table->getObjectInstance($entity, $map, $options);
                 $calendarEntity = $eventObject->toEntity();
 
                 if (!$calendarEntity) {

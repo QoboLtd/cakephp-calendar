@@ -300,7 +300,7 @@ class CalendarEventsTable extends Table
 
         $rule = $this->getRRuleConfiguration($origin['recurrence']);
 
-        if (empty($rule)) {
+        if (empty($rule) || empty($options['period'])) {
             return $result;
         }
 
@@ -404,32 +404,33 @@ class CalendarEventsTable extends Table
     public function getEventTypes(array $options = [])
     {
         $result = [];
-        if (empty($options['calendar'])) {
-            $event = new Event('App.Calendars.getCalendarEventTypes', $this, [
-                'user' => $options['user'],
-            ]);
 
-            EventManager::instance()->dispatch($event);
-
-            if (!empty($event->result)) {
-                $result = array_merge($result, $event->result);
-            }
-
-            $configs = Configure::read('Calendar.Types');
-            foreach ($configs as $calendar) {
-                if (empty($calendar['event_types'])) {
-                    continue;
-                }
-
-                foreach ($calendar['event_types'] as $type => $properties) {
-                    $value = 'Config::' . $calendar['name'] . '::' . $type;
-                    $result[$value] = $value;
-                }
-            }
-        } else {
+        if (!empty($options['calendar'])) {
             $types = json_decode($options['calendar']->event_types, true);
             foreach ($types as $type) {
                 $result[$type] = $type;
+            }
+        }
+
+        $event = new Event('App.Calendars.getCalendarEventTypes', $this, [
+            'user' => $options['user'],
+        ]);
+
+        EventManager::instance()->dispatch($event);
+
+        if (!empty($event->result)) {
+            $result = array_merge($result, $event->result);
+        }
+
+        $configs = Configure::read('Calendar.Types');
+        foreach ($configs as $calendar) {
+            if (empty($calendar['event_types'])) {
+                continue;
+            }
+
+            foreach ($calendar['event_types'] as $type => $properties) {
+                $value = 'Config::' . $calendar['name'] . '::' . $type;
+                $result[$value] = $value;
             }
         }
 

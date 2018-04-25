@@ -27,9 +27,10 @@ class CalendarsFixture extends TestFixture
         'modified' => ['type' => 'datetime', 'length' => null, 'null' => false, 'default' => null, 'comment' => '', 'precision' => null],
         'trashed' => ['type' => 'datetime', 'length' => null, 'null' => true, 'default' => null, 'comment' => '', 'precision' => null],
         'calendar_type' => ['type' => 'string', 'length' => 255, 'null' => true, 'default' => null, 'collate' => 'utf8_general_ci', 'comment' => '', 'precision' => null, 'fixed' => null],
-        'active' => ['type' => 'boolean', 'length' => 1, 'null' => false, 'default' => 0, 'collate' => 'utf8_general_ci', 'comment' => '', 'precision' => null, 'fixed' => null],
-        'is_public' => ['type' => 'boolean', 'length' => 1, 'null' => true, 'default' => 0, 'collate' => 'utf8_general_ci', 'comment' => '', 'precision' => null, 'fixed' => null],
-        'editable' => ['type' => 'boolean', 'length' => 1, 'null' => true, 'default' => 1, 'collate' => 'utf8_general_ci', 'comment' => '', 'precision' => null, 'fixed' => null],
+        'active' => ['type' => 'boolean', 'length' => null, 'null' => false, 'default' => '0', 'comment' => '', 'precision' => null],
+        'is_public' => ['type' => 'boolean', 'length' => null, 'null' => true, 'default' => '0', 'comment' => '', 'precision' => null],
+        'editable' => ['type' => 'boolean', 'length' => null, 'null' => true, 'default' => '1', 'comment' => '', 'precision' => null],
+        'event_types' => ['type' => 'text', 'length' => 4294967295, 'null' => true, 'default' => null, 'collate' => 'utf8_general_ci', 'comment' => '', 'precision' => null],
         '_constraints' => [
             'primary' => ['type' => 'primary', 'columns' => ['id'], 'length' => []],
         ],
@@ -47,7 +48,7 @@ class CalendarsFixture extends TestFixture
      */
     public $records = [
         [
-            'id' => '9390cbc1-dc1d-474a-a372-de92dce85aae',
+            'id' => '00000000-0000-0000-0000-000000000001',
             'name' => 'Calendar - 1',
             'color' => '#05497d',
             'icon' => 'google',
@@ -57,12 +58,13 @@ class CalendarsFixture extends TestFixture
             'modified' => '2017-05-22 11:19:02',
             'trashed' => null,
             'calendar_type' => null,
+            'event_types' => null,
             'active' => 1,
             'is_public' => 1,
             'editable' => 0,
         ],
         [
-            'id' => '9390cbc1-dc1d-474a-a372-de92dce85aaa',
+            'id' => '00000000-0000-0000-0000-000000000002',
             'name' => 'Calendar - 2',
             'color' => '#29c619',
             'icon' => 'user',
@@ -77,7 +79,7 @@ class CalendarsFixture extends TestFixture
             'editable' => 0,
         ],
         [
-            'id' => '9390cbc1-dc1d-474a-a372-de92dce85aac',
+            'id' => '00000000-0000-0000-0000-000000000003',
             'name' => 'Calendar Without Events',
             'color' => '#29c619',
             'icon' => 'user',
@@ -92,7 +94,7 @@ class CalendarsFixture extends TestFixture
             'editable' => 0,
         ],
         [
-            'id' => '9390cbc1-dc1d-474a-a372-de92dce85aba',
+            'id' => '00000000-0000-0000-0000-000000000004',
             'name' => 'Calendar With Recurring Event',
             'color' => '#29c619',
             'icon' => 'user',

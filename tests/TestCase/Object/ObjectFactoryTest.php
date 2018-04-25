@@ -33,6 +33,6 @@ class ObjectFactoryTest extends TestCase
         $result = ObjectFactory::getParserConfig('Leads', 'Event', []);
         $this->assertNotEmpty($result);
         $this->assertTrue(is_object($result));
-        $this->assertEquals($result->calendar_id->value, 'getCalendarIdtest');
+        $this->assertEquals($result->calendar_id->value, 'test');
     }
 }

@@ -1,42 +1,42 @@
 {
   "calendar_id": {
-    "type": "field",
-    "value": "getCalendarIdtest"
+    "type": "value",
+    "value": "test"
   },
   "source": {
-    "type": "field",
-    "value": "getSource"
+    "type": "value",
+    "value": "source_test"
   },
   "source_id": {
-    "type": "field",
-    "value": "id"
+    "type": "value",
+    "value": "source_test"
   },
   "event_type": {
-    "type": "field",
-    "value": "getEventType"
+    "type": "value",
+    "value": "event_type_test"
   },
   "title": {
-    "type": "field",
-    "value": "title"
+    "type": "value",
+    "value": "Hey, Dolly!"
   },
   "content": {
-    "type": "field",
+    "type": "value",
     "value": "description"
   },
   "start_date": {
-    "type": "field",
-    "value": "next_follow_up_date"
+    "type": "value",
+    "value": "2018-04-09 09:00:00"
   },
   "is_recurring": {
     "type": "value",
     "value": false
   },
   "recurrence": {
-    "type": "field",
-    "value": "getRecurrence"
+    "type": "value",
+    "value": false
   },
   "is_allday": {
-    "type": "field",
-    "value": "getIsAllday"
+    "type": "value",
+    "value": false
   }
 }

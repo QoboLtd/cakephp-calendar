@@ -55,8 +55,8 @@ class CalendarEventsFixture extends TestFixture
      */
     public $records = [
         [
-            'id' => '688580e6-2224-4dcb-a8df-32337b82e1e3',
-            'calendar_id' => '9390cbc1-dc1d-474a-a372-de92dce85aae',
+            'id' => '00000000-0000-0000-0000-000000000001',
+            'calendar_id' => '00000000-0000-0000-0000-000000000001',
             'source_id' => null,
             'source' => null,
             'title' => 'Lorem ipsum dolor sit amet',
@@ -71,8 +71,8 @@ class CalendarEventsFixture extends TestFixture
             'recurrence' => '',
         ],
         [
-            'id' => '688580e6-2224-4dcb-a8df-32337b82e1e4',
-            'calendar_id' => '9390cbc1-dc1d-474a-a372-de92dce85aaf',
+            'id' => '00000000-0000-0000-0000-000000000002',
+            'calendar_id' => '00000000-0000-0000-0000-000000000003',
             'source_id' => null,
             'source' => null,
             'title' => 'Lorem ipsum dolor sit amet',
@@ -87,8 +87,8 @@ class CalendarEventsFixture extends TestFixture
             'recurrence' => null,
         ],
         [
-            'id' => '688580e6-2224-4dcb-a8df-32337b82e1e5',
-            'calendar_id' => '9390cbc1-dc1d-474a-a372-de92dce85aaf',
+            'id' => '00000000-0000-0000-0000-000000000003',
+            'calendar_id' => '00000000-0000-0000-0000-000000000001',
             'source_id' => null,
             'source' => null,
             'title' => 'Recurring Annual Event with 5 count',
@@ -103,8 +103,8 @@ class CalendarEventsFixture extends TestFixture
             'recurrence' => '["RRULE:FREQ=YEARLY;COUNT=5"]',
         ],
         [
-            'id' => '688580e6-2224-4dcb-a8df-32337b82e1e6',
-            'calendar_id' => '9390cbc1-dc1d-474a-a372-de92dce85aaf',
+            'id' => '00000000-0000-0000-0000-000000000004',
+            'calendar_id' => '00000000-0000-0000-0000-000000000003',
             'source_id' => null,
             'source' => null,
             'title' => 'Recurring Annual Event with 5 count',
@@ -119,8 +119,8 @@ class CalendarEventsFixture extends TestFixture
             'recurrence' => '',
         ],
         [
-            'id' => '688580e6-2224-4dcb-a8df-32337b82e1e7',
-            'calendar_id' => '9390cbc1-dc1d-474a-a372-de92dce85aba',
+            'id' => '00000000-0000-0000-0000-000000000005',
+            'calendar_id' => '00000000-0000-0000-0000-000000000001',
             'source_id' => null,
             'source' => null,
             'title' => 'Recurring Event with Count 2',

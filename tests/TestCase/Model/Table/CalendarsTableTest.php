@@ -95,18 +95,12 @@ class CalendarsTableTest extends TestCase
         $result = $this->Calendars->getCalendars();
         $this->assertTrue(!empty($result));
 
-        $result = $this->Calendars->getCalendars(['id' => '9390cbc1-dc1d-474a-a372-de92dce85aae']);
+        $result = $this->Calendars->getCalendars(['id' => '00000000-0000-0000-0000-000000000001']);
         $this->assertNotEmpty($result);
-        $this->assertEquals($result[0]->id, '9390cbc1-dc1d-474a-a372-de92dce85aae');
+        $this->assertEquals($result[0]->id, '00000000-0000-0000-0000-000000000001');
 
-        $result = $this->Calendars->getCalendars(['conditions' => ['id' => '9390cbc1-dc1d-474a-a372-de92dce85aaa']]);
+        $result = $this->Calendars->getCalendars(['conditions' => ['id' => '00000000-0000-0000-0000-000000000001']]);
         $this->assertNotEmpty($result);
-        $this->assertEquals($result[0]->id, '9390cbc1-dc1d-474a-a372-de92dce85aaa');
-
-        Configure::write('Calendar.Types', ['foo' => ['name' => 'bar', 'value' => 'bar']]);
-        $result = $this->Calendars->getCalendars(['conditions' => ['id' => '9390cbc1-dc1d-474a-a372-de92dce85aaa']]);
-
-        $result = $this->Calendars->getCalendars(['conditions' => ['id' => '9390cbc1-dc1d-474a-a372-de92dce85fake']]);
-        $this->assertEquals($result, []);
+        $this->assertEquals($result[0]->id, '00000000-0000-0000-0000-000000000001');
     }
 }

@@ -8,7 +8,7 @@ use Cake\Utility\Inflector;
 use Qobo\Calendar\Object\Objects\Event as EventObject;
 use \ArrayObject;
 
-trait ObjectTypeTrait
+trait ObjectTrait
 {
 
     protected $defaultCalendar;
@@ -16,15 +16,15 @@ trait ObjectTypeTrait
     /**
      * Get Object Type instance
      *
-     * Return prepopulated ObjectType instance for being later saved in the db.
+     * Return prepopulated Object instance for being later saved in the db.
      *
      * @param \Cake\Datasource\EntityInterface $entity to be converted
-     * @param \stdClass $map containing ORM\Entity translation to ObjectType instance
+     * @param \stdClass $map containing ORM\Entity translation to Object instance
      * @param \ArrayObject $options with passed from the app
      *
-     * @return \Qobo\Calendar\ObjectType\ObjectTypeInterface $object
+     * @return \Qobo\Calendar\Object\ObjectInterface $object
      */
-    public function getObjectTypeInstance(EntityInterface $entity, $map, ArrayObject $options)
+    public function getObjectInstance(EntityInterface $entity, $map, ArrayObject $options)
     {
         $object = null;
 

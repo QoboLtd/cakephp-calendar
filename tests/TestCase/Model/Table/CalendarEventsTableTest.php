@@ -61,7 +61,6 @@ class CalendarEventsTableTest extends TestCase
 
         $this->Calendars = TableRegistry::get('Qobo/Calendar.Calendars');
         $dbItems = $this->Calendars->getCalendars();
-
         $options = [
             'calendar_id' => $dbItems[0]->id,
         ];
@@ -78,12 +77,12 @@ class CalendarEventsTableTest extends TestCase
         $this->Calendars = TableRegistry::get('Qobo/Calendar.Calendars');
         $dbItems = $this->Calendars->getCalendars([
             'conditions' => [
-                'id' => '9390cbc1-dc1d-474a-a372-de92dce85aac',
+                'id' => '00000000-0000-0000-0000-000000000004',
             ]
         ]);
 
         $options = [
-            'calendar_id' => '9390cbc1-dc1d-474a-a372-de92dce85aac',
+            'calendar_id' => '00000000-0000-0000-0000-000000000004',
         ];
 
         $result = $this->CalendarEvents->getCalendarEvents($dbItems[0], $options);
@@ -234,12 +233,17 @@ class CalendarEventsTableTest extends TestCase
 
     public function testGetEventInfo()
     {
-        $eventId = '688580e6-2224-4dcb-a8df-32337b82e1e4';
+        $eventId = '00000000-0000-0000-0000-000000000003';
 
         $result = $this->CalendarEvents->getEventInfo(['id' => $eventId]);
         $this->assertNotEmpty($result);
 
         $result = $this->CalendarEvents->getEventInfo([]);
         $this->assertEmpty($result);
+    }
+
+    public function testGetEventTypes()
+    {
+
     }
 }
