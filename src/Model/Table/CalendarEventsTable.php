@@ -227,6 +227,36 @@ class CalendarEventsTable extends Table
     }
 
     /**
+     * Get Event Range condition
+     *
+     * @param array $options containiner period with start_date/end_date params
+     * @return array $result containing start/end keys with month dates.
+     */
+    public function getEventRange(array $options = [])
+    {
+        $result = [];
+
+        if (empty($options['period'])) {
+            return $result;
+        }
+
+        //@NOTE: sqlite doesn't support date_format or month functions
+        if (!empty($options['period']['start_date'])) {
+            $result['start'] = [
+                'MONTH(start_date) >=' => date('m', strtotime($options['period']['start_date']))
+            ];
+        }
+
+        if (!empty($options['period']['end_date'])) {
+            $result['end'] = [
+                'MONTH(end_date) <=' => date('m', strtotime($options['period']['end_date']))
+            ];
+        }
+
+        return $result;
+    }
+
+    /**
      * Get infinite calendar events for given calendar
      *
      * @param mixed $calendarId as its id.
@@ -238,24 +268,20 @@ class CalendarEventsTable extends Table
     public function getInfiniteEvents($calendarId, $events, $options = [])
     {
         $result = $existingEventIds = [];
+        $range = $this->getEventRange($options);
 
         $query = $this->find();
-        $query->where(['is_recurring' => true]);
-        $query->andWhere(['calendar_id' => $calendarId]);
+        $query->where([
+            'is_recurring' => true,
+            'calendar_id' => $calendarId
+        ]);
 
-        //@NOTE: sqlite doesn't support date_format or month functions
-        if (!empty($options['period'])) {
-            if (!empty($options['period']['start_date'])) {
-                $query->andWhere([
-                    'MONTH(start_date) >=' => date('m', strtotime($options['period']['start_date'])),
-                ]);
-            }
+        if (!empty($range['start'])) {
+            $query->andWhere($range['start']);
+        }
 
-            if (!empty($options['period']['end_date'])) {
-                $query->andWhere([
-                    'MONTH(end_date) <=' => date('m', strtotime($options['period']['end_date'])),
-                ]);
-            }
+        if (!empty($range['end'])) {
+            $query->andWhere($range['end']);
         }
 
         $query->contain(['CalendarAttendees']);

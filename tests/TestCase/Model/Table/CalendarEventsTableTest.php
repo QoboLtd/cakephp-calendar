@@ -255,4 +255,39 @@ class CalendarEventsTableTest extends TestCase
         $this->assertNotEmpty($result);
         $this->assertTrue(is_array($result));
     }
+
+    /**
+     * @dataProvider testGetEventRangeProvider
+     */
+    public function testGetEventRange($data, $expected)
+    {
+        $result = $this->CalendarEvents->getEventRange($data);
+        $this->assertEquals($result, $expected);
+    }
+
+    public function testGetEventRangeProvider()
+    {
+        return [
+            [
+                [],
+                []
+            ],
+            [
+                [
+                    'period' => [
+                        'start_date' => '2018-04-09 09:30:00',
+                        'end_date' => '2018-05-01 08:00:00'
+                    ]
+                ],
+                [
+                    'start' => [
+                        'MONTH(start_date) >=' => '04',
+                    ],
+                    'end' => [
+                        'MONTH(end_date) <=' => '05',
+                    ]
+                ]
+            ]
+        ];
+    }
 }
