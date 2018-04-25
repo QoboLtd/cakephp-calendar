@@ -106,7 +106,6 @@ class CalendarsTableTest extends TestCase
 
     public function testGetByAllowedEventTypes()
     {
-
         $result = $this->Calendars->getByAllowedEventTypes('Config');
         $this->assertNotEmpty($result);
 
