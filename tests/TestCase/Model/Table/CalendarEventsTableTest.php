@@ -235,6 +235,27 @@ class CalendarEventsTableTest extends TestCase
         $this->assertEquals($result, $resultObj);
     }
 
+    public function testGetIdSuffix()
+    {
+        $event = [
+            'id' => '123',
+            'start_date' => '2019-08-01 09:00:00',
+            'end_date' => '2019-08-02 09:00:00',
+        ];
+
+        $result = $this->CalendarEvents->setIdSuffix($event);
+        $timestamp = $this->CalendarEvents->getIdSuffix($result);
+
+        $this->assertEquals($timestamp['start'], $event['start_date']);
+        $this->assertEquals($timestamp['end'], $event['end_date']);
+
+        $result = str_replace('_', '', $result);
+        $wrongTimestamp = $this->CalendarEvents->getIdSuffix($result);
+
+        $this->assertEquals($wrongTimestamp, []);
+        $this->assertEquals([], $this->CalendarEvents->getIdSuffix());
+    }
+
     public function testGetEventInfo()
     {
         $eventId = '00000000-0000-0000-0000-000000000003';
@@ -244,6 +265,13 @@ class CalendarEventsTableTest extends TestCase
 
         $result = $this->CalendarEvents->getEventInfo([]);
         $this->assertEmpty($result);
+
+        $result = $this->CalendarEvents->getEventInfo([
+            'id' => $eventId,
+            'timestamp' => '1564650000_1564736400'
+        ]);
+        $this->assertEquals(true, $result->dirty('end_date'));
+        $this->assertEquals(true, $result->dirty('start_date'));
     }
 
     public function testGetEventTypes()

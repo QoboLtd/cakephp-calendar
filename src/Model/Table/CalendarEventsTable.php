@@ -394,6 +394,28 @@ class CalendarEventsTable extends Table
     }
 
     /**
+     * Parse recurrent event id suffix
+     *
+     * @param string $timestamp containing date suffix
+     * @return array $result containing start/end pair.
+     */
+    public function getIdSuffix($timestamp = null)
+    {
+        $result = [];
+
+        if (empty($timestamp)) {
+            return $result;
+        }
+
+        if (preg_match('/(\d+)\_(\d+)/i', $timestamp, $parts)) {
+            $result['start'] = date('Y-m-d H:i:s', $parts[1]);
+            $result['end'] = date('Y-m-d H:i:s', $parts[2]);
+        }
+
+        return $result;
+    }
+
+    /**
      * Get RRULE configuration from the event
      *
      * @param array $recurrence received from the calendar
@@ -482,9 +504,7 @@ class CalendarEventsTable extends Table
         }
 
         if (!empty($options['timestamp'])) {
-            $parts = explode('_', $options['timestamp']);
-            $start = date('Y-m-d H:i:s', $parts[0]);
-            $end = date('Y-m-d H:i:s', $parts[1]);
+            $range = $this->getIdSuffix($options['timestamp']);
         }
 
         $result = $this->find()
@@ -493,14 +513,14 @@ class CalendarEventsTable extends Table
                 ->first();
 
         //@NOTE: we're faking the start/end intervals for recurring events
-        if (!empty($end)) {
-            $time = Time::parse($end);
+        if (!empty($range['end'])) {
+            $time = Time::parse($range['end']);
             $result->end_date = $time;
             unset($time);
         }
 
-        if (!empty($start)) {
-            $time = Time::parse($start);
+        if (!empty($range['start'])) {
+            $time = Time::parse($range['start']);
             $result->start_date = $time;
             unset($time);
         }

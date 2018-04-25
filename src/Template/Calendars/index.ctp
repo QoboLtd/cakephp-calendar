@@ -45,7 +45,18 @@ $timezone = date_default_timezone_get();
                         $user = (!isset($user)) ? [] : $user;
                         echo $this->element('CsvMigrations.Menu/index_top', ['user' => $user]);
                     } else {
-                        echo $this->Html->link(__('Add'), ['plugin' => 'Qobo/Calendar', 'controller' => 'Calendars', 'action' => 'add'], ['class' => 'btn btn-default']);
+                        echo $this->Html->link(
+                            '<i class="fa fa-plus"></i> ' . __('Add'),
+                            [
+                                'plugin' => 'Qobo/Calendar',
+                                'controller' => 'Calendars',
+                                'action' => 'add'
+                            ],
+                            [
+                                'class' => 'btn btn-default',
+                                'escape' => false,
+                            ]
+                        );
                     }
                     ?>
                 </div>
