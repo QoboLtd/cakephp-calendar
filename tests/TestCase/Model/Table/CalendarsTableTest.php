@@ -103,4 +103,14 @@ class CalendarsTableTest extends TestCase
         $this->assertNotEmpty($result);
         $this->assertEquals($result[0]->id, '00000000-0000-0000-0000-000000000001');
     }
+
+    public function testGetByAllowedEventTypes()
+    {
+
+        $result = $this->Calendars->getByAllowedEventTypes('Config');
+        $this->assertNotEmpty($result);
+
+        $result = $this->Calendars->getByAllowedEventTypes('Foobar');
+        $this->assertEquals($result, []);
+    }
 }
