@@ -1,7 +1,7 @@
 {
   "calendar_id": {
     "type": "field",
-    "value": "getCalendarId"
+    "value": "getCalendarIdtest"
   },
   "source": {
     "type": "field",

@@ -27,4 +27,12 @@ class ObjectFactoryTest extends TestCase
 
         parent::tearDown();
     }
+
+    public function testGetParserConfig()
+    {
+        $result = ObjectFactory::getParserConfig('Leads', 'Event', []);
+        $this->assertNotEmpty($result);
+        $this->assertTrue(is_object($result));
+        $this->assertEquals($result->calendar_id->value, 'getCalendarIdtest');
+    }
 }
