@@ -653,4 +653,48 @@ class CalendarEventsTable extends Table
 
         return $result;
     }
+
+    /**
+     * Save Calendar Event wrapper
+     *
+     * @param \Cake\Datasource\EntityInterface $entity of generic entity object
+     * @return array $response containing saving state of entity.
+     */
+    public function saveEvent(EntityInterface $entity)
+    {
+        $response = [
+            'status' => false,
+            'errors' => [],
+            'entity' => null,
+        ];
+
+        if (empty($entity->id)) {
+            unset($entity->id);
+        }
+
+        $query = $this->find()
+            ->where([
+                'source' => $entity->source,
+                'source_id' => $entity->source_id,
+                'calendar_id' => $entity->calendar_id
+            ]);
+
+        $query->execute();
+
+        if ($query->count()) {
+            $entity = $this->patchEntity($query->first(), $entity->toArray());
+        }
+
+        $saved = $this->save($entity);
+        $response['entity'] = $entity;
+
+        if ($saved) {
+            $response['status'] = true;
+            $response['entity'] = $saved;
+        } else {
+            $response['errors'] = $entity->getErrors();
+        }
+
+        return $response;
+    }
 }

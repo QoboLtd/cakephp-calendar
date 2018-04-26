@@ -55,7 +55,6 @@ class GetCalendarsListener implements EventListenerInterface
     public function addEvent(Event $event, EntityInterface $entity, ArrayObject $options = null)
     {
         $entities = $result = [];
-
         $table = $event->subject();
 
         $map = ObjectFactory::getParserConfig($table->alias(), 'Event', $options->getArrayCopy());
@@ -81,30 +80,10 @@ class GetCalendarsListener implements EventListenerInterface
 
         if (!empty($entities)) {
             $eventsTable = TableRegistry::get('Qobo/Calendar.CalendarEvents');
+
             foreach ($entities as $item) {
-                if (empty($item->id)) {
-                    unset($item->id);
-                }
-
-                $query = $eventsTable->find();
-                $query->where([
-                    'source' => $item->source,
-                    'source_id' => $item->source_id,
-                    'calendar_id' => $item->calendar_id
-                ]);
-
-                $query->execute();
-
-                if ($query->count()) {
-                    $item = $eventsTable->patchEntity($query->first(), $item->toArray());
-                }
-
-                $saved = $eventsTable->save($item);
-                if ($saved) {
-                    $result[] = $saved;
-                } else {
-                    $result[] = $item->getErrors();
-                }
+                $saved = $eventsTable->saveEvent($item);
+                $result[] = $saved;
             }
         }
 
