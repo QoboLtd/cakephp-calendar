@@ -63,4 +63,57 @@ class CalendarsControllerTest extends IntegrationTestCase
         $this->get('/calendars/calendars/view/' . $id);
         $this->assertResponseOk();
     }
+
+    public function testAddResponseOk()
+    {
+        $this->get('/calendars/calendars/add');
+        $this->assertResponseOk();
+
+        $data = [
+            'name' => 'Test Calendar - fake',
+            'active' => true,
+        ];
+
+        $this->post('/calendars/calendars/add', $data);
+        $this->assertRedirect('/calendars/calendars');
+
+        $saved = $this->Calendars->find()
+            ->where(['name' => $data['name']])
+            ->first();
+
+        $this->assertEquals($saved->name, $data['name']);
+    }
+
+    public function testEditResponseOk()
+    {
+        $calendarId = '00000000-0000-0000-0000-000000000001';
+
+        $this->get('/calendars/calendars/edit/' . $calendarId);
+        $this->assertResponseOk();
+
+        $data = [
+            'icon' => 'facebook',
+            'event_types' => [
+                'Foo::bar::default',
+                'Bar::foo::default',
+            ]
+        ];
+
+        $this->post('/calendars/calendars/edit/' . $calendarId, $data);
+        $this->assertRedirect('/calendars/calendars');
+
+        $edited = $this->Calendars->get($calendarId);
+
+        $this->assertEquals($edited->icon, $data['icon']);
+        $this->assertEquals($calendarId, $edited->id);
+        $this->assertEquals(json_decode($edited->event_types, true), $data['event_types']);
+    }
+
+    public function testDeleteResponseOk()
+    {
+        $calendarId = '00000000-0000-0000-0000-000000000001';
+
+        $this->delete('/calendars/calendars/delete/' . $calendarId);
+        $this->assertRedirect('/calendars/calendars');
+    }
 }

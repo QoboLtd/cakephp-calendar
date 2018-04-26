@@ -134,23 +134,6 @@ class CalendarEventsController extends AppController
     }
 
     /**
-     * Get Type Config
-     *
-     * @return void
-     */
-    public function getTypeConfig()
-    {
-        $this->request->allowMethod(['post', 'put', 'patch']);
-        $data = $this->request->getData();
-
-        $eventType = $data['eventType'];
-        $eventTypeInfo = null;
-
-        $this->set(compact('eventTypeInfo', $eventTypeInfo));
-        $this->set('_serialize', 'eventTypeInfo');
-    }
-
-    /**
      * Get Event types based on the calendar id
      *
      * @return void
