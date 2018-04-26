@@ -697,4 +697,43 @@ class CalendarEventsTable extends Table
 
         return $response;
     }
+
+    /**
+     * Convert incoming ORM Entities to CalendarEvent entities
+     *
+     * We create multiple entities for each calendar to avoid accidential
+     * crossing of instances.
+     *
+     * @param \Cake\ORM\Table $table instance of original entity table
+     * @param array $calendars that it might be saved to
+     * @param \ArrayObject $options originally received from event caught
+     *
+     * @return array $entities of converted CalendarEvent entitites.
+     */
+    public function getEventsFromEntities($table, $calendars, $options)
+    {
+        $entities = [];
+
+        if (empty($calendars)) {
+            return $entities;
+        }
+
+        $map = ObjectFactory::getParserConfig($table->alias(), 'Event', $options->getArrayCopy());
+
+        foreach ($calendars as $calendar) {
+            $options = array_merge($options->getArrayCopy(), ['calendar' => $calendar]);
+            $options = new ArrayObject($options);
+
+            $eventObject = $table->getObjectInstance($entity, $map, $options);
+            $calendarEntity = $eventObject->toEntity();
+
+            if (!$calendarEntity) {
+                continue;
+            }
+
+            $entities[] = $calendarEntity;
+        }
+
+        return $entities;
+    }
 }

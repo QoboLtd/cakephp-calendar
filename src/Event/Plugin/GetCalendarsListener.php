@@ -57,30 +57,13 @@ class GetCalendarsListener implements EventListenerInterface
         $entities = $result = [];
         $table = $event->subject();
 
-        $map = ObjectFactory::getParserConfig($table->alias(), 'Event', $options->getArrayCopy());
         $calendarsTable = TableRegistry::get('Qobo/Calendar.Calendars');
-
+        $eventsTable = TableRegistry::get('Qobo/Calendar.CalendarEvents');
         $calendars = $calendarsTable->getByAllowedEventTypes($table->alias());
 
-        if (!empty($calendars)) {
-            foreach ($calendars as $calendar) {
-                $options = array_merge($options->getArrayCopy(), ['calendar' => $calendar]);
-                $options = new ArrayObject($options);
-
-                $eventObject = $table->getObjectInstance($entity, $map, $options);
-                $calendarEntity = $eventObject->toEntity();
-
-                if (!$calendarEntity) {
-                    continue;
-                }
-
-                $entities[] = $calendarEntity;
-            }
-        }
+        $entities = $eventsTable->getEventsFromEntities($table, $calendars, $options);
 
         if (!empty($entities)) {
-            $eventsTable = TableRegistry::get('Qobo/Calendar.CalendarEvents');
-
             foreach ($entities as $item) {
                 $saved = $eventsTable->saveEvent($item);
                 $result[] = $saved;
