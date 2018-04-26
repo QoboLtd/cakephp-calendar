@@ -42,7 +42,7 @@ class CalendarAttendeesFixture extends TestFixture
      */
     public $records = [
         [
-            'id' => '12613e81-aa1b-4c59-9eb4-e4016ac47aef',
+            'id' => '00000000-0000-0000-0000-000000000001',
             'display_name' => 'John Doe',
             'contact_details' => 'john@example.com',
             'source' => null,

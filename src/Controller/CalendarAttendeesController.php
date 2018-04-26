@@ -25,19 +25,6 @@ class CalendarAttendeesController extends AppController
 {
 
     /**
-     * Index method
-     *
-     * @return \Cake\Http\Response|void
-     */
-    public function index()
-    {
-        $calendarAttendees = $this->paginate($this->CalendarAttendees);
-
-        $this->set(compact('calendarAttendees'));
-        $this->set('_serialize', ['calendarAttendees']);
-    }
-
-    /**
      * View method
      *
      * @param string|null $id Calendar Attendee id.
@@ -71,7 +58,7 @@ class CalendarAttendeesController extends AppController
             $this->Flash->error(__('The calendar attendee could not be deleted. Please, try again.'));
         }
 
-        return $this->redirect(['action' => 'index']);
+        return $this->redirect(['plugin' => 'Qobo/Calendar', 'controller' => 'Calendars', 'action' => 'index']);
     }
 
     /**
@@ -85,10 +72,6 @@ class CalendarAttendeesController extends AppController
     {
         $result = [];
         $searchTerm = $this->request->query('term');
-        $calendarId = $this->request->query('calendar_id');
-        $eventType = $this->request->query('event_type');
-
-        $eventsTable = TableRegistry::get('Qobo/Calendar.CalendarEvents');
 
         $query = $this->CalendarAttendees->find()
             ->where([

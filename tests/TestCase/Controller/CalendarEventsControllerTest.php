@@ -113,4 +113,12 @@ class CalendarEventsControllerTest extends IntegrationTestCase
 
         $this->assertEquals($saved->content, $data['CalendarEvents']['content']);
     }
+
+    public function testDeleteResponseOk()
+    {
+        $eventId = '00000000-0000-0000-0000-000000000004';
+
+        $this->delete('/calendars/calendar-events/delete/' . $eventId);
+        $this->assertRedirect('/calendars/calendars');
+    }
 }
