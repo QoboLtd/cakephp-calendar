@@ -54,30 +54,33 @@ class CalendarEventsController extends AppController
      */
     public function add()
     {
+        $this->request->allowMethod(['post', 'patch', 'put']);
         $result = [];
+
         $calendarEvent = $this->CalendarEvents->newEntity(null, [
             'associated' => ['CalendarAttendees'],
         ]);
+
+        $data = $this->request->getData();
+
         $this->Calendars = TableRegistry::get('Calendars');
+        $calendar = $this->Calendars->get($data['CalendarEvents']['calendar_id']);
 
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $data = $this->request->getData();
+        $data['CalendarEvents']['title'] = $this->CalendarEvents->setEventTitle($data, $calendar);
 
-            $calendar = $this->Calendars->get($data['CalendarEvents']['calendar_id']);
+        $calendarEvent = $this->CalendarEvents->patchEntity(
+            $calendarEvent,
+            $data,
+            [
+                'associated' => ['CalendarAttendees'],
+            ]
+        );
 
-            $data['CalendarEvents']['title'] = $this->CalendarEvents->setEventTitle($data, $calendar);
-
-            $calendarEvent = $this->CalendarEvents->patchEntity(
-                $calendarEvent,
-                $data,
-                [
-                    'associated' => ['CalendarAttendees'],
-                ]
-            );
-
-            $saved = $this->CalendarEvents->save($calendarEvent);
-
-            $entity = [
+        $saved = $this->CalendarEvents->save($calendarEvent);
+        if ($saved) {
+            $result['status'] = true;
+            $result['message'] = 'Successfully saved Event';
+            $result['entity'] = [
                 'id' => $saved->id,
                 'title' => $saved->title,
                 'content' => $saved->content,
@@ -91,14 +94,10 @@ class CalendarEventsController extends AppController
                 'source_id' => $saved->source_id,
                 'recurrence' => json_decode($saved->recurrence, true),
             ];
-
-            if ($saved) {
-                $result['entity'] = $entity;
-                $result['message'] = 'Successfully saved Event';
-            } else {
-                $result['entity'] = [];
-                $result['message'] = 'Couldn\'t save Calendar Event';
-            }
+        } else {
+            $result['entity'] = $calendarEvent->getErrors();
+            $result['message'] = 'Couldn\'t save Calendar Event';
+            $result['status'] = false;
         }
 
         $event = $result;

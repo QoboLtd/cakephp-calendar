@@ -71,4 +71,46 @@ class CalendarEventsControllerTest extends IntegrationTestCase
 
         $this->assertEquals($item->title, $calEvent->title);
     }
+
+    public function testGetEventTypesResponseOk()
+    {
+        $calendarId = '00000000-0000-0000-0000-000000000001';
+
+        $this->post('/calendars/calendar-events/get-event-types', ['calendar_id' => $calendarId]);
+        $eventTypes = $this->viewVariable('eventTypes');
+
+        $this->assertNotEmpty($eventTypes);
+        $this->assertEquals($eventTypes[0]['name'], 'Config::Default::default');
+    }
+
+    public function testAddResponseError()
+    {
+        $this->get('/calendars/calendar-events/add');
+        $this->assertResponseError();
+    }
+
+    public function testAddResponseOk()
+    {
+        $data = [
+            'CalendarEvents' => [
+                'calendar_id' => '00000000-0000-0000-0000-000000000001',
+                'content' => 'Foobar',
+                'title' => 'Test Event',
+                'start_date' => '2018-04-09 09:00:00',
+                'end_date' => '2018-04-09 10:00:00',
+                'is_recurring' => false,
+            ]
+        ];
+
+        $this->post('/calendars/calendar-events/add', $data);
+        $event = $this->viewVariable('event');
+
+        $this->assertEquals('Successfully saved Event', $event['message']);
+
+        $saved = $this->CalendarEvents->find()
+            ->where(['title' => 'Test Event'])
+            ->first();
+
+        $this->assertEquals($saved->content, $data['CalendarEvents']['content']);
+    }
 }
