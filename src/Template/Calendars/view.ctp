@@ -13,6 +13,7 @@
 /**
  * @var \App\View\AppView $this
  */
+
 ?>
 <section class="content-header">
     <div class="row">
@@ -32,6 +33,7 @@
                 if ($elementFound) {
                     echo $this->element('CsvMigrations.Menu/view_top', [
                         'user' => $user,
+                        'entity' => $calendar,
                         'options' => [
                             'entity' => $calendar,
                             ],
