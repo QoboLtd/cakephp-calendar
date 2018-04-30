@@ -102,6 +102,11 @@ class CalendarsController extends AppController
 
         if ($this->request->is('post')) {
             $data = $this->request->getData();
+
+            if (!empty($data['event_types'])) {
+                $data['event_types'] = json_encode($data['event_types']);
+            }
+
             $calendar = $this->Calendars->patchEntity($calendar, $data);
 
             if ($this->Calendars->save($calendar)) {
