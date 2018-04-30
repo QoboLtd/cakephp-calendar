@@ -99,10 +99,6 @@ abstract class AbstractObject implements ObjectInterface
 
         $entity = new $entityProvider($data);
 
-        foreach ($data as $property => $value) {
-            //$entity->setDirty($property, false);
-        }
-
         return $entity;
     }
 }

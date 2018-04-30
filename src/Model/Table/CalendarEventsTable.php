@@ -477,7 +477,15 @@ class CalendarEventsTable extends Table
             }
 
             foreach ($calendar['event_types'] as $type => $properties) {
-                $value = 'Config::' . $calendar['name'] . '::' . $type;
+                $value = $this->getEventTypeName([
+                    'name' => $calendar['name'],
+                    'type' => $type,
+                ]);
+
+                if (empty($value)) {
+                    continue;
+                }
+
                 $result[$value] = $value;
             }
         }
@@ -493,6 +501,29 @@ class CalendarEventsTable extends Table
         asort($result);
 
         return $result;
+    }
+
+    /**
+     * Get Event Type name
+     *
+     * @param array $data with name parts
+     * @param array $options for extra settings if needed
+     *
+     * @return string $name containing event type definition.
+     */
+    public function getEventTypeName(array $data = [], array $options = [])
+    {
+        if (empty($data['name'])) {
+            return;
+        }
+
+        $prefix = !empty($options['prefix']) ? $options['prefix'] : 'Config';
+        $type = !empty($options['type']) ? $options['type'] : 'default';
+        $delimiter = '::';
+
+        $name = $prefix . $delimiter . $data['name'] . $delimiter . $type;
+
+        return $name;
     }
 
     /**
@@ -731,8 +762,9 @@ class CalendarEventsTable extends Table
         foreach ($calendars as $calendar) {
             $options = array_merge($options->getArrayCopy(), ['calendar' => $calendar]);
             $options = new ArrayObject($options);
-
+            $entity = $options['entity'];
             $eventObject = $table->getObjectInstance($entity, $map, $options);
+
             $calendarEntity = $eventObject->toEntity();
 
             if (!$calendarEntity) {
