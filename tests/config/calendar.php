@@ -2,41 +2,75 @@
 
 return [
     'Calendar' => [
+        'Configs' => [
+            'color' => '#337ab7',
+        ],
         'Types' => [
             [
                 'name' => 'Default',
                 'value' => 'default',
-                'types' => [
+                'event_types' => [
                     'default' => [
-                        'name' => 'Event',
-                        'value' => 'default_event',
+                        'propeties' => [
+                            'start_date' => [
+                                'options' => [
+                                    'startTime' => '09:00',
+                                ],
+                            ],
+                            'end_date' => [
+                                'options' => [
+                                    'endTime' => '18:00',
+                                ]
+                            ],
+                        ],
                     ],
                 ],
             ],
             [
                 'name' => 'Shifts',
                 'value' => 'shifts',
-                'types' => [
+                'event_types' => [
                     'morning_shift' => [
-                        'name' => 'Morning Shift',
-                        'value' => 'morning_shift',
-                        'start_time' => '09:00',
-                        'end_time' => '17:00',
-                        'exclude_fields' => ['title', 'content'],
+                        'properties' => [
+                            'start_date' => [
+                                'options' => [
+                                    'startTime' => '09:00',
+                                ],
+                            ],
+                            'end_time' => [
+                                'options' => [
+                                    'endTime' => '17:00',
+                                ],
+                            ],
+                        ],
                     ],
                     'evening_shift' => [
-                        'name' => 'Evening Shift',
-                        'value' => 'evening_shift',
-                        'start_time' => '17:00',
-                        'end_time' => '01:00',
-                        'exclude_fields' => ['title', 'content'],
+                        'properties' => [
+                            'start_date' => [
+                                'options' => [
+                                    'startTime' => '17:00',
+                                ]
+                            ],
+                            'end_date' => [
+                                'options' => [
+                                    'endTime' => '01:00'
+                                ]
+                            ],
+                        ],
                     ],
                     'night_shift' => [
-                        'name' => 'Night Shift',
-                        'value' => 'night_shift',
-                        'start_time' => '01:00',
-                        'end_time' => '09:00',
-                        'exclude_fields' => ['title', 'content'],
+                        'properties' => [
+                            'start_date' => [
+                                'options' => [
+                                    'startTime' => '01:00',
+                                ],
+                            ],
+                            'end_date' => [
+                                'options' => [
+                                    'endTime' => '09:00',
+                                ]
+                            ],
+                        ],
                     ],
                 ],
             ],

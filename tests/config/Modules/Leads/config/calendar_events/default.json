@@ -1,0 +1,42 @@
+{
+  "calendar_id": {
+    "type": "value",
+    "value": "test"
+  },
+  "source": {
+    "type": "value",
+    "value": "source_test"
+  },
+  "source_id": {
+    "type": "value",
+    "value": "source_test"
+  },
+  "event_type": {
+    "type": "value",
+    "value": "event_type_test"
+  },
+  "title": {
+    "type": "value",
+    "value": "Hey, Dolly!"
+  },
+  "content": {
+    "type": "value",
+    "value": "description"
+  },
+  "start_date": {
+    "type": "value",
+    "value": "2018-04-09 09:00:00"
+  },
+  "is_recurring": {
+    "type": "value",
+    "value": false
+  },
+  "recurrence": {
+    "type": "value",
+    "value": false
+  },
+  "is_allday": {
+    "type": "value",
+    "value": false
+  }
+}

@@ -12,12 +12,16 @@
 namespace Qobo\Calendar\Event\Plugin;
 
 use Cake\Core\Configure;
+use Cake\Datasource\EntityInterface;
 use Cake\Event\Event;
 use Cake\Event\EventListenerInterface;
 use Cake\Event\EventManager;
 use Cake\Network\Request;
 use Cake\ORM\TableRegistry;
 use Qobo\Calendar\Event\EventName;
+use Qobo\Calendar\Object\ObjectFactory;
+use Qobo\Calendar\Object\Objects\ObjectInterface;
+use \ArrayObject;
 
 class GetCalendarsListener implements EventListenerInterface
 {
@@ -33,7 +37,40 @@ class GetCalendarsListener implements EventListenerInterface
             (string)EventName::APP_MODEL_GET_EVENTS => 'getPluginCalendarEvents',
             (string)EventName::PLUGIN_CALENDAR_MODEL_GET_CALENDARS => 'sendGetCalendarsToApp',
             (string)EventName::PLUGIN_CALENDAR_MODEL_GET_EVENTS => 'sendGetCalendarEventsToApp',
+            (string)EventName::APP_ADD_EVENT => 'addEvent',
         ];
+    }
+
+    /**
+     * Add CalendarEvent from App
+     *
+     * Adding Calendar event based on the entity table.
+     *
+     * @param \Cake\Event\Event $event received from the app
+     * @param \Cake\Datasource\EntityInterface $entity being recently saved.
+     * @param \ArrayObject $options with extra configs for adding reminder
+     *
+     * @return void
+     */
+    public function addEvent(Event $event, EntityInterface $entity, ArrayObject $options = null)
+    {
+        $entities = $result = [];
+        $table = $event->subject();
+
+        $calendarsTable = TableRegistry::get('Qobo/Calendar.Calendars');
+        $eventsTable = TableRegistry::get('Qobo/Calendar.CalendarEvents');
+        $calendars = $calendarsTable->getByAllowedEventTypes($table->alias());
+
+        $entities = $eventsTable->getEventsFromEntities($table, $calendars, $options);
+
+        if (!empty($entities)) {
+            foreach ($entities as $item) {
+                $saved = $eventsTable->saveEvent($item);
+                $result[] = $saved;
+            }
+        }
+
+        $event->result = $result;
     }
 
     /**

@@ -19,8 +19,10 @@ use Cake\I18n\Time;
 use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
+use Cake\ORM\TableRegistry;
 use Cake\Utility\Inflector;
 use Cake\Validation\Validator;
+use Qobo\Calendar\Object\ObjectFactory;
 use \ArrayObject;
 use \RRule\RRule;
 
@@ -57,7 +59,6 @@ class CalendarEventsTable extends Table
 
         $this->addBehavior('Timestamp');
         $this->addBehavior('Muffin/Trash.Trash');
-        $this->addBehavior('AuditStash.AuditLog');
 
         $this->belongsTo('Calendars', [
             'foreignKey' => 'calendar_id',
@@ -226,6 +227,36 @@ class CalendarEventsTable extends Table
     }
 
     /**
+     * Get Event Range condition
+     *
+     * @param array $options containiner period with start_date/end_date params
+     * @return array $result containing start/end keys with month dates.
+     */
+    public function getEventRange(array $options = [])
+    {
+        $result = [];
+
+        if (empty($options['period'])) {
+            return $result;
+        }
+
+        //@NOTE: sqlite doesn't support date_format or month functions
+        if (!empty($options['period']['start_date'])) {
+            $result['start'] = [
+                'MONTH(start_date) >=' => date('m', strtotime($options['period']['start_date']))
+            ];
+        }
+
+        if (!empty($options['period']['end_date'])) {
+            $result['end'] = [
+                'MONTH(end_date) <=' => date('m', strtotime($options['period']['end_date']))
+            ];
+        }
+
+        return $result;
+    }
+
+    /**
      * Get infinite calendar events for given calendar
      *
      * @param mixed $calendarId as its id.
@@ -237,24 +268,20 @@ class CalendarEventsTable extends Table
     public function getInfiniteEvents($calendarId, $events, $options = [])
     {
         $result = $existingEventIds = [];
+        $range = $this->getEventRange($options);
 
         $query = $this->find();
-        $query->where(['is_recurring' => true]);
-        $query->andWhere(['calendar_id' => $calendarId]);
+        $query->where([
+            'is_recurring' => true,
+            'calendar_id' => $calendarId
+        ]);
 
-        //@NOTE: sqlite doesn't support date_format or month functions
-        if (!empty($options['period'])) {
-            if (!empty($options['period']['start_date'])) {
-                $query->andWhere([
-                    'MONTH(start_date) >=' => date('m', strtotime($options['period']['start_date'])),
-                ]);
-            }
+        if (!empty($range['start'])) {
+            $query->andWhere($range['start']);
+        }
 
-            if (!empty($options['period']['end_date'])) {
-                $query->andWhere([
-                    'MONTH(end_date) <=' => date('m', strtotime($options['period']['end_date'])),
-                ]);
-            }
+        if (!empty($range['end'])) {
+            $query->andWhere($range['end']);
         }
 
         $query->contain(['CalendarAttendees']);
@@ -299,7 +326,7 @@ class CalendarEventsTable extends Table
 
         $rule = $this->getRRuleConfiguration($origin['recurrence']);
 
-        if (empty($rule)) {
+        if (empty($rule) || empty($options['period'])) {
             return $result;
         }
 
@@ -310,6 +337,7 @@ class CalendarEventsTable extends Table
             new \DateTime($options['period']['start_date']),
             new \DateTime($options['period']['end_date'])
         );
+
         $startDateTime = new \DateTime($origin['start_date'], new \DateTimeZone('UTC'));
         $endDateTime = new \DateTime($origin['end_date'], new \DateTimeZone('UTC'));
         $diff = $startDateTime->diff($endDateTime);
@@ -366,6 +394,28 @@ class CalendarEventsTable extends Table
     }
 
     /**
+     * Parse recurrent event id suffix
+     *
+     * @param string $timestamp containing date suffix
+     * @return array $result containing start/end pair.
+     */
+    public function getIdSuffix($timestamp = null)
+    {
+        $result = [];
+
+        if (empty($timestamp)) {
+            return $result;
+        }
+
+        if (preg_match('/(\d+)\_(\d+)/i', $timestamp, $parts)) {
+            $result['start'] = date('Y-m-d H:i:s', $parts[1]);
+            $result['end'] = date('Y-m-d H:i:s', $parts[2]);
+        }
+
+        return $result;
+    }
+
+    /**
      * Get RRULE configuration from the event
      *
      * @param array $recurrence received from the calendar
@@ -380,6 +430,10 @@ class CalendarEventsTable extends Table
             return $result;
         }
 
+        if (is_string($recurrence)) {
+            $recurrence = json_decode($recurrence, true);
+        }
+
         foreach ($recurrence as $rule) {
             if (preg_match('/^RRULE/i', $rule)) {
                 $result = $rule;
@@ -390,44 +444,53 @@ class CalendarEventsTable extends Table
     }
 
     /**
-     * Get Calendar Event types based on configuration
+     * Get Event types for the calendar event
      *
-     * @param \Cake\ORM\Table $calendar record
-     *
-     * @return array $result containing event types for select2 dropdown
+     * @param array $options of the data including user
+     * @return array $result with event types.
      */
-    public function getEventTypes($calendar = null)
+    public function getEventTypes(array $options = [])
     {
-        $type = 'default';
-        $result = $eventTypes = [];
+        $result = [];
 
-        if (!$calendar) {
-            return $result;
-        }
-
-        if (!empty($calendar->calendar_type)) {
-            $type = $calendar->calendar_type;
-        }
-
-        if (!empty($calendar->event_types)) {
-            $eventTypes = $calendar->event_types;
-        }
-
-        if (empty($eventTypes)) {
-            $types = Configure::read('Calendar.Types');
-
-            if (!empty($types)) {
-                foreach ($types as $k => $item) {
-                    if ($type == $item['value']) {
-                        $eventTypes = $item['types'];
-                    }
-                }
+        if (!empty($options['calendar'])) {
+            $types = json_decode($options['calendar']->event_types, true);
+            foreach ($types as $type) {
+                $result[$type] = $type;
             }
         }
 
-        foreach ($eventTypes as $eventType) {
-            array_push($result, $eventType);
+        $event = new Event('App.Calendars.getCalendarEventTypes', $this, [
+            'user' => $options['user'],
+        ]);
+
+        EventManager::instance()->dispatch($event);
+
+        if (!empty($event->result)) {
+            $result = array_merge($result, $event->result);
         }
+
+        $configs = Configure::read('Calendar.Types');
+        foreach ($configs as $calendar) {
+            if (empty($calendar['event_types'])) {
+                continue;
+            }
+
+            foreach ($calendar['event_types'] as $type => $properties) {
+                $value = 'Config::' . $calendar['name'] . '::' . $type;
+                $result[$value] = $value;
+            }
+        }
+
+        if (!empty($eventTypes) && is_string($eventTypes)) {
+            $eventTypes = json_decode($eventTypes, true);
+
+            foreach ($eventTypes as $eventType) {
+                array_push($result, $eventType);
+            }
+        }
+
+        asort($result);
 
         return $result;
     }
@@ -449,9 +512,7 @@ class CalendarEventsTable extends Table
         }
 
         if (!empty($options['timestamp'])) {
-            $parts = explode('_', $options['timestamp']);
-            $start = date('Y-m-d H:i:s', $parts[0]);
-            $end = date('Y-m-d H:i:s', $parts[1]);
+            $range = $this->getIdSuffix($options['timestamp']);
         }
 
         $result = $this->find()
@@ -460,14 +521,14 @@ class CalendarEventsTable extends Table
                 ->first();
 
         //@NOTE: we're faking the start/end intervals for recurring events
-        if (!empty($end)) {
-            $time = Time::parse($end);
+        if (!empty($range['end'])) {
+            $time = Time::parse($range['end']);
             $result->end_date = $time;
             unset($time);
         }
 
-        if (!empty($start)) {
-            $time = Time::parse($start);
+        if (!empty($range['start'])) {
+            $time = Time::parse($range['start']);
             $result->start_date = $time;
             unset($time);
         }
@@ -561,5 +622,126 @@ class CalendarEventsTable extends Table
         }
 
         return $title;
+    }
+
+    /**
+     * Synchronize calendar events
+     *
+     * @param \Cake\ORM\Entity $calendar instance from the db
+     * @param array $options with extra configs
+     *
+     * @return array $result with events responses.
+     */
+    public function sync($calendar, $options = [])
+    {
+        $result = [];
+        $table = TableRegistry::get('Qobo/Calendar.CalendarEvents');
+
+        if (empty($calendar)) {
+            return $result;
+        }
+
+        $event = new Event((string)EventName::PLUGIN_CALENDAR_MODEL_GET_EVENTS(), $this, [
+            'calendar' => $calendar,
+            'options' => $options,
+        ]);
+
+        EventManager::instance()->dispatch($event);
+
+        $calendarEvents = $event->result;
+        if (empty($calendarEvents)) {
+            return $result;
+        }
+
+        foreach ($calendarEvents as $k => $calendarInfo) {
+            if (empty($calendarInfo['events'])) {
+                continue;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Save Calendar Event wrapper
+     *
+     * @param \Cake\Datasource\EntityInterface $entity of generic entity object
+     * @return array $response containing saving state of entity.
+     */
+    public function saveEvent(EntityInterface $entity)
+    {
+        $response = [
+            'status' => false,
+            'errors' => [],
+            'entity' => null,
+        ];
+
+        if (empty($entity->id)) {
+            unset($entity->id);
+        }
+
+        $query = $this->find()
+            ->where([
+                'source' => $entity->source,
+                'source_id' => $entity->source_id,
+                'calendar_id' => $entity->calendar_id
+            ]);
+
+        $query->execute();
+
+        if ($query->count()) {
+            $entity = $this->patchEntity($query->first(), $entity->toArray());
+        }
+
+        $saved = $this->save($entity);
+        $response['entity'] = $entity;
+
+        if ($saved) {
+            $response['status'] = true;
+            $response['entity'] = $saved;
+        } else {
+            $response['errors'] = $entity->getErrors();
+        }
+
+        return $response;
+    }
+
+    /**
+     * Convert incoming ORM Entities to CalendarEvent entities
+     *
+     * We create multiple entities for each calendar to avoid accidential
+     * crossing of instances.
+     *
+     * @param \Cake\ORM\Table $table instance of original entity table
+     * @param array $calendars that it might be saved to
+     * @param \ArrayObject $options originally received from event caught
+     *
+     * @return array $entities of converted CalendarEvent entitites.
+     */
+    public function getEventsFromEntities($table, $calendars, $options)
+    {
+        $entities = [];
+
+        if (empty($calendars)) {
+            return $entities;
+        }
+
+        $map = ObjectFactory::getParserConfig($table->alias(), 'Event', $options->getArrayCopy());
+
+        foreach ($calendars as $calendar) {
+            $options = array_merge($options->getArrayCopy(), ['calendar' => $calendar]);
+            $options = new ArrayObject($options);
+
+            $eventObject = $table->getObjectInstance($entity, $map, $options);
+            $calendarEntity = $eventObject->toEntity();
+
+            if (!$calendarEntity) {
+                continue;
+            }
+
+            $entities[] = $calendarEntity;
+        }
+
+        return $entities;
     }
 }

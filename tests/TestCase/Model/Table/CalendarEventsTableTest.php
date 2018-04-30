@@ -4,6 +4,7 @@ namespace Qobo\Calendar\Test\TestCase\Model\Table;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 use Qobo\Calendar\Model\Table\CalendarEventsTable;
+use Qobo\Calendar\Model\Table\CalendarsTable;
 
 /**
  * Qobo\Calendar\Model\Table\CalendarEventsTable Test Case
@@ -38,8 +39,11 @@ class CalendarEventsTableTest extends TestCase
     public function setUp()
     {
         parent::setUp();
-        $config = TableRegistry::exists('CalendarEvents') ? [] : ['className' => 'Qobo\Calendar\Model\Table\CalendarEventsTable'];
+        $config = TableRegistry::exists('CalendarEvents') ? [] : ['className' => CalendarEventsTable::class];
         $this->CalendarEvents = TableRegistry::get('CalendarEvents', $config);
+
+        $config = TableRegistry::exists('Calendars') ? [] : ['className' => CalendarsTable::class];
+        $this->Calendars = TableRegistry::get('Calendars', $config);
     }
 
     /**
@@ -61,7 +65,6 @@ class CalendarEventsTableTest extends TestCase
 
         $this->Calendars = TableRegistry::get('Qobo/Calendar.Calendars');
         $dbItems = $this->Calendars->getCalendars();
-
         $options = [
             'calendar_id' => $dbItems[0]->id,
         ];
@@ -78,12 +81,12 @@ class CalendarEventsTableTest extends TestCase
         $this->Calendars = TableRegistry::get('Qobo/Calendar.Calendars');
         $dbItems = $this->Calendars->getCalendars([
             'conditions' => [
-                'id' => '9390cbc1-dc1d-474a-a372-de92dce85aac',
+                'id' => '00000000-0000-0000-0000-000000000004',
             ]
         ]);
 
         $options = [
-            'calendar_id' => '9390cbc1-dc1d-474a-a372-de92dce85aac',
+            'calendar_id' => '00000000-0000-0000-0000-000000000004',
         ];
 
         $result = $this->CalendarEvents->getCalendarEvents($dbItems[0], $options);
@@ -195,32 +198,6 @@ class CalendarEventsTableTest extends TestCase
         ];
     }
 
-    public function testGetEventTypes()
-    {
-        $calendars = TableRegistry::get('Qobo/Calendar.Calendars');
-        $dbItems = $calendars->getCalendars();
-
-        foreach ($dbItems as $item) {
-            $this->assertNotEmpty($item->event_types);
-        }
-
-        $this->assertEquals([], $this->CalendarEvents->getEventTypes());
-
-        $testType = [
-            'foo' => [
-                'name' => 'foo',
-                'value' => 'foo',
-            ]
-        ];
-
-        $testCalendar = clone $dbItems[0];
-
-        $testCalendar->event_types = $testType;
-
-        $result = $this->CalendarEvents->getEventTypes($testCalendar);
-        $this->assertEquals([ ['name' => 'foo', 'value' => 'foo'] ], $result);
-    }
-
     /**
      * @dataProvider testGetRRuleConfigurationProvider
      * @exp
@@ -258,14 +235,87 @@ class CalendarEventsTableTest extends TestCase
         $this->assertEquals($result, $resultObj);
     }
 
+    public function testGetIdSuffix()
+    {
+        $event = [
+            'id' => '123',
+            'start_date' => '2019-08-01 09:00:00',
+            'end_date' => '2019-08-02 09:00:00',
+        ];
+
+        $result = $this->CalendarEvents->setIdSuffix($event);
+        $timestamp = $this->CalendarEvents->getIdSuffix($result);
+
+        $this->assertEquals($timestamp['start'], $event['start_date']);
+        $this->assertEquals($timestamp['end'], $event['end_date']);
+
+        $result = str_replace('_', '', $result);
+        $wrongTimestamp = $this->CalendarEvents->getIdSuffix($result);
+
+        $this->assertEquals($wrongTimestamp, []);
+        $this->assertEquals([], $this->CalendarEvents->getIdSuffix());
+    }
+
     public function testGetEventInfo()
     {
-        $eventId = '688580e6-2224-4dcb-a8df-32337b82e1e4';
+        $eventId = '00000000-0000-0000-0000-000000000003';
 
         $result = $this->CalendarEvents->getEventInfo(['id' => $eventId]);
         $this->assertNotEmpty($result);
 
         $result = $this->CalendarEvents->getEventInfo([]);
         $this->assertEmpty($result);
+
+        $result = $this->CalendarEvents->getEventInfo([
+            'id' => $eventId,
+            'timestamp' => '1564650000_1564736400'
+        ]);
+        $this->assertEquals(true, $result->dirty('end_date'));
+        $this->assertEquals(true, $result->dirty('start_date'));
+    }
+
+    public function testGetEventTypes()
+    {
+        $calendarId = '00000000-0000-0000-0000-000000000001';
+
+        $calendar = $this->Calendars->get($calendarId);
+        $result = $this->CalendarEvents->getEventTypes(['calendar' => $calendar, 'user' => null]);
+        $this->assertNotEmpty($result);
+        $this->assertTrue(is_array($result));
+    }
+
+    /**
+     * @dataProvider testGetEventRangeProvider
+     */
+    public function testGetEventRange($data, $expected)
+    {
+        $result = $this->CalendarEvents->getEventRange($data);
+        $this->assertEquals($result, $expected);
+    }
+
+    public function testGetEventRangeProvider()
+    {
+        return [
+            [
+                [],
+                []
+            ],
+            [
+                [
+                    'period' => [
+                        'start_date' => '2018-04-09 09:30:00',
+                        'end_date' => '2018-05-01 08:00:00'
+                    ]
+                ],
+                [
+                    'start' => [
+                        'MONTH(start_date) >=' => '04',
+                    ],
+                    'end' => [
+                        'MONTH(end_date) <=' => '05',
+                    ]
+                ]
+            ]
+        ];
     }
 }

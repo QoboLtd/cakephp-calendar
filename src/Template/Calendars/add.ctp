@@ -54,14 +54,8 @@ foreach ($icons as $k => $v) {
             <div class="row">
                 <div class="col-xs-12 col-md-6">
                     <?= $this->Form->input('name'); ?>
-
-                    <?= $this->Form->input('calendar_type', [
-                        'type' => 'select',
-                        'options' => $calendarTypes,
-                        'class' => 'select2',
-                        'empty' => true
-                    ]) ?>
                     <?= $this->Form->control('is_public', ['label' => __('Publicly Accessible')]);?>
+                    <?= $this->Form->input('event_types', ['type' => 'select', 'options' => $eventTypes, 'class' => 'select2', 'multiple' => 'multiple', 'empty' => true]);?>
                 </div>
                 <div class="col-xs-12 col-md-6">
                     <?= $this->Form->input('color', [

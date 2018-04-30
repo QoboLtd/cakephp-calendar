@@ -2,8 +2,11 @@
 namespace Qobo\Calendar\Test\TestCase\Model\Table;
 
 use Cake\Core\Configure;
+use Cake\Event\EventList;
+use Cake\Event\EventManager;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
+use Qobo\Calendar\Event\EventName;
 use Qobo\Calendar\Model\Table\CalendarsTable;
 
 /**
@@ -39,6 +42,11 @@ class CalendarsTableTest extends TestCase
         parent::setUp();
         $config = TableRegistry::exists('Calendars') ? [] : ['className' => 'Qobo\Calendar\Model\Table\CalendarsTable'];
         $this->Calendars = TableRegistry::get('Calendars', $config);
+
+        // @TODO: return something useful to test sync method.
+        EventManager::instance()->on((string)EventName::PLUGIN_CALENDAR_MODEL_GET_CALENDARS(), function ($event, $table) {
+            return [];
+        });
     }
 
     /**
@@ -53,14 +61,33 @@ class CalendarsTableTest extends TestCase
         parent::tearDown();
     }
 
+    public function testBeforeSave()
+    {
+        $data = [
+            'id' => '6d2b932f-b79a-4523-a2d2-3ddaadfa805c',
+            'name' => 'Test Calendar for BeforeSave',
+        ];
+
+        $entity = $this->Calendars->newEntity($data);
+        $saved = $this->Calendars->save($entity);
+        $this->assertEquals($saved->source, 'Plugin__');
+        $this->assertEquals($saved->color, $this->Calendars->getColor());
+    }
+
+    public function testSync()
+    {
+        EventManager::instance()->setEventList(new EventList());
+        $data = [];
+
+        $foo = $this->Calendars->sync($data);
+
+        $this->assertEventFired((string)EventName::PLUGIN_CALENDAR_MODEL_GET_CALENDARS(), EventManager::instance());
+    }
+
     public function testGetCalendarTypes()
     {
-        $result = $this->Calendars->getCalendarTypes();
+        $result = $this->Calendars->getTypes();
         $this->assertTrue(is_array($result));
-
-        Configure::write('Calendar.Types', ['foo' => ['name' => 'bar', 'value' => 'bar']]);
-        $result = $this->Calendars->getCalendarTypes();
-        $this->assertEquals(['bar' => 'bar'], $result);
     }
 
     public function testGetCalendars()
@@ -68,97 +95,21 @@ class CalendarsTableTest extends TestCase
         $result = $this->Calendars->getCalendars();
         $this->assertTrue(!empty($result));
 
-        $result = $this->Calendars->getCalendars(['id' => '9390cbc1-dc1d-474a-a372-de92dce85aae']);
+        $result = $this->Calendars->getCalendars(['id' => '00000000-0000-0000-0000-000000000001']);
         $this->assertNotEmpty($result);
-        $this->assertEquals($result[0]->id, '9390cbc1-dc1d-474a-a372-de92dce85aae');
+        $this->assertEquals($result[0]->id, '00000000-0000-0000-0000-000000000001');
 
-        $result = $this->Calendars->getCalendars(['conditions' => ['id' => '9390cbc1-dc1d-474a-a372-de92dce85aaa']]);
+        $result = $this->Calendars->getCalendars(['conditions' => ['id' => '00000000-0000-0000-0000-000000000001']]);
         $this->assertNotEmpty($result);
-        $this->assertEquals($result[0]->id, '9390cbc1-dc1d-474a-a372-de92dce85aaa');
-
-        Configure::write('Calendar.Types', ['foo' => ['name' => 'bar', 'value' => 'bar']]);
-        $result = $this->Calendars->getCalendars(['conditions' => ['id' => '9390cbc1-dc1d-474a-a372-de92dce85aaa']]);
+        $this->assertEquals($result[0]->id, '00000000-0000-0000-0000-000000000001');
     }
 
-    public function testItemsToAdd()
+    public function testGetByAllowedEventTypes()
     {
-        $dbItems = $this->Calendars->getCalendars();
-        $item = $dbItems[0];
-
-        $result = $this->Calendars->itemsToAdd($item, $dbItems, 'source');
-        $this->assertTrue(is_array($result));
-
-        $result = $this->Calendars->itemsToAdd($item, [], 'source');
-        $this->assertEquals($result, $item);
-
-        $item->source = 'foobar';
-        $dbItems = $this->Calendars->getCalendars();
-
-        $result = $this->Calendars->itemsToAdd($item, $dbItems, 'source');
+        $result = $this->Calendars->getByAllowedEventTypes('Config');
         $this->assertNotEmpty($result);
-        $this->assertEquals($item->id, $result->id);
-    }
 
-    public function testItemsToUpdate()
-    {
-        $result = $this->Calendars->itemsToUpdate([]);
-        $this->assertEquals($result, ['entity' => [], 'data' => []]);
-
-        $dbItems = $this->Calendars->getCalendars();
-        $item = $dbItems[0];
-
-        $result = $this->Calendars->itemsToUpdate($item, $dbItems, 'source');
-        $this->assertNotEmpty($result['data']);
-        $this->assertNotEmpty($result['entity']);
-
-        $item->source = 'foobar';
-        $dbItems = $this->Calendars->getCalendars();
-        $result = $this->Calendars->itemsToUpdate($item, $dbItems, 'source');
-        $this->assertEquals($result['entity'], []);
-        $this->assertEquals($result['data'], []);
-    }
-
-    public function testItemsToDelete()
-    {
-        $items = [];
-        $options = [];
-
-        $result = $this->Calendars->itemsToDelete($this->Calendars, $items, $options);
-        $this->assertTrue(is_array($result));
-        $this->assertEmpty($result);
-
-        $dbItems = $this->Calendars->getCalendars();
-        $result = $this->Calendars->itemsToDelete($this->Calendars, [$dbItems[0]], $options);
-        $this->assertTrue(is_array($result));
-        $this->assertNotEmpty($result);
-    }
-
-    public function testSyncCalendars()
-    {
-        $result = $this->Calendars->syncCalendars();
-        $this->assertTrue(is_array($result));
-    }
-
-    public function testSyncCalendarEvents()
-    {
-        $dbItems = $this->Calendars->getCalendars();
-        $result = $this->Calendars->syncCalendarEvents($dbItems[0]);
-        $this->assertTrue(is_array($result));
-
-        $result = $this->Calendars->syncCalendarEvents([]);
-        $this->assertEmpty($result);
-    }
-
-    public function testSaveItemDifferences()
-    {
-        $result = $this->Calendars->saveItemDifferences($this->Calendars);
-        $this->assertEmpty($result);
-    }
-
-    public function testGetItemDifferences()
-    {
-        $result = $this->Calendars->getItemDifferences($this->Calendars);
-        $this->assertTrue(is_array($result));
-        $this->assertEquals($result, ['add' => [], 'update' => [], 'delete' => []]);
+        $result = $this->Calendars->getByAllowedEventTypes('Foobar');
+        $this->assertEquals($result, []);
     }
 }
