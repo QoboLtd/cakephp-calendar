@@ -482,6 +482,13 @@ class CalendarEventsTable extends Table
             }
         }
 
+        if (is_string($eventTypes)) {
+            $eventTypes = json_decode($eventTypes, true);
+        }
+        foreach ($eventTypes as $eventType) {
+            array_push($result, $eventType);
+        }
+
         asort($result);
 
         return $result;
