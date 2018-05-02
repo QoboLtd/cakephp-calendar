@@ -60,7 +60,7 @@ class GetCalendarsListener implements EventListenerInterface
         $calendarsTable = TableRegistry::get('Qobo/Calendar.Calendars');
         $eventsTable = TableRegistry::get('Qobo/Calendar.CalendarEvents');
         $calendars = $calendarsTable->getByAllowedEventTypes($table->alias());
-
+        $options['entity'] = $entity;
         $entities = $eventsTable->getEventsFromEntities($table, $calendars, $options);
 
         if (!empty($entities)) {
