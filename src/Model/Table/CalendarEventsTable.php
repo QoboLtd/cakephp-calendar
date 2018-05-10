@@ -458,6 +458,10 @@ class CalendarEventsTable extends Table
             foreach ($types as $type) {
                 $result[$type] = $type;
             }
+
+            asort($result);
+
+            return $result;
         }
 
         $event = new Event('App.Calendars.getCalendarEventTypes', $this, [
