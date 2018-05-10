@@ -180,6 +180,13 @@ export default {
       this.frequencyIntervals.push({ value: i, label: i.toString() })
     }
   },
+  watch: {
+    calendarId: function () {
+      if (this.calendarId) {
+        this.getEventTypes()
+      }
+    }
+  },
   computed: {
     isDaily: function () {
       if (this.frequency === 3 && this.isRecurring) {
@@ -325,6 +332,10 @@ export default {
       var self = this
       this.eventTypes = []
       this.eventTypesList = []
+
+      if (!this.calendarId.value) {
+        return
+      }
 
       if (this.calendarId.value) {
         $.ajax({
