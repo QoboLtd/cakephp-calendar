@@ -1,0 +1,14 @@
+{
+    "source": {
+        "type": "value",
+        "value": "foobar"
+    },
+    "source_id": {
+        "type": "value",
+        "value": null
+    },
+    "start_date": {
+        "type": "value",
+        "value": "2018-05-08 09:00:00"
+    }
+}

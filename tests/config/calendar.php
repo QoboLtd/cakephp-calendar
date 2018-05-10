@@ -9,9 +9,9 @@ return [
             [
                 'name' => 'Default',
                 'value' => 'default',
-                'event_types' => [
+                'calendar_events' => [
                     'default' => [
-                        'propeties' => [
+                        'properties' => [
                             'start_date' => [
                                 'options' => [
                                     'startTime' => '09:00',
@@ -29,7 +29,7 @@ return [
             [
                 'name' => 'Shifts',
                 'value' => 'shifts',
-                'event_types' => [
+                'calendar_events' => [
                     'morning_shift' => [
                         'properties' => [
                             'start_date' => [

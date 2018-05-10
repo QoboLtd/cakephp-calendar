@@ -24,15 +24,22 @@ class ObjectFactoryTest extends TestCase
     public function tearDown()
     {
         unset($this->calendarsTable);
-
         parent::tearDown();
     }
 
-    public function testGetParserConfig()
+    public function testGetConfigList()
     {
-        $result = ObjectFactory::getParserConfig('Leads', 'Event', []);
+        $result = ObjectFactory::getConfigList('Integrations', 'Event');
+        $this->assertTrue(is_array($result));
         $this->assertNotEmpty($result);
+    }
+
+    public function testGetConfig()
+    {
+        $result = ObjectFactory::getConfig('Integrations', 'Event', 'Json::Integrations::Default');
         $this->assertTrue(is_object($result));
-        $this->assertEquals($result->calendar_id->value, 'test');
+
+        $result = ObjectFactory::getConfig('Integrations', 'Event', 'Config::Default::Default');
+        $this->assertTrue(is_object($result));
     }
 }
