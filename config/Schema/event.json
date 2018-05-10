@@ -22,7 +22,7 @@
                                 "type": "string",
                                 "enum": ["field", "value"]
                             },
-                        "value": { "type": ["string", "boolean", "number"] },
+                        "value": { "type": ["string", "null", "boolean", "number"] },
                         "options": { "type": "object" }
                     }
                 }
@@ -64,5 +64,5 @@
             "$ref": "#/definitions/field"
         }
     },
-    "required": ["source", "source_id", "event_type", "start_date"]
+    "required": ["source", "source_id", "start_date"]
 }

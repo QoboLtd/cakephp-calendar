@@ -472,11 +472,11 @@ class CalendarEventsTable extends Table
 
         $configs = Configure::read('Calendar.Types');
         foreach ($configs as $calendar) {
-            if (empty($calendar['event_types'])) {
+            if (empty($calendar['calendar_events'])) {
                 continue;
             }
 
-            foreach ($calendar['event_types'] as $type => $properties) {
+            foreach ($calendar['calendar_events'] as $type => $properties) {
                 $value = $this->getEventTypeName([
                     'name' => $calendar['name'],
                     'type' => $type,
@@ -521,7 +521,7 @@ class CalendarEventsTable extends Table
         $type = !empty($options['type']) ? $options['type'] : 'default';
         $delimiter = '::';
 
-        $name = $prefix . $delimiter . $data['name'] . $delimiter . $type;
+        $name = $prefix . $delimiter . $data['name'] . $delimiter . Inflector::camelize($type);
 
         return $name;
     }
@@ -699,7 +699,7 @@ class CalendarEventsTable extends Table
      * @param \Cake\Datasource\EntityInterface $entity of generic entity object
      * @return array $response containing saving state of entity.
      */
-    public function saveEvent(EntityInterface $entity)
+    public function saveEvent($entity)
     {
         $response = [
             'status' => false,
@@ -707,31 +707,38 @@ class CalendarEventsTable extends Table
             'entity' => null,
         ];
 
-        if (empty($entity->id)) {
-            unset($entity->id);
+        if ($entity instanceof \Cake\Datasource\EntityInterface) {
+            $entity = $entity->toArray();
+        }
+
+        if (empty($entity['id'])) {
+            unset($entity['id']);
         }
 
         $query = $this->find()
             ->where([
-                'source' => $entity->source,
-                'source_id' => $entity->source_id,
-                'calendar_id' => $entity->calendar_id
+                //'source' => empty($entity['source']) ? null : $entity['source'],
+                'source_id' => $entity['source_id'],
+                'calendar_id' => $entity['calendar_id'],
             ]);
 
         $query->execute();
 
-        if ($query->count()) {
-            $entity = $this->patchEntity($query->first(), $entity->toArray());
+        if (!$query->count()) {
+            $event = $this->newEntity();
+            $event = $this->patchEntity($event, $entity);
+        } else {
+            $event = $this->patchEntity($query->first(), $entity);
         }
 
-        $saved = $this->save($entity);
-        $response['entity'] = $entity;
+        $saved = $this->save($event);
 
         if ($saved) {
             $response['status'] = true;
             $response['entity'] = $saved;
         } else {
-            $response['errors'] = $entity->getErrors();
+            $response['errors'] = $event->getErrors();
+            dd($entity);
         }
 
         return $response;
@@ -757,8 +764,7 @@ class CalendarEventsTable extends Table
             return $entities;
         }
 
-        $map = ObjectFactory::getParserConfig($table->alias(), 'Event', $options->getArrayCopy());
-
+        $map = ObjectFactory::getConfig($table->alias(), 'Event', $options['event_type']);
         foreach ($calendars as $calendar) {
             $options = array_merge($options->getArrayCopy(), ['calendar' => $calendar]);
             $options = new ArrayObject($options);

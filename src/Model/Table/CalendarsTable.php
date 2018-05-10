@@ -290,4 +290,45 @@ class CalendarsTable extends Table
 
         return $result;
     }
+
+    /**
+     * Save Calendar Entity
+     *
+     * @param array $calendar data to be saved
+     * @param array $options in case any extras required for conditions
+     *
+     * @return array $response containing the state of save operation
+     */
+    public function saveCalendarEntity(array $calendar = [], array $options = [])
+    {
+        $response = [
+            'errors' => [],
+            'status' => false,
+            'entity' => null,
+        ];
+
+        $query = $this->find()
+            ->where($options['conditions']);
+
+        $query->execute();
+
+        if (!$query->count()) {
+            $entity = $this->newEntity();
+            $entity = $this->patchEntity($entity, $calendar);
+        } else {
+            $calEntity = $query->first();
+            $entity = $this->patchEntity($calEntity, $calendar);
+        }
+
+        $saved = $this->save($entity);
+
+        if ($saved) {
+            $response['status'] = true;
+            $response['entity'] = $saved;
+        } else {
+            $response['errors'] = $entity->getErrors();
+        }
+
+        return $response;
+    }
 }

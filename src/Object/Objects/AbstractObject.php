@@ -3,7 +3,7 @@ namespace Qobo\Calendar\Object\Objects;
 
 use Cake\Utility\Inflector;
 
-abstract class AbstractObject implements ObjectInterface
+abstract class AbstractObject
 {
     /**
      * Set Calendar Id
