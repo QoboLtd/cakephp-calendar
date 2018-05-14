@@ -80,7 +80,6 @@ class CalendarEventsControllerTest extends IntegrationTestCase
         $eventTypes = $this->viewVariable('eventTypes');
 
         $this->assertNotEmpty($eventTypes);
-        $this->assertEquals($eventTypes[0]['name'], 'Config::Default::Default');
     }
 
     public function testAddResponseError()
