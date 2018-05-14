@@ -126,6 +126,7 @@
 </template>
 <script>
 import * as $ from 'jquery'
+import ajaxMixin from './../mixins/ajaxMixin'
 import RRule from 'rrule'
 import moment from 'moment'
 import vSelect from 'vue-select'
@@ -135,6 +136,7 @@ import InputCheckboxes from './InputCheckboxes.vue'
 import CalendarRecurringUntil from './CalendarRecurringUntil.vue'
 
 export default {
+  mixins: [ajaxMixin],
   components: {
     'v-select': vSelect,
     'input-datepicker-range': InputDatepickerRange,
@@ -142,7 +144,7 @@ export default {
     'input-checkboxes': InputCheckboxes,
     'calendar-recurring-until': CalendarRecurringUntil
   },
-  props: ['calendarsList', 'timezone', 'eventClick'],
+  props: ['calendarsList', 'timezone', 'eventClick', 'apiToken'],
   data: function () {
     return {
       attendees: [],
@@ -178,6 +180,13 @@ export default {
 
     for (var i = 1; i <= 30; i++) {
       this.frequencyIntervals.push({ value: i, label: i.toString() })
+    }
+  },
+  watch: {
+    calendarId: function () {
+      if (this.calendarId) {
+        this.getEventTypes()
+      }
     }
   },
   computed: {
@@ -260,13 +269,8 @@ export default {
         })
       }
 
-      $.ajax({
-        url: '/calendars/calendar-events/add',
-        method: 'POST',
-        dataType: 'json',
-        data: postdata
-      }).then((resp) => {
-        self.$emit('event-saved', resp)
+      this.apiAddCalendarEvent(postdata).then((resp) => {
+        self.$emit('event-saved', resp.event.entity)
       })
     },
     searchAttendees (search, loading) {
@@ -275,16 +279,7 @@ export default {
       if (search.length > 2) {
         loading(true)
 
-        $.ajax({
-          url: '/calendars/calendar-attendees/lookup',
-          dataType: 'json',
-          method: 'get',
-          contentType: 'application/json',
-          accepts: {
-            json: 'application/json'
-          },
-          data: { term: search, calendarId: this.calendarId }
-        }).then((resp) => {
+        this.apiGetAttendees(search).then((resp) => {
           if (resp.length) {
             self.attendees = []
             resp.forEach((elem, key) => {
@@ -326,13 +321,12 @@ export default {
       this.eventTypes = []
       this.eventTypesList = []
 
+      if (!this.calendarId.value) {
+        return
+      }
+
       if (this.calendarId.value) {
-        $.ajax({
-          url: '/calendars/calendar-events/get-event-types',
-          data: { calendar_id: this.calendarId.value },
-          dataType: 'json',
-          method: 'post'
-        }).done(function (types) {
+        this.apiGetEventTypes(this.calendarId.value).done(function (types) {
           if (types.length) {
             types.forEach((elem, key) => {
               self.eventTypes.push(elem)

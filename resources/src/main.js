@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import ajaxMixin from './mixins/ajaxMixin'
 import CalendarLink from './components/CalendarLink.vue'
 import CalendarItem from './components/CalendarItem.vue'
 import CalendarModal from './components/CalendarModal.vue'
@@ -7,6 +8,7 @@ import $ from 'jquery'
 
 new Vue({
   el: '#qobo-calendar-app',
+  mixins: [ajaxMixin],
   components: {
     'calendar': Calendar,
     'calendar-item': CalendarItem,
@@ -78,27 +80,14 @@ new Vue({
     },
     getCalendars () {
       var self = this
-
-      $.ajax({
-        method: 'post',
-        dataType: 'json',
-        headers: {
-          Authorization: 'Bearer ' + this.apiToken
-        },
-        url: '/calendars/calendars/index'
-      }).done(function (response) {
+      this.apiGetCalendars().then(function (response) {
         self.calendars = response
       })
     },
     getPublicCalendars () {
       var self = this
 
-      $.ajax({
-        method: 'post',
-        dataType: 'json',
-        url: '/calendars/calendars/index',
-        data: { public: self.public }
-      }).done(function (resp) {
+      this.apiGetPublicCalendars().then(function (resp) {
         self.calendars = resp
         if (self.calendars) {
           self.calendars.forEach(function (elem, key) {
@@ -112,20 +101,7 @@ new Vue({
     },
     getEvents (id) {
       var self = this
-      var url = '/calendars/calendar-events/index'
-      $.ajax({
-        method: 'POST',
-        dataType: 'json',
-        url: url,
-        data: {
-          'calendar_id': id,
-          'period': {
-            'start_date': this.start,
-            'end_date': this.end
-          },
-          'timezone': this.timezone
-        }
-      }).then(function (response) {
+      this.apiGetEvents(id).then( function (response) {
         if (!response) {
           return
         }
@@ -167,18 +143,7 @@ new Vue({
       }
     },
     getEventInfo (calendarEvent) {
-      var url = '/calendars/calendar-events/view'
-      var post = {
-        id: calendarEvent.id,
-        calendar_id: calendarEvent.calendar_id,
-        event_type: calendarEvent.event_type
-      }
-
-      $.ajax({
-        method: 'POST',
-        url: url,
-        data: post
-      }).done(function (response) {
+      this.apiGetEventInfo(calendarEvent).then(function (response) {
         if (response) {
           $('#calendar-modal-view-event').find('.modal-content').empty()
           $('#calendar-modal-view-event').find('.modal-content').append(response)
@@ -193,6 +158,7 @@ new Vue({
     addEventToResources (event) {
       if (event) {
         this.events.push(event)
+        /* @NOTE: remove reload and just clear up modals */
         window.location.reload()
       }
     }
