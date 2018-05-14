@@ -187,6 +187,12 @@ export default {
       if (this.calendarId) {
         this.getEventTypes()
       }
+    },
+    eventType: function () {
+      console.log(this.eventType)
+      if (this.calendarId && this.eventType) {
+        this.getEventTypeInfo(this.calendarId.value, this.eventType.value)
+      }
     }
   },
   computed: {
@@ -234,6 +240,13 @@ export default {
     }
   },
   methods: {
+    getEventTypeInfo (calendarId, eventType) {
+      console.log([calendarId, eventType])
+
+      this.apiEventTypeConfig(calendarId, eventType).then( (response) => {
+        console.log(response)
+      })
+    },
     setFrequencyIntervals (end) {
       this.frequencyIntervals = []
       for (var i = 1; i <= end; i++) {

@@ -181,4 +181,17 @@ class CalendarEventsController extends AppController
         $this->set(compact('events'));
         $this->set('_serialize', 'events');
     }
+
+    public function eventTypeConfig()
+    {
+        $info = [];
+        $this->request->allowMethod(['post', 'put', 'patch']);
+
+        $data = $this->request->getData();
+        // @FIXME: prepopulate event_type info and custom values.
+        $info = $data;
+
+        $this->set(compact('info'));
+        $this->set('_serialize', 'info');
+    }
 }

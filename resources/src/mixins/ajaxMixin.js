@@ -99,6 +99,12 @@ export default {
       const args = { 'calendar_id': calendarId }
 
       return this.apiPostCall(url, args)
+    },
+    apiEventTypeConfig (calendarId, eventType) {
+      const url = '/calendars/calendar-events/event-type-config'
+      const args = { 'calendar_id': calendarId, 'event_type': eventType }
+
+      return this.apiPostCall(url, args)
     }
   }
 }
