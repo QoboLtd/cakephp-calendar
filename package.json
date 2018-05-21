@@ -58,6 +58,7 @@
   "dependencies": {
     "daterangepicker": "^2.1.27",
     "fullcalendar": "3.4.0",
+    "inflected": "^2.0.4",
     "moment": "^2.20.1",
     "rrule": "^2.2.9",
     "vue": "^2.5.2",

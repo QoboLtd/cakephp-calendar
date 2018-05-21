@@ -127,6 +127,7 @@
 <script>
 import * as $ from 'jquery'
 import ajaxMixin from './../mixins/ajaxMixin'
+import configMixin from './../mixins/configMixin'
 import RRule from 'rrule'
 import moment from 'moment'
 import vSelect from 'vue-select'
@@ -134,9 +135,10 @@ import InputDatepickerRange from './InputDatepickerRange.vue'
 import InputSelect from './InputSelect.vue'
 import InputCheckboxes from './InputCheckboxes.vue'
 import CalendarRecurringUntil from './CalendarRecurringUntil.vue'
+import { camelize } from 'inflected'
 
 export default {
-  mixins: [ajaxMixin],
+  mixins: [ajaxMixin, configMixin],
   components: {
     'v-select': vSelect,
     'input-datepicker-range': InputDatepickerRange,
@@ -189,9 +191,36 @@ export default {
       }
     },
     eventType: function () {
-      console.log(this.eventType)
       if (this.calendarId && this.eventType) {
-        this.getEventTypeInfo(this.calendarId.value, this.eventType.value)
+        this.getEventTypeInfo(this.calendarId.value, this.eventType.value, {
+          'types': ['Config']
+        })
+      }
+    },
+    eventTypeConfig: function () {
+      if (!this.eventTypeConfig) {
+        return
+      }
+
+      for (let key in this.eventTypeConfig) {
+        let obj = this.eventTypeConfig[key]
+        let componentProperty = camelize(key, false)
+        let method = 'get' + camelize(key)
+
+        if (this.hasOwnProperty(componentProperty)) {
+
+          if (configMixin.methods.hasOwnProperty(method)) {
+            let val = configMixin.methods[method]( {
+                'name': componentProperty,
+                'key': key,
+                'value': this[componentProperty]
+              },
+              this.eventTypeConfig
+            )
+
+            this.$data[componentProperty] = val
+          }
+        }
       }
     }
   },
@@ -240,11 +269,9 @@ export default {
     }
   },
   methods: {
-    getEventTypeInfo (calendarId, eventType) {
-      console.log([calendarId, eventType])
-
-      this.apiEventTypeConfig(calendarId, eventType).then( (response) => {
-        console.log(response)
+    getEventTypeInfo (calendarId, eventType, options) {
+      this.apiEventTypeConfig(calendarId, eventType, options).then( (response) => {
+        this.eventTypeConfig = response
       })
     },
     setFrequencyIntervals (end) {
