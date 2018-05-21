@@ -100,9 +100,13 @@ export default {
 
       return this.apiPostCall(url, args)
     },
-    apiEventTypeConfig (calendarId, eventType) {
+    apiEventTypeConfig (calendarId, eventType, options) {
       const url = '/calendars/calendar-events/event-type-config'
-      const args = { 'calendar_id': calendarId, 'event_type': eventType }
+      let args = { 'calendar_id': calendarId, 'event_type': eventType }
+
+      if (options !== undefined) {
+        args = Object.assign(args, options)
+      }
 
       return this.apiPostCall(url, args)
     }
