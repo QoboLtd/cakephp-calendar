@@ -23,9 +23,13 @@ class ObjectFactory
      *
      * @return object $data containing the map for transpiling
      */
-    public static function getConfig($entityName, $objectName, $configName = null)
+    public static function getConfig($entityName = null, $objectName = null, $configName = null)
     {
         $data = [];
+
+        if (empty($objectName)) {
+            return $data;
+        }
 
         list($format, $remaining) = explode(self::TYPE_DELIMITER, $configName, 2);
 
@@ -89,7 +93,6 @@ class ObjectFactory
                 }
             }
         }
-
         if (!empty($result)) {
             $result = json_decode(json_encode($result['properties']));
         }
