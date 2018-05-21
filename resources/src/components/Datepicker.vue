@@ -50,7 +50,7 @@ export default {
         showDropdowns: true,
         timePicker: true,
         drops: 'down',
-        timePicker12Hour: false,
+        timePicker24Hour: true,
         timePickerIncrement: 5
       }
     }

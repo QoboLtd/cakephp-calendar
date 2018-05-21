@@ -17,6 +17,7 @@ use Cake\Event\EventManager;
 use Cake\ORM\TableRegistry;
 use Cake\Utility\Inflector;
 use Qobo\Calendar\Controller\AppController;
+use Qobo\Calendar\Object\ObjectFactory;
 
 /**
  * CalendarEvents Controller
@@ -180,5 +181,32 @@ class CalendarEventsController extends AppController
 
         $this->set(compact('events'));
         $this->set('_serialize', 'events');
+    }
+
+    /**
+     * Event Type Config getter method
+     *
+     * Return event type configuration from ObjectFactory
+     *
+     * @return void
+     */
+    public function eventTypeConfig()
+    {
+        $info = [];
+        $this->request->allowMethod(['post', 'put', 'patch']);
+        $data = $this->request->getData();
+
+        try {
+            $config = ObjectFactory::getConfig(null, 'Event', $data['event_type']);
+
+            if (!empty($config)) {
+                $info = $config;
+            }
+        } catch (Exception $e) {
+            // @TODO: log possible exceptions for troubleshooting.
+        }
+
+        $this->set(compact('info'));
+        $this->set('_serialize', 'info');
     }
 }
