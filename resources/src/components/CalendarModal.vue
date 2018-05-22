@@ -32,18 +32,28 @@
                             </div>
                             <div class="col-xs-12 col-md-12">
                                 <div class="row">
-                                    <input-datepicker-range
-                                        start-name="CalendarEvents[start_date]"
-                                        end-name="CalendarEvents[end_date]"
-                                        start-label="Start Date:"
-                                        end-label="End Date:"
+                                    <div class="col-xs-12 col-md-6">
+                                      <input-datepicker
                                         :configs="eventTypeConfig"
-                                        start-class="calendar-start-datetimepicker"
-                                        end-class="calendar-end-datetimepicker"
                                         :event-click="eventClick"
-                                        @date-updated="setDateRange">
-                                    </input-datepicker-range>
-
+                                        config-field="start_date"
+                                        format="YYYY-MM-DD HH:mm"
+                                        label="Start Date:"
+                                        name="CalendarEvents[start_date]"
+                                        @date-changed="setStart"
+                                      ></input-datepicker>
+                                    </div>
+                                    <div class="col-xs-12 col-md-6">
+                                      <input-datepicker
+                                        :configs="eventTypeConfig"
+                                        :event-click="eventClick"
+                                        config-field="end_date"
+                                        format="YYYY-MM-DD HH:mm"
+                                        name="CalendarEvents[end_date]"
+                                        label="End Date:"
+                                        @date-changed="setEnd"
+                                      ></input-datepicker>
+                                    </div>
                                     <div class="col-xs-12 col-md-12">
                                         <div class="form-group text">
                                             <label> Attendees: </label>
@@ -131,17 +141,17 @@ import configMixin from './../mixins/configMixin'
 import RRule from 'rrule'
 import moment from 'moment'
 import vSelect from 'vue-select'
-import InputDatepickerRange from './InputDatepickerRange.vue'
 import InputSelect from './InputSelect.vue'
 import InputCheckboxes from './InputCheckboxes.vue'
 import CalendarRecurringUntil from './CalendarRecurringUntil.vue'
+import Datepicker from './Datepicker.vue'
 import { camelize } from 'inflected'
 
 export default {
   mixins: [ajaxMixin, configMixin],
   components: {
     'v-select': vSelect,
-    'input-datepicker-range': InputDatepickerRange,
+    'input-datepicker': Datepicker,
     'input-select': InputSelect,
     'input-checkboxes': InputCheckboxes,
     'calendar-recurring-until': CalendarRecurringUntil
@@ -351,6 +361,12 @@ export default {
       if (!val) {
         this.getRecurringRule()
       }
+    },
+    setStart (startDate) {
+      this.startDate = startDate
+    },
+    setEnd (endDate) {
+      this.endDate = endDate
     },
     setDateRange (startDate, endDate) {
       this.startDate = startDate
