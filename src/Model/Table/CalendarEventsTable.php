@@ -522,7 +522,7 @@ class CalendarEventsTable extends Table
         }
 
         $prefix = !empty($options['prefix']) ? $options['prefix'] : 'Config';
-        $type = !empty($options['type']) ? $options['type'] : 'default';
+        $type = !empty($data['type']) ? $data['type'] : 'default';
         $delimiter = '::';
 
         $name = $prefix . $delimiter . $data['name'] . $delimiter . Inflector::camelize($type);

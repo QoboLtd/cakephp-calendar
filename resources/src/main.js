@@ -26,7 +26,7 @@ new Vue({
     timezone: null,
     eventClick: null,
     public: null,
-    apiToken:null
+    apiToken: null
   },
   computed: {
     isIntervalChanged: function () {
@@ -40,7 +40,7 @@ new Vue({
 
       if (this.calendars) {
         this.calendars.forEach((elem, key) => {
-          if (elem.permissions.edit && elem.editable != false) {
+          if (elem.permissions.edit && elem.editable !== false) {
             self.calendarsList.push({ value: elem.id, label: elem.name })
           }
         })
