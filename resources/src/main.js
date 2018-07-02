@@ -6,8 +6,11 @@ import CalendarModal from './components/CalendarModal.vue'
 import Calendar from './components/Calendar.vue'
 import $ from 'jquery'
 
+import store from '@/store'
+
 new Vue({
   el: '#qobo-calendar-app',
+  store,
   mixins: [ajaxMixin],
   components: {
     'calendar': Calendar,

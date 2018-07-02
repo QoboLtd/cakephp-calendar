@@ -7,7 +7,7 @@
 <script>
 import * as $ from 'jquery'
 import moment from 'moment'
-import configMixin from './../mixins/configMixin'
+import configMixin from '@/mixins/configMixin'
 import daterangepicker from 'daterangepicker'
 import { camelize } from 'inflected'
 

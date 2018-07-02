@@ -136,15 +136,15 @@
 </template>
 <script>
 import * as $ from 'jquery'
-import ajaxMixin from './../mixins/ajaxMixin'
-import configMixin from './../mixins/configMixin'
+import ajaxMixin from '@/mixins/ajaxMixin'
+import configMixin from '@/mixins/configMixin'
 import RRule from 'rrule'
 import moment from 'moment'
 import vSelect from 'vue-select'
-import InputSelect from './InputSelect.vue'
-import InputCheckboxes from './InputCheckboxes.vue'
+import InputSelect from '@/components/ui/InputSelect.vue'
+import InputCheckboxes from '@/components/ui/InputCheckboxes.vue'
 import CalendarRecurringUntil from './CalendarRecurringUntil.vue'
-import Datepicker from './Datepicker.vue'
+import Datepicker from '@/components/ui/Datepicker.vue'
 import { camelize } from 'inflected'
 
 export default {
