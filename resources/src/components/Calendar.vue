@@ -27,7 +27,7 @@ import EventCreate from '@/components/modals/EventCreate.vue'
 import EventView from '@/components/modals/EventView.vue'
 
 export default {
-  props: ['ids', 'events', 'editable', 'start', 'end', 'timezone', 'public', 'showPrintButton'],
+  props: ['editable', 'timezone', 'public', 'showPrintButton'],
   components: {
     Modal,
     EventCreate,
@@ -83,11 +83,8 @@ export default {
           }
         },
         viewRender (view, element) {
-          self.$emit(
-            'interval-update',
-            view.start.format(this.format),
-            view.end.format(this.format)
-          )
+          self.$store.commit('calendars/setOption', { key: 'start', value: view.start.format(this.format) })
+          self.$store.commit('calendars/setOption', { key: 'end', value: view.end.format(this.format) })
         }
       },
     )

@@ -32,12 +32,6 @@ new Vue({
     ...mapGetters({
       calendars: 'calendars/data'
     }),
-    start () {
-      return this.$store.getters['calendars/getOption']('start')
-    },
-    end () {
-      return this.$store.getters['calendars/getOption']('end')
-    },
     editable () {
       return this.$store.getters['calendars/getOption']('editable')
     },
@@ -76,9 +70,6 @@ new Vue({
   },
   beforeMount () {
     this.apiToken = this.$el.attributes.token.value
-
-    this.$store.commit('calendars/setOption', { key: 'start', value: this.$el.attributes.start.value })
-    this.$store.commit('calendars/setOption', { key: 'end', value: this.$el.attributes.end.value })
     this.$store.commit('calendars/setOption', { key: 'timezone', value: this.$el.attributes.timezone.value })
 
     ApiService.setHeader(this.apiToken)
@@ -102,10 +93,6 @@ new Vue({
       }
 
       this.$store.dispatch('calendars/events/getData', args)
-    },
-    updateStartEnd (start, end) {
-      this.$store.commit('calendars/setOption', { key: 'start', value: start })
-      this.$store.commit('calendars/setOption', { key: 'end', value: end })
     },
 
     removeEvents (id) {
