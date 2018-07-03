@@ -1,37 +1,52 @@
 import Vue from 'vue'
 import ajaxMixin from './mixins/ajaxMixin'
-import CalendarLink from './components/CalendarLink.vue'
-import CalendarItem from './components/CalendarItem.vue'
-import CalendarModal from './components/CalendarModal.vue'
-import Calendar from './components/Calendar.vue'
+import Calendar from '@/components/Calendar.vue'
 import $ from 'jquery'
 
 import store from '@/store'
+import { mapActions, mapGetters } from 'vuex'
+import ApiService from '@/common/ApiService'
+import Notifications from 'vue-notification'
+import Sidebar from '@/components/Sidebar.vue'
+
+Vue.use(Notifications)
+
+ApiService.init()
 
 new Vue({
   el: '#qobo-calendar-app',
   store,
   mixins: [ajaxMixin],
   components: {
-    'calendar': Calendar,
-    'calendar-item': CalendarItem,
-    'calendar-link': CalendarLink,
-    'calendar-modal': CalendarModal
+    Calendar,
+    Sidebar
   },
   data: {
     ids: [],
     events: [],
-    calendars: [],
     calendarsList: [],
-    editable: false,
-    start: null,
-    end: null,
-    timezone: null,
     eventClick: null,
-    public: null,
     apiToken: null
   },
   computed: {
+    ...mapGetters({
+      calendars: 'calendars/data'
+    }),
+    start () {
+      return this.$store.getters['calendars/getOption']('start')
+    },
+    end () {
+      return this.$store.getters['calendars/getOption']('end')
+    },
+    editable () {
+      return this.$store.getters['calendars/getOption']('editable')
+    },
+    timezone () {
+      return this.$store.getters['calendars/getOption']('timezone')
+    },
+    public () {
+      return this.$store.getters['calendars/getOption']('public')
+    },
     isIntervalChanged: function () {
       return [this.start, this.end].join('')
     }
@@ -50,8 +65,7 @@ new Vue({
       }
     },
     isIntervalChanged: function () {
-      var self = this
-
+      const self = this
       if (this.ids.length) {
         self.events = []
         this.ids.forEach(function (calendarId, key) {
@@ -61,63 +75,39 @@ new Vue({
     }
   },
   beforeMount () {
-    this.start = this.$el.attributes.start.value
-    this.end = this.$el.attributes.end.value
-    this.timezone = this.$el.attributes.timezone.value
     this.apiToken = this.$el.attributes.token.value
 
+    this.$store.commit('calendars/setOption', { key: 'start', value: this.$el.attributes.start.value })
+    this.$store.commit('calendars/setOption', { key: 'end', value: this.$el.attributes.end.value })
+    this.$store.commit('calendars/setOption', { key: 'timezone', value: this.$el.attributes.timezone.value })
+
+    ApiService.setHeader(this.apiToken)
+
     if (this.$el.attributes.public) {
-      this.public = this.$el.attributes.public.value
+      let isPublic = (this.$el.attributes.public.value == 'true')
+      this.$store.commit('calendars/setOption', { key: 'public', value: isPublic })
     }
 
-    if (this.public == 'true') {
-      this.getPublicCalendars()
-    } else {
-      this.getCalendars()
-    }
+    this.getCalendars({ public: this.public })
   },
   methods: {
-    updateStartEnd (start, end) {
-      this.start = start
-      this.end = end
-    },
-    getCalendars () {
-      var self = this
-      this.apiGetCalendars().then(function (response) {
-        self.calendars = response
-      })
-    },
-    getPublicCalendars () {
-      var self = this
-
-      this.apiGetPublicCalendars().then(function (resp) {
-        self.calendars = resp
-        if (self.calendars) {
-          self.calendars.forEach(function (elem, key) {
-            if (elem.active == true && elem.is_public == true) {
-              self.ids.push(elem.id)
-              self.getEvents(elem.id)
-            }
-          })
-        }
-      })
-    },
+    ...mapActions({
+      getCalendars: 'calendars/getData',
+    }),
     getEvents (id) {
-      var self = this
-      this.apiGetEvents(id).then( function (response) {
-        if (!response) {
-          return
-        }
+      let args = {
+        calendar_id: id,
+        start: this.start,
+        end: this.end
+      }
 
-        let eventIds = self.events.map(element => element.id)
-
-        response.forEach(function (element, index) {
-          if (!eventIds.includes(element.id)) {
-            self.events.push(element)
-          }
-        })
-      })
+      this.$store.dispatch('calendars/events/getData', args)
     },
+    updateStartEnd (start, end) {
+      this.$store.commit('calendars/setOption', { key: 'start', value: start })
+      this.$store.commit('calendars/setOption', { key: 'end', value: end })
+    },
+
     removeEvents (id) {
       this.events = this.events.filter(function (item) {
         if (item.calendar_id !== id) {
@@ -126,24 +116,7 @@ new Vue({
       })
     },
     updateCalendarIds (state, id) {
-      var self = this
-      var found = false
-
-      this.ids.forEach(function (elem, key) {
-        if (elem == id) {
-          if (state === false) {
-            self.ids.splice(key, 1)
-            self.removeEvents(id)
-          } else {
-            found = true
-          }
-        }
-      })
-
-      if (state === true && !found) {
-        this.ids.push(id)
-        this.getEvents(id)
-      }
+      console.log('update calendar ids')
     },
     getEventInfo (calendarEvent) {
       this.apiGetEventInfo(calendarEvent).then(function (response) {
@@ -159,11 +132,7 @@ new Vue({
       $('#calendar-modal-add-event').modal('toggle')
     },
     addEventToResources (event) {
-      if (event) {
-        this.events.push(event)
-        /* @NOTE: remove reload and just clear up modals */
-        window.location.reload()
-      }
+      console.log('add event to resources')
     }
   }
 })

@@ -4,7 +4,7 @@ const state = {
   data: {},
   parentId: null,
   options: {
-
+    background: false,
   }
 }
 
@@ -36,7 +36,26 @@ const getters = {
 
 const actions = {
   getData (args) {
-
+    return new Promise((resolve, reject) => {
+      ApiService
+        .post('/calendars/calendar-events/index.json', args)
+        .then( response => {
+          console.log(response)
+          resolve(response.data)
+        })
+        .catch(() => reject)
+    })
+  },
+  getItemById (id) {
+    return new Promise((resolve, reject) => {
+      ApiService
+        .post('/calendars/calendar-events/view', id)
+        .then(response => {
+          console.log(response)
+          resolve(response)
+        })
+        .catch(() => reject)
+    })
   }
 }
 

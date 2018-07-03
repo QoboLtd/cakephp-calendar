@@ -1,63 +1,96 @@
 <template>
+  <div>
     <div ref="calendar"></div>
+
+    <modal
+      :show-modal="modal.showModal"
+      :show-footer="modal.showFooter"
+      :show-save-button="modal.showSaveButton"
+      :show-edit="modal.showEdit"
+      :edit-url="modal.editUrl"
+      @modal-save="saveModal"
+      @modal-toggle="toggleModal">
+        <template slot="header-title">{{ modal.title }}</template>
+        <template slot="body-content">
+          <event-create v-if="modal.type === 'create'"></event-create>
+          <event-view v-if="modal.type === 'view'"></event-view>
+        </template>
+    </modal>
+
+  </div>
 </template>
 <script>
 import * as $ from 'jquery'
 import fullCalendar from 'fullcalendar'
+import Modal from '@/components/Modal.vue'
+import EventCreate from '@/components/EventCreate.vue'
+import EventView from '@/components/EventView.vue'
 
 export default {
   props: ['ids', 'events', 'editable', 'start', 'end', 'timezone', 'public', 'showPrintButton'],
+  components: {
+    Modal,
+    EventCreate,
+    EventView
+  },
   data () {
     return {
-      cal: null,
+      modal: {
+        showModal: false,
+        showFooter: true,
+        showEdit: false,
+        showSaveButton: false,
+        editUrl: null,
+        title: null,
+        type: null
+      },
+      calendar: null,
       calendarEvents: [],
-      format: 'YYYY-MM-DD'
-    }
-  },
-
-  watch: {
-    events: function () {
-      var self = this
-      this.calendarEvents = []
-
-      if (!this.events.length) {
-        return
+      format: 'YYYY-MM-DD',
+      calendarConfigs: {
+        header: {
+          left: 'prev,next',
+          center: 'title',
+          right: 'month,agendaWeek,agendaDay'
+        },
+        buttonText: {
+          today: 'today',
+          month: 'month',
+          week: 'week',
+          day: 'day'
+        },
+        defaultView: 'month',
+        firstDay: 1,
+        editable: false,
+        timeFormat: 'HH:mm'
       }
-
-      self.setCalendarEvents(this.events)
-    },
-    calendarEvents: function () {
-      this.cal.fullCalendar('removeEvents')
-      this.cal.fullCalendar('addEventSource', this.calendarEvents)
-      this.cal.fullCalendar('rerenderEvents')
     }
   },
-
   mounted () {
-    var self = this
-    self.cal = $(self.$refs.calendar)
+    const self = this
+    self.calendar = $(self.$refs.calendar)
 
-    var args = {
-      header: {
-        left: 'today, prev,next printButton',
-        center: 'title',
-        right: 'month,agendaWeek,agendaDay'
+    let args = Object.assign(
+      this.calendarConfigs,
+      {
+        timezone: false,
+        eventClick (event) {
+          self.openEvent(event)
+        },
+        dayClick (dateMoment, event, view) {
+          if (self.public != 'true') {
+            self.createEvent(dateMoment, event, view)
+          }
+        },
+        viewRender (view, element) {
+          self.$emit(
+            'interval-update',
+            view.start.format(this.format),
+            view.end.format(this.format)
+          )
+        }
       },
-      buttonText: {
-        today: 'today',
-        month: 'month',
-        week: 'week',
-        day: 'day'
-      },
-      firstDay: 1,
-      editable: this.editable,
-      eventClick (event) {
-        self.$emit('event-info', event)
-      },
-      viewRender (view, element) {
-        self.$emit('interval-update', view.start.format(this.format), view.end.format(this.format))
-      }
-    }
+    )
 
     if (true === this.showPrintButton) {
       args.customButtons = {
@@ -70,13 +103,7 @@ export default {
       }
     }
 
-    if (this.public != 'true') {
-      args.dayClick = function (date, jsEvent, view) {
-        self.$emit('modal-add-event', date, jsEvent, view)
-      }
-    }
-
-    self.cal.fullCalendar(args)
+    self.calendar.fullCalendar(args)
   },
   methods: {
     setCalendarEvents (events) {
@@ -99,6 +126,24 @@ export default {
         })
       })
 
+    },
+    toggleModal (state) {
+      this.modal.showModal = state.value
+    },
+    saveModal () {
+      console.log('save-modal')
+    },
+    createEvent (moment, event, view) {
+      Object.assign(this.modal, {
+        title: 'Create Event',
+        showModal: true,
+        showFooter: true,
+        type: 'create'
+      })
+
+    },
+    openEvent (event) {
+      console.log('open-event')
     }
   }
 }

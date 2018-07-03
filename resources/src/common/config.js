@@ -1,2 +1,2 @@
 export default {}
-export const API_URL = '/api/v1.0'
+export const API_URL = ''
