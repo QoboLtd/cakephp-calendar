@@ -23,8 +23,8 @@
 import * as $ from 'jquery'
 import fullCalendar from 'fullcalendar'
 import Modal from '@/components/Modal.vue'
-import EventCreate from '@/components/EventCreate.vue'
-import EventView from '@/components/EventView.vue'
+import EventCreate from '@/components/modals/EventCreate.vue'
+import EventView from '@/components/modals/EventView.vue'
 
 export default {
   props: ['ids', 'events', 'editable', 'start', 'end', 'timezone', 'public', 'showPrintButton'],
