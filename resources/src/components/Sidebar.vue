@@ -50,6 +50,7 @@ export default {
       getCalendarEvents: 'calendars/events/getData'
     }),
     toggleActiveId (calendarId) {
+      const self = this
       if (!this.toggle.includes(calendarId)) {
         this.$store.commit('calendars/addActiveId', calendarId)
         this.getCalendarEvents({ calendar_id:calendarId })

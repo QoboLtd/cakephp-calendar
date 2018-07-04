@@ -107,55 +107,29 @@ export default {
   computed: {
     ...mapGetters({
       activeIds: 'calendars/activeIds',
-      eventSources: 'calendars/events/data'
-    })
+      eventSources: 'calendars/events/data',
+      rangeChecksum: 'calendars/rangeChecksum'
+    }),
   },
   watch: {
     eventSources () {
+      this.updateEventSources()
+    },
+    rangeChecksum () {
       const self = this
-      let sourceIds = []
-      let sources = this.calendar.fullCalendar('getEventSources')
 
-      /* remove all events that are not in active ids */
-      if (sources.length) {
-        sources.forEach( (element, index) => {
-          if (!this.activeIds.includes(element.id)) {
-            self.calendar.fullCalendar('removeEventSources', element.id)
-          }
+      if (this.activeIds.length) {
+        this.activeIds.forEach(id => {
+          self.getCalendarEvents({calendar_id: id})
         })
-        sources = this.calendar.fullCalendar('getEventSources')
-        sourceIds = sources.map(item => item.id)
+        this.updateEventSources()
       }
-
-      this.eventSources.forEach(element => {
-        if (!sourceIds.includes(element.id)) {
-          self.calendar.fullCalendar('addEventSource', element)
-        }
-      })
     }
   },
   methods: {
-    setCalendarEvents (events) {
-      const self = this
-
-      if (!events.length) {
-        return
-      }
-
-      events.forEach( (event) => {
-        self.calendarEvents.push({
-          id: event.id,
-          title: event.title,
-          color: event.color,
-          start: event.start_date,
-          end: event.end_date,
-          calendar_id: event.calendar_id,
-          event_type: event.event_type,
-          allDay: true
-        })
-      })
-
-    },
+    ...mapActions({
+      getCalendarEvents: 'calendars/events/getData'
+    }),
     toggleModal (state) {
       this.modal.showModal = state.value
     },
@@ -169,10 +143,28 @@ export default {
         showFooter: true,
         type: 'create'
       })
-
     },
     openEvent (event) {
-      console.log('open-event')
+      Object.assign(this.modal, {
+        title: 'View Event',
+        showModal: true,
+        showFooter: true,
+        type: 'info'
+      })
+    },
+    updateEventSources () {
+      const self = this
+
+      let oldSources = this.calendar.fullCalendar('getEventSources')
+      let sourceIds = oldSources.map(item => item.id)
+
+      this.calendar.fullCalendar('removeEventSources')
+
+      this.eventSources.forEach( element => {
+        if (self.activeIds.includes(element.id)) {
+          self.calendar.fullCalendar('addEventSource', element)
+        }
+      })
     }
   }
 }

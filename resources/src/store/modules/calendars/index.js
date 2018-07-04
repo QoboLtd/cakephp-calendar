@@ -61,6 +61,10 @@ const getters = {
   options: (state) => state.options,
   getOption: (state) => (key) => {
     return state.options[key]
+  },
+  rangeChecksum: (state) => {
+    let delimiter = '_'
+    return state.options['start'] + delimiter + state.options['end']
   }
 }
 

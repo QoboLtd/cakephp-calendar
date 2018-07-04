@@ -26,6 +26,12 @@ const mutations = {
     if (!found) {
       state.data.push(payload)
     }
+
+    /**
+     * re-indexing the array
+     * @NOTE: otherwise it won't spot the change
+     * */
+    state.data = state.data.filter(function() { return true })
   },
   removeDataSource (state, payload) {
     let key = undefined
@@ -38,6 +44,8 @@ const mutations = {
     if (key !== undefined) {
       state.data.splice(key, 1)
     }
+    /* re-indexing the array */
+    state.data = state.data.filter(function() { return true })
   }
 }
 
@@ -57,7 +65,6 @@ const actions = {
         end_date: rootGetters['calendars/getOption']('end')
       }
     }
-
     data = Object.assign(data, args)
 
     return new Promise((resolve, reject) => {
