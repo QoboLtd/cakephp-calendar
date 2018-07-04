@@ -45,15 +45,23 @@ const mutations = {
   },
   resetActiveIds (state, payload) {
     state.activeIds = []
+  },
+  addActiveId (state, payload) {
+    state.activeIds.push(payload)
+  },
+  removeActiveId (state, payload) {
+    let index = state.activeIds.indexOf(payload)
+    state.activeIds.splice(index, 1)
   }
 }
 
 const getters = {
+  activeIds: state => state.activeIds,
   data: state => state.data,
-  options: (state) => { return state.options },
+  options: (state) => state.options,
   getOption: (state) => (key) => {
     return state.options[key]
-  },
+  }
 }
 
 const actions = {

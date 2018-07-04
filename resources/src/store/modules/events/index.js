@@ -1,57 +1,86 @@
 import ApiService from '@/common/ApiService'
 
 const state = {
-  data: {},
-  parentId: null,
+  data: [],
   options: {
     background: false,
   }
 }
 
 const mutations = {
-  setData (state, payload) {
-
-  },
   setOptions (state, payload) {
-
+    state.options = payload
   },
   setOption (state, payload) {
-
+    state.options[payload.key] = payload.value
   },
-  add (state, payload) {
+  addDataSource (state, payload) {
+    let found = false
+    state.data.forEach( (element, index) => {
+      if (element.id == payload.id) {
+        state.data[index] = payload
+        found = true
+      }
+    })
 
+    if (!found) {
+      state.data.push(payload)
+    }
   },
-  remove (state, payload) {
+  removeDataSource (state, payload) {
+    let key = undefined
+    state.data.forEach((element,index) => {
+      if (element.id == payload.id) {
+        key = index
+      }
+    })
 
+    if (key !== undefined) {
+      state.data.splice(key, 1)
+    }
   }
 }
 
 const getters = {
-  data: (state) => { state.data },
-  options: (state) => { state.options },
+  data: state => state.data,
+  options: state => state.options,
   getOption: (state) => (key) => {
-    console.log(key)
+    return state.options[key]
   }
 }
 
 const actions = {
-  getData (args) {
+  getData ({ state, commit, rootState, rootGetters }, args) {
+    let data = {
+      period: {
+        start_date: rootGetters['calendars/getOption']('start'),
+        end_date: rootGetters['calendars/getOption']('end')
+      }
+    }
+
+    data = Object.assign(data, args)
+
     return new Promise((resolve, reject) => {
       ApiService
-        .post('/calendars/calendar-events/index.json', args)
+        .post('/calendars/calendar-events/index.json', data)
         .then( response => {
-          console.log(response)
-          resolve(response.data)
+          if (response.data.length) {
+            let source = {
+              id: data.calendar_id,
+              events: response.data
+            }
+            commit('addDataSource', source)
+            resolve(response.data)
+          }
         })
         .catch(() => reject)
     })
   },
-  getItemById (id) {
+  getItemById ({ state, commit, rootState }, id) {
     return new Promise((resolve, reject) => {
       ApiService
         .post('/calendars/calendar-events/view', id)
         .then(response => {
-          console.log(response)
           resolve(response)
         })
         .catch(() => reject)

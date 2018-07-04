@@ -25,6 +25,8 @@ import fullCalendar from 'fullcalendar'
 import Modal from '@/components/Modal.vue'
 import EventCreate from '@/components/modals/EventCreate.vue'
 import EventView from '@/components/modals/EventView.vue'
+import { mapGetters, mapActions } from 'vuex'
+
 
 export default {
   props: ['editable', 'timezone', 'public', 'showPrintButton'],
@@ -101,6 +103,36 @@ export default {
     }
 
     self.calendar.fullCalendar(args)
+  },
+  computed: {
+    ...mapGetters({
+      activeIds: 'calendars/activeIds',
+      eventSources: 'calendars/events/data'
+    })
+  },
+  watch: {
+    eventSources () {
+      const self = this
+      let sourceIds = []
+      let sources = this.calendar.fullCalendar('getEventSources')
+
+      /* remove all events that are not in active ids */
+      if (sources.length) {
+        sources.forEach( (element, index) => {
+          if (!this.activeIds.includes(element.id)) {
+            self.calendar.fullCalendar('removeEventSources', element.id)
+          }
+        })
+        sources = this.calendar.fullCalendar('getEventSources')
+        sourceIds = sources.map(item => item.id)
+      }
+
+      this.eventSources.forEach(element => {
+        if (!sourceIds.includes(element.id)) {
+          self.calendar.fullCalendar('addEventSource', element)
+        }
+      })
+    }
   },
   methods: {
     setCalendarEvents (events) {

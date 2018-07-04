@@ -25,6 +25,7 @@ use Cake\Validation\Validator;
 use Qobo\Calendar\Object\ObjectFactory;
 use \ArrayObject;
 use \RRule\RRule;
+use DateTime;
 
 /**
  * CalendarEvents Model
@@ -332,10 +333,16 @@ class CalendarEventsTable extends Table
 
         $rrule = new RRule($rule, new \DateTime($origin['start_date']));
 
+        $st = $en = null;
+
+        if (!empty($options['period']['end_date'])) {
+            $en = new DateTime($options['period']['end_date']);
+        }
+
         //new \DateTime($origin['start_date']),
         $eventDates = $rrule->getOccurrencesBetween(
             new \DateTime($options['period']['start_date']),
-            new \DateTime($options['period']['end_date'])
+            $en
         );
 
         $startDateTime = new \DateTime($origin['start_date'], new \DateTimeZone('UTC'));
@@ -590,6 +597,8 @@ class CalendarEventsTable extends Table
             'content' => $event['content'],
             'start_date' => date('Y-m-d H:i:s', strtotime($event['start_date'])),
             'end_date' => date('Y-m-d H:i:s', strtotime($event['end_date'])),
+            'start' => date('Y-m-d H:i:s', strtotime($event['start_date'])),
+            'end' => date('Y-m-d H:i:s', strtotime($event['end_date'])),
             'color' => (empty($event['color']) ? $calendar->color : $event['color']),
             'source' => $event['source'],
             'source_id' => $event['source_id'],

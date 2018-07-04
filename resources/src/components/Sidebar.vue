@@ -12,7 +12,7 @@
             <div class="col-xs-8">
               <div class="form-group checkbox">
                 <label>
-                  <input type="checkbox" v-model="toggle" :value="item.id" name="Calendar[_id]" multiple="true" class="calendar-id"/>
+                  <input type="checkbox" :value="item.id" name="Calendar[_id]" multiple="true" @click="toggleActiveId(item.id)"/>
                   <i v-if="item.icon" class="fa" v-bind:class="'fa-' + item.icon"></i> {{item.name}}
                 </label>
               </div>
@@ -41,17 +41,22 @@ import { mapGetters, mapActions } from 'vuex'
 export default {
   computed: {
     ...mapGetters({
-      calendars: 'calendars/data'
+      calendars: 'calendars/data',
+      toggle: 'calendars/activeIds'
     })
   },
-  data () {
-    return {
-      toggle: []
-    }
-  },
-  watch: {
-    toggle () {
-      this.$store.commit('calendars/setActiveIds', this.toggle)
+  methods: {
+    ...mapActions({
+      getCalendarEvents: 'calendars/events/getData'
+    }),
+    toggleActiveId (calendarId) {
+      if (!this.toggle.includes(calendarId)) {
+        this.$store.commit('calendars/addActiveId', calendarId)
+        this.getCalendarEvents({ calendar_id:calendarId })
+      } else {
+        this.$store.commit('calendars/removeActiveId', calendarId)
+        this.$store.commit('calendars/events/removeDataSource', { id: calendarId })
+      }
     }
   }
 }
