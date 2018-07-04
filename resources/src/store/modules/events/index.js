@@ -86,9 +86,9 @@ const actions = {
   getItemById ({ state, commit, rootState }, id) {
     return new Promise((resolve, reject) => {
       ApiService
-        .post('/calendars/calendar-events/view', id)
+        .post('/calendars/calendar-events/view.json', id)
         .then(response => {
-          resolve(response)
+          resolve(response.data)
         })
         .catch(() => reject)
     })

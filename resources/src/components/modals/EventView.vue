@@ -1,10 +1,10 @@
 <template>
   <div>
-    Event View
+    AAA - {{ eventInfo }}
   </div>
 </template>
 <script>
 export default {
-
+  props: ['eventInfo'],
 }
 </script>

@@ -13,7 +13,7 @@
         <template slot="header-title">{{ modal.title }}</template>
         <template slot="body-content">
           <event-create v-if="modal.type === 'create'"></event-create>
-          <event-view v-if="modal.type === 'view'"></event-view>
+          <event-view v-if="modal.type === 'view'" :event-info="eventInfo"></event-view>
         </template>
     </modal>
 
@@ -47,7 +47,7 @@ export default {
         type: null
       },
       calendar: null,
-      calendarEvents: [],
+      eventInfo: null,
       format: 'YYYY-MM-DD',
       calendarConfigs: {
         header: {
@@ -128,7 +128,8 @@ export default {
   },
   methods: {
     ...mapActions({
-      getCalendarEvents: 'calendars/events/getData'
+      getCalendarEvents: 'calendars/events/getData',
+      getCalendarInfo: 'calendars/events/getItemById'
     }),
     toggleModal (state) {
       this.modal.showModal = state.value
@@ -145,11 +146,18 @@ export default {
       })
     },
     openEvent (event) {
+      const self = this
+
       Object.assign(this.modal, {
         title: 'View Event',
         showModal: true,
         showFooter: true,
-        type: 'info'
+        type: 'view'
+      })
+
+      this.getCalendarInfo({ id: event.id }).then(response => {
+        self.modal.title = response.calEvent.title
+        self.eventInfo = response.calEvent
       })
     },
     updateEventSources () {
