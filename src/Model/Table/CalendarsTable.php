@@ -165,6 +165,16 @@ class CalendarsTable extends Table
                 ->all();
         $result = $query->toArray();
 
+        if (!empty($result)) {
+            foreach ($result as $item) {
+                if (!empty($item->event_types)) {
+                    $item->event_types = json_decode($item->event_types, true);
+                } else {
+                    $item->event_types = [];
+                }
+            }
+        }
+
         if (empty($result)) {
             return $result;
         }

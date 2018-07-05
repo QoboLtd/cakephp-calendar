@@ -79,7 +79,7 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default" @click="clearRRule">Clear</button>
-            <button type="button" class="btn btn-primary" data-dismiss="modal">Save</button>
+            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="saveRRule">Save</button>
           </div>
         </div> <!-- modal-content -->
       </div> <!-- modal-dialog -->
@@ -228,6 +228,9 @@ export default {
 
       this.rruleString = ruleString
       this.rruleRaw = rrule.toString()
+    },
+    saveRRule () {
+      this.$emit('rrule-saved', this.rruleRaw)
     }
   }
 }

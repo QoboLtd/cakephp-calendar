@@ -70,8 +70,9 @@ class CalendarAttendeesController extends AppController
      */
     public function lookup()
     {
+        $this->request->allowMethod(['post', 'put', 'patch']);
         $result = [];
-        $searchTerm = $this->request->query('term');
+        $searchTerm = $this->request->getData('term');
 
         $query = $this->CalendarAttendees->find()
             ->where([
@@ -80,7 +81,6 @@ class CalendarAttendeesController extends AppController
                     'contact_details LIKE' => "%$searchTerm%"
                 ]
             ]);
-
         $attendees = $query->toArray();
 
         foreach ($attendees as $k => $att) {

@@ -42,7 +42,7 @@ module.exports = {
     extensions: ['.js', '.vue', '.json'],
     alias: {
       'vue$': 'vue/dist/vue.esm.js',
-      '@': resolve('./resources/src'),
+      '@': resolve('./resources/src/'),
       jquery: resolve(join(__dirname, '../..', 'node_modules', 'jquery')),
       fullcalendar: 'fullcalendar/dist/fullcalendar'
     }

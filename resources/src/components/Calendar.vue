@@ -1,63 +1,94 @@
 <template>
+  <div>
     <div ref="calendar"></div>
+
+    <modal
+      :show-modal="modal.showModal"
+      :show-footer="modal.showFooter"
+      :show-save-button="modal.showSaveButton"
+      :show-edit="modal.showEdit"
+      :edit-url="modal.editUrl"
+      @modal-save="saveModal"
+      @modal-toggle="toggleModal">
+        <template slot="header-title">{{ modal.title }}</template>
+        <template slot="body-content">
+          <event-create v-if="modal.type === 'create'"></event-create>
+          <event-view v-if="modal.type === 'view'" :event-info="eventInfo"></event-view>
+        </template>
+    </modal>
+
+  </div>
 </template>
 <script>
+import { mapGetters, mapActions } from 'vuex'
 import * as $ from 'jquery'
 import fullCalendar from 'fullcalendar'
+import Modal from '@/components/Modal.vue'
+import EventCreate from '@/components/modals/EventCreate.vue'
+import EventView from '@/components/modals/EventView.vue'
 
 export default {
-  props: ['ids', 'events', 'editable', 'start', 'end', 'timezone', 'public', 'showPrintButton'],
+  props: ['editable', 'timezone', 'public', 'showPrintButton'],
+  components: {
+    Modal,
+    EventCreate,
+    EventView
+  },
   data () {
     return {
-      cal: null,
-      calendarEvents: [],
-      format: 'YYYY-MM-DD'
-    }
-  },
-
-  watch: {
-    events: function () {
-      var self = this
-      this.calendarEvents = []
-
-      if (!this.events.length) {
-        return
+      modal: {
+        showModal: false,
+        showFooter: true,
+        showEdit: false,
+        showSaveButton: false,
+        editUrl: null,
+        title: null,
+        type: null
+      },
+      calendar: null,
+      eventInfo: null,
+      format: 'YYYY-MM-DD',
+      calendarConfigs: {
+        header: {
+          left: 'prev,next',
+          center: 'title',
+          right: 'month,agendaWeek,agendaDay'
+        },
+        buttonText: {
+          today: 'today',
+          month: 'month',
+          week: 'week',
+          day: 'day'
+        },
+        defaultView: 'month',
+        firstDay: 1,
+        editable: false,
+        timeFormat: 'HH:mm'
       }
-
-      self.setCalendarEvents(this.events)
-    },
-    calendarEvents: function () {
-      this.cal.fullCalendar('removeEvents')
-      this.cal.fullCalendar('addEventSource', this.calendarEvents)
-      this.cal.fullCalendar('rerenderEvents')
     }
   },
-
   mounted () {
-    var self = this
-    self.cal = $(self.$refs.calendar)
+    const self = this
+    self.calendar = $(self.$refs.calendar)
 
-    var args = {
-      header: {
-        left: 'today, prev,next printButton',
-        center: 'title',
-        right: 'month,agendaWeek,agendaDay'
+    let args = Object.assign(
+      this.calendarConfigs,
+      {
+        timezone: false,
+        eventClick (event) {
+          self.openEvent(event)
+        },
+        dayClick (dateMoment, event, view) {
+          if (self.public != 'true') {
+            self.createEvent(dateMoment, event, view)
+          }
+        },
+        viewRender (view, element) {
+          self.$store.commit('calendars/setOption', { key: 'start', value: view.start.format(this.format) })
+          self.$store.commit('calendars/setOption', { key: 'end', value: view.end.format(this.format) })
+        }
       },
-      buttonText: {
-        today: 'today',
-        month: 'month',
-        week: 'week',
-        day: 'day'
-      },
-      firstDay: 1,
-      editable: this.editable,
-      eventClick (event) {
-        self.$emit('event-info', event)
-      },
-      viewRender (view, element) {
-        self.$emit('interval-update', view.start.format(this.format), view.end.format(this.format))
-      }
-    }
+    )
 
     if (true === this.showPrintButton) {
       args.customButtons = {
@@ -70,35 +101,83 @@ export default {
       }
     }
 
-    if (this.public != 'true') {
-      args.dayClick = function (date, jsEvent, view) {
-        self.$emit('modal-add-event', date, jsEvent, view)
-      }
-    }
-
-    self.cal.fullCalendar(args)
+    self.calendar.fullCalendar(args)
   },
-  methods: {
-    setCalendarEvents (events) {
+  computed: {
+    ...mapGetters({
+      activeIds: 'calendars/activeIds',
+      eventSources: 'calendars/events/data',
+      rangeChecksum: 'calendars/rangeChecksum'
+    }),
+  },
+  watch: {
+    eventSources () {
+      this.updateEventSources()
+    },
+    rangeChecksum () {
       const self = this
 
-      if (!events.length) {
-        return
-      }
-
-      events.forEach( (event) => {
-        self.calendarEvents.push({
-          id: event.id,
-          title: event.title,
-          color: event.color,
-          start: event.start_date,
-          end: event.end_date,
-          calendar_id: event.calendar_id,
-          event_type: event.event_type,
-          allDay: true
+      if (this.activeIds.length) {
+        this.activeIds.forEach(id => {
+          self.getCalendarEvents({calendar_id: id})
         })
+        this.updateEventSources()
+      }
+    }
+  },
+  methods: {
+    ...mapActions({
+      getCalendarEvents: 'calendars/events/getData',
+      getCalendarInfo: 'calendars/events/getItemById',
+      addCalendarEvent: 'event/addCalendarEvent'
+    }),
+    toggleModal (state) {
+      this.modal.showModal = state.value
+    },
+    saveModal () {
+      if (this.modal.type === 'create') {
+        this.addCalendarEvent().then(response => {
+          console.log(response)
+        })
+      }
+    },
+    createEvent (moment, event, view) {
+      Object.assign(this.modal, {
+        title: 'Create Event',
+        showModal: true,
+        showSaveButton: true,
+        showFooter: true,
+        type: 'create'
+      })
+    },
+    openEvent (event) {
+      const self = this
+
+      Object.assign(this.modal, {
+        title: 'View Event',
+        showModal: true,
+        showFooter: true,
+        type: 'view'
       })
 
+      this.getCalendarInfo({ id: event.id }).then(response => {
+        self.modal.title = response.calEvent.title
+        self.eventInfo = response.calEvent
+      })
+    },
+    updateEventSources () {
+      const self = this
+
+      let oldSources = this.calendar.fullCalendar('getEventSources')
+      let sourceIds = oldSources.map(item => item.id)
+
+      this.calendar.fullCalendar('removeEventSources')
+
+      this.eventSources.forEach( element => {
+        if (self.activeIds.includes(element.id)) {
+          self.calendar.fullCalendar('addEventSource', element)
+        }
+      })
     }
   }
 }
