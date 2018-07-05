@@ -22,10 +22,10 @@ use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Utility\Inflector;
 use Cake\Validation\Validator;
+use DateTime;
 use Qobo\Calendar\Object\ObjectFactory;
 use \ArrayObject;
 use \RRule\RRule;
-use DateTime;
 
 /**
  * CalendarEvents Model
