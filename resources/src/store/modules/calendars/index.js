@@ -65,6 +65,13 @@ const getters = {
   rangeChecksum: (state) => {
     let delimiter = '_'
     return state.options['start'] + delimiter + state.options['end']
+  },
+  getItemById: (state) => (id) => {
+    return state.data.find(function (element) {
+      if (element.id == id) {
+        return element
+      }
+    })
   }
 }
 
