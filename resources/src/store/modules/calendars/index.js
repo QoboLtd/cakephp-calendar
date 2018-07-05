@@ -86,6 +86,32 @@ const actions = {
         })
         .catch(() => reject)
     })
+  },
+  getEventTypes ({ commit, dispatch, state }, data) {
+    return new Promise((resolve, reject) => {
+      ApiService
+        .post('/calendars/calendar-events/get-event-types.json', data)
+        .then(response => {
+          resolve(response)
+        })
+        .catch(() => reject)
+    })
+  },
+  getEventTypeConfig ({ commit, dispatch, state }, data) {
+    return new Promise((resolve, reject) => {
+      ApiService
+        .post('/calendars/calendar-events/event-type-config.json', data)
+        .then(response => resolve(response))
+        .catch(() => reject)
+    })
+  },
+  getAttendees ({ commit, dispatch, state}, data) {
+    return new Promise((resolve, reject) => {
+      ApiService
+        .post('/calendars/calendar-attendees/lookup.json', data)
+        .then(response => resolve(response))
+        .catch(() => reject)
+    })
   }
 }
 

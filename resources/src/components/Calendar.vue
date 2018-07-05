@@ -20,13 +20,12 @@
   </div>
 </template>
 <script>
+import { mapGetters, mapActions } from 'vuex'
 import * as $ from 'jquery'
 import fullCalendar from 'fullcalendar'
 import Modal from '@/components/Modal.vue'
 import EventCreate from '@/components/modals/EventCreate.vue'
 import EventView from '@/components/modals/EventView.vue'
-import { mapGetters, mapActions } from 'vuex'
-
 
 export default {
   props: ['editable', 'timezone', 'public', 'showPrintButton'],
@@ -129,18 +128,24 @@ export default {
   methods: {
     ...mapActions({
       getCalendarEvents: 'calendars/events/getData',
-      getCalendarInfo: 'calendars/events/getItemById'
+      getCalendarInfo: 'calendars/events/getItemById',
+      addCalendarEvent: 'event/addCalendarEvent'
     }),
     toggleModal (state) {
       this.modal.showModal = state.value
     },
     saveModal () {
-      console.log('save-modal')
+      if (this.modal.type === 'create') {
+        this.addCalendarEvent().then(response => {
+          console.log(response)
+        })
+      }
     },
     createEvent (moment, event, view) {
       Object.assign(this.modal, {
         title: 'Create Event',
         showModal: true,
+        showSaveButton: true,
         showFooter: true,
         type: 'create'
       })

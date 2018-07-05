@@ -5,11 +5,11 @@
       <div class="col-xs-12 col-md-12">
         <div class="form-group">
           <v-select
-            v-model="calendarId"
+            v-model="calendar"
             placeholder="-- Please choose Calendar --"
             label="name"
             :options="calendarsList"
-            @input="updateCalendarId">
+            @input="updateCalendar">
           </v-select>
         </div>
       </div>
@@ -53,10 +53,11 @@
         <div class="form-group text">
           <label> Attendees: </label>
           <v-select
-            v-model="attendeesIds"
+            :value="attendeesIds"
             :debounce="400"
             :on-search="searchAttendees"
-            :options="attendees"
+            :options="attendeesList"
+            @input="updateAttendees"
             label="name"
             multiple>
           </v-select>
@@ -86,7 +87,7 @@
 </template>
 <script>
 import vSelect from 'vue-select'
-import { mapGetters, mapActions } from 'vuex'
+import { mapGetters, mapActions, mapState } from 'vuex'
 import Datepicker from '@/components/ui/Datepicker.vue'
 import RecurrenceInput from '@/components/ui/RecurrenceInput.vue'
 
@@ -98,18 +99,74 @@ export default {
   },
   data () {
     return {
-      calendarId: null,
-      eventType: null,
-      title: null,
-      content: null,
-      attendees: [],
-      attendeesIds: []
+      attendeesList: [],
+      eventTypesList: [],
     }
   },
   computed: {
     ...mapGetters({
-      calendars: 'calendars/data'
+      calendars: 'calendars/data',
+      findCalendarById: 'calendars/getItemById'
     }),
+    ...mapState({
+      attendeesIds: 'event/attendeesIds'
+    }),
+    calendar: {
+      get () {
+        return this.$store.getters['event/calendar']
+      },
+      set (value) {
+        this.$store.commit('event/setCalendar', value)
+      }
+    },
+    start: {
+      get () {
+        return this.$store.getters['event/start']
+      },
+      set (value) {
+        this.$store.commit('event/setStart', value)
+      }
+    },
+    end: {
+      get () {
+        return this.$store.getters['event/end']
+      },
+      set (value) {
+        this.$store.commit('event/setEnd', value)
+      }
+    },
+    eventType: {
+      get () {
+        return this.$store.getters['event/eventType']
+      },
+      set (value) {
+        this.$store.commit('event/setEventType', value)
+      }
+    },
+    title: {
+      get () {
+        return this.$store.getters['event/title']
+      },
+      set (value) {
+        this.$store.commit('event/setTitle', value)
+      }
+    },
+    content: {
+      get () {
+        return this.$store.getters['event/content']
+      },
+      set (value) {
+        this.$store.commit('event/setContent', value)
+      }
+    },
+    recurrence: {
+      get () {
+        return this.$store.getters['event/recurrence']
+      },
+      set (value) {
+        this.$store.commit('event/setRecurrence', value)
+      }
+    },
     calendarsList () {
       let list = []
 
@@ -118,30 +175,56 @@ export default {
       })
 
       return list
-    },
-    eventTypesList () {
-      console.log('event-types-list')
-      return []
     }
   },
   methods: {
+    ...mapActions({
+      getEventTypes: 'calendars/getEventTypes',
+      getEventTypeConfig: 'calendars/getEventTypeConfig',
+      getAttendees: 'calendars/getAttendees'
+    }),
     updateStart (value) {
-      console.log('start: ' + value)
+      this.start = value
     },
     updateEnd (value) {
-      console.log('end:' + value)
+      this.end = value
     },
     updateRecurrence (value) {
-      console.log('recurrence: ' + value)
+      this.recurrence = value
     },
-    updateCalendarId () {
-      console.log('calendar_id:' + this.calendarId)
+    updateCalendar (value) {
+      const self = this
+      if (this.calendar) {
+        this.getEventTypes({ calendar_id: this.calendar.id}).then(response => {
+          self.eventTypesList = response.data
+        })
+      } else {
+        self.eventTypesList = []
+      }
     },
     updateEventType () {
-      console.log('event type:' + this.eventType)
+      if (this.eventType) {
+        this.getEventTypeConfig({event_type: this.eventType.value}).then(response => {
+          console.log(response.data)
+        })
+      }
     },
     searchAttendees (search, loading) {
-      console.log('searching: ' + search)
+      const self = this
+      if (search.length > 2) {
+        loading(true)
+
+        this.getAttendees({term: search}).then(response => {
+          self.attendeesList = []
+          response.data.forEach((element) =>{
+            self.attendeesList.push({ id: element.id, name: element.text })
+          })
+          loading(false)
+        })
+      }
+    },
+    updateAttendees (value) {
+      this.$store.commit('event/setAttendeesIds', value)
     }
   }
 }
