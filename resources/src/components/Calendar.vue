@@ -165,6 +165,7 @@ export default {
         Object.assign(self.modal, {
           title: response.calEvent.title,
           showModal: true,
+          showSaveButton: false,
           showFooter: true,
           type: 'view'
         })
