@@ -133,6 +133,9 @@ export default {
       addCalendarEvent: 'event/addCalendarEvent'
     }),
     toggleModal (state) {
+      if (this.modal.type == 'create') {
+        console.log('reset modal for creation')
+      }
       this.modal.showModal = state.value
     },
     saveModal () {
@@ -156,17 +159,15 @@ export default {
     },
     openEvent (event) {
       const self = this
-
-      Object.assign(this.modal, {
-        title: 'View Event',
-        showModal: true,
-        showFooter: true,
-        type: 'view'
-      })
-
       this.getCalendarInfo({ id: event.id }).then(response => {
-        self.modal.title = response.calEvent.title
         self.eventInfo = response.calEvent
+
+        Object.assign(self.modal, {
+          title: response.calEvent.title,
+          showModal: true,
+          showFooter: true,
+          type: 'view'
+        })
       })
     },
     updateEventSources () {
