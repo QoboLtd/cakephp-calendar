@@ -34,7 +34,7 @@ export default {
         timePicker24Hour: true,
         timePickerIncrement: 5,
         locale: {
-          format: 'YYYY-MM-dd HH:mm'
+          format: 'YYYY-MM-DD HH:mm'
         }
       }
     }
@@ -47,6 +47,14 @@ export default {
   mounted () {
     const self = this
     self.instance = $(self.$el).find('input').daterangepicker(this.options).data('daterangepicker')
+
+    if (this.eventClick) {
+      self.instance.setStartDate(this.eventClick.format(this.options.locale.format))
+      self.instance.setEndDate(this.eventClick.format(this.options.locale.format))
+      self.momentObject = this.eventClick
+      self.value = this.momentObject.format(this.options.locale.format)
+    }
+
     /* following handler used when you choose the date from popup picker */
     $(self.$el).find('input').on('apply.daterangepicker', function (ev, picker) {
       self.momentObject = moment(picker.startDate)
@@ -76,9 +84,9 @@ export default {
         }
       }
     },
+    /* @NOTE: not sure it this one is neeeded right now */
     eventClick: function () {
       let currentDate = this.instance.startDate
-
       currentDate.set('year', this.eventClick.year())
       currentDate.set('month', this.eventClick.month())
       currentDate.set('date', this.eventClick.date())

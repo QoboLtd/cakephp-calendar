@@ -31,11 +31,23 @@
 
     <div class="row">
       <div class="col-xs-12 col-md-6">
-        <datepicker label="Start" name="start" format="YYYY-MM-DD HH:mm" event-click="" @date-changed="updateStart"></datepicker>
+        <datepicker
+          label="Start"
+          name="start"
+          config-field="start_date"
+          :event-click="currentMoment"
+          @date-changed="updateStart">
+        </datepicker>
       </div>
 
       <div class="col-xs-12 col-md-6">
-        <datepicker label="End" name="end" format="YYYY-MM-DD HH:mm" event-click="" @date-changed="updateEnd"></datepicker>
+        <datepicker
+          label="End"
+          name="end"
+          config-field="end_date"
+          :event-click="currentMoment"
+          @date-changed="updateEnd">
+        </datepicker>
       </div>
     </div>
 
@@ -92,6 +104,7 @@ import Datepicker from '@/components/ui/Datepicker.vue'
 import RecurrenceInput from '@/components/ui/RecurrenceInput.vue'
 
 export default {
+  props: ['currentMoment'],
   components: {
     RecurrenceInput,
     Datepicker,

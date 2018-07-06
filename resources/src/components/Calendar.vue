@@ -12,7 +12,7 @@
       @modal-toggle="toggleModal">
         <template slot="header-title">{{ modal.title }}</template>
         <template slot="body-content">
-          <event-create v-if="modal.type === 'create'"></event-create>
+          <event-create v-if="modal.type === 'create'" :current-moment="currentMoment"></event-create>
           <event-view v-if="modal.type === 'view'" :event-info="eventInfo"></event-view>
         </template>
     </modal>
@@ -45,6 +45,7 @@ export default {
         title: null,
         type: null
       },
+      currentMoment: null,
       calendar: null,
       eventInfo: null,
       format: 'YYYY-MM-DD',
@@ -149,6 +150,9 @@ export default {
         showFooter: true,
         type: 'create'
       })
+      this.currentMoment = moment
+      this.$store.commit('event/setStart', moment.format('YYYY-MM-DD HH:mm'))
+      this.$store.commit('event/setEnd', moment.format('YYYY-MM-DD HH:mm'))
     },
     openEvent (event) {
       const self = this

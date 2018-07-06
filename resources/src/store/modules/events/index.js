@@ -1,11 +1,13 @@
 import ApiService from '@/common/ApiService'
 
-const state = {
+const initialState = {
   data: [],
   options: {
     background: false,
   }
 }
+
+export const state = Object.assign({}, initialState)
 
 const mutations = {
   setOptions (state, payload) {

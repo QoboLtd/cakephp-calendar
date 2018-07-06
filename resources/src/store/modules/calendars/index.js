@@ -1,7 +1,7 @@
 import ApiService from '@/common/ApiService'
 import events from '@/store/modules/events'
 
-const state = {
+const initialState = {
   data: [],
   activeIds: [],
   options: {
@@ -13,6 +13,8 @@ const state = {
     printable: false
   }
 }
+
+export const state = Object.assign({}, initialState)
 
 const mutations = {
   setDataItems (state, payload) {
