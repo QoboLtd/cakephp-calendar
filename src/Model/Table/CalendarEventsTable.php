@@ -441,9 +441,11 @@ class CalendarEventsTable extends Table
             $recurrence = json_decode($recurrence, true);
         }
 
-        foreach ($recurrence as $rule) {
-            if (preg_match('/^RRULE/i', $rule)) {
-                $result = $rule;
+        if (!empty($recurrence)) {
+            foreach ($recurrence as $rule) {
+                if (preg_match('/^RRULE/i', $rule)) {
+                    $result = $rule;
+                }
             }
         }
 

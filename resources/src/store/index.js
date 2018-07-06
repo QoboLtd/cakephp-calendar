@@ -6,7 +6,12 @@ import event from '@/store/modules/event'
 
 Vue.use(Vuex)
 
-const debug = process.env.NODE_ENV !== 'production'
+/**
+ * @Note: had to disable strict mode for vuex, due
+ * to vue-select multiple error.
+ * @see https://github.com/sagalbot/vue-select/issues/529
+ * */
+const debug = false
 
 export default new Vuex.Store({
   modules: {
