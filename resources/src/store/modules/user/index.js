@@ -1,6 +1,8 @@
 import ApiService from '@/common/ApiService'
 
-const state = {}
+const initialState = {}
+
+export const state  = Object.assign({}, initialState)
 
 const mutations = {}
 
