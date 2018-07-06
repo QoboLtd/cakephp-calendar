@@ -91,26 +91,26 @@ class CalendarEventsControllerTest extends IntegrationTestCase
     public function testAddResponseOk()
     {
         $data = [
-            'CalendarEvents' => [
-                'calendar_id' => '00000000-0000-0000-0000-000000000001',
-                'content' => 'Foobar',
-                'title' => 'Test Event',
-                'start_date' => '2018-04-09 09:00:00',
-                'end_date' => '2018-04-09 10:00:00',
-                'is_recurring' => false,
-            ]
+            'calendar_id' => '00000000-0000-0000-0000-000000000001',
+            'content' => 'Foobar',
+            'title' => 'Test Event',
+            'start_date' => '2018-04-09 09:00:00',
+            'end_date' => '2018-04-09 10:00:00',
+            'is_recurring' => false,
         ];
 
         $this->post('/calendars/calendar-events/add', $data);
-        $event = $this->viewVariable('event');
-
+        $event = $this->viewVariable('response');
         $this->assertEquals('Successfully saved Event', $event['message']);
 
         $saved = $this->CalendarEvents->find()
-            ->where(['title' => 'Test Event'])
+            ->where([
+                'title' => 'Test Event',
+                'content' => $data['content']
+            ])
             ->first();
 
-        $this->assertEquals($saved->content, $data['CalendarEvents']['content']);
+        $this->assertEquals($saved->content, $data['content']);
     }
 
     public function testDeleteResponseOk()

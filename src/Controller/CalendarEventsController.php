@@ -56,7 +56,12 @@ class CalendarEventsController extends AppController
     public function add()
     {
         $this->request->allowMethod(['post', 'patch', 'put']);
-        $result = [];
+        $this->Calendars = TableRegistry::get('Calendars');
+        $response = [
+            'success' => false,
+            'data' => [],
+            'errors' => [],
+        ];
 
         $calendarEvent = $this->CalendarEvents->newEntity(null, [
             'associated' => ['CalendarAttendees'],
@@ -64,47 +69,51 @@ class CalendarEventsController extends AppController
 
         $data = $this->request->getData();
 
-        $this->Calendars = TableRegistry::get('Calendars');
-        $calendar = $this->Calendars->get($data['CalendarEvents']['calendar_id']);
+        $calendar = $this->Calendars->get($data['calendar_id']);
+        if (empty($data['title'])) {
+            $data['title'] = $this->CalendarEvents->setEventTitle($data, $calendar);
+        }
+        $postData['CalendarEvents'] = $data;
 
-        $data['CalendarEvents']['title'] = $this->CalendarEvents->setEventTitle($data, $calendar);
+        if (!empty($data['attendees_ids'])) {
+            $postData['CalendarAttendees']['id'] = $data['attendees_ids'];
+            unset($postData['attendees_ids']);
+        }
 
         $calendarEvent = $this->CalendarEvents->patchEntity(
             $calendarEvent,
-            $data,
+            $postData,
             [
                 'associated' => ['CalendarAttendees'],
             ]
         );
 
         $saved = $this->CalendarEvents->save($calendarEvent);
+
         if ($saved) {
-            $result['status'] = true;
-            $result['message'] = 'Successfully saved Event';
-            $result['entity'] = [
+            $response['success'] = true;
+            $response['message'] = 'Successfully saved Event';
+            $response['data'] = [
                 'id' => $saved->id,
+                'calendar_id' => $calendar->id,
+                'source_id' => $saved->source_id,
+                'source' => $saved->source,
+                'event_type' => $saved->event_type,
                 'title' => $saved->title,
                 'content' => $saved->content,
-                'start_date' => $saved->start_date,
-                'end_date' => $saved->end_date,
+                'start' => $saved->start_date,
+                'end' => $saved->end_date,
                 'color' => $calendar->color,
-                'calendar_id' => $calendar->id,
-                'event_type' => $saved->event_type,
                 'is_recurring' => $saved->is_recurring,
-                'source' => $saved->source,
-                'source_id' => $saved->source_id,
                 'recurrence' => json_decode($saved->recurrence, true),
             ];
         } else {
-            $result['entity'] = $calendarEvent->getErrors();
-            $result['message'] = 'Couldn\'t save Calendar Event';
-            $result['status'] = false;
+            $response['errors'] = $calendarEvent->getErrors();
+            $response['success'] = false;
         }
 
-        $event = $result;
-
-        $this->set(compact('event'));
-        $this->set('_serialize', ['event']);
+        $this->set(compact('response'));
+        $this->set('_serialize', 'response');
     }
 
     /**
