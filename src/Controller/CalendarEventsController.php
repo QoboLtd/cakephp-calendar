@@ -62,21 +62,20 @@ class CalendarEventsController extends AppController
             'data' => [],
             'errors' => [],
         ];
-
-        $calendarEvent = $this->CalendarEvents->newEntity(null, [
-            'associated' => ['CalendarAttendees'],
-        ]);
-
         $data = $this->request->getData();
+        $postData = [];
 
         $calendar = $this->Calendars->get($data['calendar_id']);
+        $calendarEvent = $this->CalendarEvents->newEntity();
+
         if (empty($data['title'])) {
             $data['title'] = $this->CalendarEvents->setEventTitle($data, $calendar);
         }
+
         $postData['CalendarEvents'] = $data;
 
         if (!empty($data['attendees_ids'])) {
-            $postData['CalendarAttendees']['id'] = $data['attendees_ids'];
+            $postData['calendar_attendees']['_ids'] = $data['attendees_ids'];
             unset($postData['attendees_ids']);
         }
 
