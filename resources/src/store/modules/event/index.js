@@ -81,7 +81,6 @@ const actions = {
     })
   },
   resetEvent ({ commit, dispatch, state }) {
-    console.log('resetting event state')
     commit('resetState')
   }
 }
