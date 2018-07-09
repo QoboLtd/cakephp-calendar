@@ -14,11 +14,13 @@ class AddEventTypesToCalendars extends AbstractMigration
     public function change()
     {
         $table = $this->table('calendars');
-        $table->addColumn('event_types', 'text', [
-            'default' => null,
-            'limit' => MysqlAdapter::TEXT_LONG,
-            'null' => true,
-        ]);
+        if (!$table->hasColumn('event_types')) {
+            $table->addColumn('event_types', 'text', [
+                'default' => null,
+                'limit' => MysqlAdapter::TEXT_LONG,
+                'null' => true,
+            ]);
+        }
         $table->update();
     }
 }

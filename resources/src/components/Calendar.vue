@@ -61,6 +61,7 @@ export default {
           week: 'week',
           day: 'day'
         },
+        lazyFetching: false,
         defaultView: 'month',
         firstDay: 1,
         editable: false,
@@ -134,14 +135,18 @@ export default {
     }),
     toggleModal (state) {
       if (this.modal.type == 'create') {
-        console.log('reset modal for creation')
+        this.updateEventSources()
       }
       this.modal.showModal = state.value
     },
     saveModal () {
+      const self = this
       if (this.modal.type === 'create') {
         this.addCalendarEvent().then(response => {
-          console.log(response)
+          if (response.data.success == true) {
+            self.getCalendarEvents({ calendar_id: response.data.data.calendar_id })
+            self.toggleModal({ state: false })
+          }
         })
       }
     },
@@ -165,6 +170,7 @@ export default {
         Object.assign(self.modal, {
           title: response.calEvent.title,
           showModal: true,
+          showSaveButton: false,
           showFooter: true,
           type: 'view'
         })
@@ -183,6 +189,8 @@ export default {
           self.calendar.fullCalendar('addEventSource', element)
         }
       })
+
+      self.calendar.fullCalendar('refetchEventSources')
     }
   }
 }
