@@ -131,7 +131,8 @@ export default {
     ...mapActions({
       getCalendarEvents: 'calendars/events/getData',
       getCalendarInfo: 'calendars/events/getItemById',
-      addCalendarEvent: 'event/addCalendarEvent'
+      addCalendarEvent: 'event/addCalendarEvent',
+      resetCalendarEvent: 'event/resetEvent',
     }),
     toggleModal (state) {
       if (this.modal.type == 'create') {
@@ -146,6 +147,7 @@ export default {
           if (response.data.success == true) {
             self.getCalendarEvents({ calendar_id: response.data.data.calendar_id })
             self.toggleModal({ state: false })
+            self.resetCalendarEvent()
           }
         })
       }
