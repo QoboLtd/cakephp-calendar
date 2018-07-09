@@ -58,7 +58,7 @@ const getters = {
 }
 
 const actions = {
-  addCalendarEvent({ commit, dispatch, state }) {
+  addCalendarEvent ({ commit, dispatch, state }) {
 
     let args = {
       calendar_id: state.calendar.id,
@@ -79,6 +79,9 @@ const actions = {
         .then(response => resolve(response))
         .catch(() => reject)
     })
+  },
+  resetEvent ({ commit, dispatch, state }) {
+    commit('resetState')
   }
 }
 

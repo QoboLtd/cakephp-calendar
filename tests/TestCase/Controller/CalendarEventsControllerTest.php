@@ -88,6 +88,47 @@ class CalendarEventsControllerTest extends IntegrationTestCase
         $this->assertResponseError();
     }
 
+    public function testAddErrorResponse()
+    {
+        $data = [
+            'calendar_id' => null,
+            'title' => 'Calendar Foobar',
+            'content' => 'Foobar Content - 123',
+            'start_date' => '2018-04-09 09:00:00',
+            'end_date' => '2018-04-09 10:00:00',
+            'is_recurring' => false,
+        ];
+
+        $this->post('/calendars/calendar-events/add', $data);
+        $event = $this->viewVariable('response');
+
+        $this->assertNotEmpty($event['errors']);
+        $this->assertEquals($event['success'], false);
+    }
+
+    public function testAddGenerateTitle()
+    {
+        $data = [
+            'calendar_id' => '00000000-0000-0000-0000-000000000001',
+            'content' => 'Foobar',
+            'start_date' => '2018-04-09 09:00:00',
+            'end_date' => '2018-04-09 10:00:00',
+            'is_recurring' => false,
+        ];
+
+        $this->post('/calendars/calendar-events/add', $data);
+        $event = $this->viewVariable('response');
+        $this->assertEquals('Successfully saved Event', $event['message']);
+
+        $saved = $this->CalendarEvents->find()
+            ->where([
+                'content' => $data['content']
+            ])
+            ->first();
+        $this->assertEquals('Calendar - 1 Event', $saved->title);
+        $this->assertEquals($saved->content, $data['content']);
+    }
+
     public function testAddResponseOk()
     {
         $data = [
@@ -111,6 +152,38 @@ class CalendarEventsControllerTest extends IntegrationTestCase
             ->first();
 
         $this->assertEquals($saved->content, $data['content']);
+    }
+
+    public function testAddRecurringEvent()
+    {
+        $data = [
+            'calendar_id' => '00000000-0000-0000-0000-000000000001',
+            'content' => 'Recurring content',
+            'title' => 'Recurring event - every day',
+            'start_date' => '2018-04-09 09:00:00',
+            'end_date' => '2018-04-09 10:00:00',
+            'is_recurring' => true,
+            'recurrence' => 'FREQ=DAILY;INTERVAL=1;COUNT=5',
+            'attendees_ids' => [
+               '00000000-0000-0000-0000-000000000001'
+            ]
+        ];
+
+        $this->post('/calendars/calendar-events/add', $data);
+
+        $saved = $this->CalendarEvents->find()
+            ->contain(['CalendarAttendees'])
+            ->where([
+                'title' => $data['title'],
+            ])->first();
+        $this->assertEquals($saved->title, $data['title']);
+        $this->assertEquals(1, count($saved->calendar_attendees));
+        $this->assertEquals('00000000-0000-0000-0000-000000000001', $saved->calendar_attendees[0]->id);
+        $this->assertEquals(
+            $saved->recurrence,
+            '"[\"RRULE:FREQ=DAILY;INTERVAL=1;COUNT=5\"]"',
+            "RRULE prefix not added to recurrence rule"
+        );
     }
 
     public function testDeleteResponseOk()

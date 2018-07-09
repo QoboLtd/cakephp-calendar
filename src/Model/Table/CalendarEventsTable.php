@@ -217,7 +217,6 @@ class CalendarEventsTable extends Table
 
             if (!empty($eventItem['recurrence'])) {
                 $recurringEvents = $this->getRecurringEvents($eventItem, $options);
-
                 if (!empty($recurringEvents)) {
                     $result = array_merge($result, $recurringEvents);
                 }
@@ -324,7 +323,6 @@ class CalendarEventsTable extends Table
     public function getRecurringEvents($origin, array $options = [])
     {
         $result = [];
-
         $rule = $this->getRRuleConfiguration($origin['recurrence']);
 
         if (empty($rule) || empty($options['period'])) {
@@ -368,6 +366,8 @@ class CalendarEventsTable extends Table
 
             $entity->start_date->i18nFormat('yyyy-MM-dd HH:mm:ss');
             $entity->end_date->i18nFormat('yyyy-MM-dd HH:mm:ss');
+            $entity->start = $entity->start_date->i18nFormat('yyyy-MM-dd HH:mm:ss');
+            $entity->end = $entity->end_date->i18nFormat('yyyy-MM-dd HH:mm:ss');
 
             $entity->id = $origin['id'] . '__' . $this->setIdSuffix($entity);
 
@@ -440,10 +440,9 @@ class CalendarEventsTable extends Table
         if (is_string($recurrence)) {
             $recurrence = json_decode($recurrence, true);
         }
-
         if (!empty($recurrence)) {
             foreach ($recurrence as $rule) {
-                if (preg_match('/^RRULE/i', $rule)) {
+                if (preg_match('/^RRULE:/i', $rule)) {
                     $result = $rule;
                 }
             }
@@ -796,5 +795,50 @@ class CalendarEventsTable extends Table
         }
 
         return $entities;
+    }
+
+    /**
+     * Get Recurrences
+     *
+     * Recurrence Rule RFC is used to define
+     * date intervals when the user will be working
+     *
+     * @param string $recurrence in RRULE RFC standard
+     * @param array $data with start/end string from the form
+     *
+     * @return array $result containing index hashes of start/end Time objects.
+     */
+    public function getRecurrence($recurrence, array $data)
+    {
+        $result = [];
+        $startDate = new Time($data['start']);
+        $untilDate = new Time($data['end']);
+
+        $limit = (!empty($data['limit']) ? $data['limit'] : null);
+
+        $rrule = new RRule($recurrence, $startDate);
+
+        $intervals = $rrule->getOccurrencesBetween($startDate, $untilDate, $limit);
+
+        if (!empty($intervals)) {
+            $diff = $startDate->diff($untilDate);
+
+            foreach ($intervals as $item) {
+                $st = new Time($item->format('Y-m-d H:i:s'));
+                $end = new Time($item->format('Y-m-d H:i:s'));
+
+                $end->addHour($diff->format('%h'));
+                $end->addMinute($diff->format('%i'));
+
+                $range = [
+                    'start' => $st,
+                    'end' => $end,
+                ];
+
+                array_push($result, $range);
+            }
+        }
+
+        return $result;
     }
 }
