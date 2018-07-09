@@ -14,10 +14,12 @@ namespace Qobo\Calendar\Controller;
 use Cake\Core\Configure;
 use Cake\Event\Event;
 use Cake\Event\EventManager;
+use Cake\I18n\Time;
 use Cake\ORM\TableRegistry;
 use Cake\Utility\Inflector;
 use Qobo\Calendar\Controller\AppController;
 use Qobo\Calendar\Object\ObjectFactory;
+use RRule\RRule;
 
 /**
  * CalendarEvents Controller
@@ -67,6 +69,18 @@ class CalendarEventsController extends AppController
 
         $calendar = $this->Calendars->get($data['calendar_id']);
         $calendarEvent = $this->CalendarEvents->newEntity();
+
+        if (!empty($data['recurrence'])) {
+            $intervals = $this->CalendarEvents->getRecurrence($data['recurrence'], [
+                'start' => $data['start_date'],
+                'end' => $data['end_date'],
+                'limit' => 1
+            ]);
+
+            $data['end_date'] = $intervals[0]['end'];
+            $data['is_recurring'] = true;
+            $data['recurrence'] = json_encode(['RRULE:' . $data['recurrence']]);
+        }
 
         if (empty($data['title'])) {
             $data['title'] = $this->CalendarEvents->setEventTitle($data, $calendar);
