@@ -32,7 +32,7 @@ const mutations = {
   removeItem (state, payload) {
     let index = null
 
-    state.data.forEach( (element, key) => {
+    state.data.forEach((element, key) => {
       if (element.id === payload) {
         index = key
         console.log(index)
@@ -52,7 +52,7 @@ const mutations = {
     state.activeIds.push(payload)
   },
   removeActiveId (state, payload) {
-    let index = state.activeIds.indexOf(payload)
+    const index = state.activeIds.indexOf(payload)
     state.activeIds.splice(index, 1)
   }
 }
@@ -65,12 +65,12 @@ const getters = {
     return state.options[key]
   },
   rangeChecksum: (state) => {
-    let delimiter = '_'
+    const delimiter = '_'
     return state.options['start'] + delimiter + state.options['end']
   },
   getItemById: (state) => (id) => {
     return state.data.find(function (element) {
-      if (element.id == id) {
+      if (element.id === id) {
         return element
       }
     })

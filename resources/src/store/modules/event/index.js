@@ -2,22 +2,22 @@ import Vue from 'vue'
 import ApiService from '@/common/ApiService'
 
 const initialState = {
-	calendar: null,
-	eventType: null,
-	start: null,
-	end: null,
-	recurrence: null,
-	attendeesIds: [],
-	title: null,
-	content: null
+  calendar: null,
+  eventType: null,
+  start: null,
+  end: null,
+  recurrence: null,
+  attendeesIds: [],
+  title: null,
+  content: null
 }
 
 export const state = Object.assign({}, initialState)
 
 const mutations = {
-	setCalendar (state, payload) {
-		state.calendar = payload
-	},
+  setCalendar (state, payload) {
+    state.calendar = payload
+  },
   setEventType (state, payload) {
     state.eventType = payload
   },
@@ -47,18 +47,18 @@ const mutations = {
 }
 
 const getters = {
-	attendeesIds: state => state.attendeesIds,
-	calendar: state => state.calendar,
-	eventType: state => state.eventType,
-	start: state => state.start,
-	end: state => state.end,
-	recurrence: state => state.recurrence,
-	title: state => state.title,
-	content: state => state.content
+  attendeesIds: state => state.attendeesIds,
+  calendar: state => state.calendar,
+  eventType: state => state.eventType,
+  start: state => state.start,
+  end: state => state.end,
+  recurrence: state => state.recurrence,
+  title: state => state.title,
+  content: state => state.content
 }
 
 const actions = {
-	addCalendarEvent({ commit, dispatch, state }) {
+  addCalendarEvent({ commit, dispatch, state }) {
 
     let args = {
       calendar_id: state.calendar.id,
@@ -83,9 +83,9 @@ const actions = {
 }
 
 export default {
-	namespaced: true,
-	state,
-	getters,
-	actions,
-	mutations
+  namespaced: true,
+  state,
+  getters,
+  actions,
+  mutations
 }
