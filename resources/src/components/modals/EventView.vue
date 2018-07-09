@@ -10,13 +10,6 @@
       <div class="col-xs-8 col-md-4">{{end}}</div>
       <div class="clearfix visible-xs visible-sm"></div>
     </div>
-    <!--
-    <div class="row">
-      <div class="col-xs-4 col-md-2 text-right"><strong>Type:</strong></div>
-      <div class="col-xs-8 col-md-4">{{ eventType }}</div>
-      <div class="clearfix visible-xs visible-sm"></div>
-    </div>
-    -->
     <hr/>
 
     <div class="row">
