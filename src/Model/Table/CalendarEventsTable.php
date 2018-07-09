@@ -368,6 +368,8 @@ class CalendarEventsTable extends Table
 
             $entity->start_date->i18nFormat('yyyy-MM-dd HH:mm:ss');
             $entity->end_date->i18nFormat('yyyy-MM-dd HH:mm:ss');
+            $entity->start = $entity->start_date->i18nFormat('yyyy-MM-dd HH:mm:ss');
+            $entity->end = $entity->end_date->i18nFormat('yyyy-MM-dd HH:mm:ss');
 
             $entity->id = $origin['id'] . '__' . $this->setIdSuffix($entity);
 
