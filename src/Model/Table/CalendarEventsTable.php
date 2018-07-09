@@ -222,6 +222,7 @@ class CalendarEventsTable extends Table
                 }
             }
         }
+
         return $result;
     }
 
