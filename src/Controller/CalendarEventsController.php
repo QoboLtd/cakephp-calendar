@@ -67,6 +67,14 @@ class CalendarEventsController extends AppController
         $data = $this->request->getData();
         $postData = [];
 
+        if (empty($data['calendar_id'])) {
+            $response['errors'][] = "Calendar ID is missing";
+            $this->set(compact('response'));
+            $this->set('_serialize', 'response');
+
+            return $this->response;
+        }
+
         $calendar = $this->Calendars->get($data['calendar_id']);
         $calendarEvent = $this->CalendarEvents->newEntity();
 
