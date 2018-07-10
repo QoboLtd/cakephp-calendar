@@ -144,6 +144,50 @@ class CalendarEventsTable extends Table
     }
 
     /**
+     * Set ID suffix for recurring events
+     *
+     * We attach timestamp suffix for recurring events
+     * that haven't been saved in the DB yet.
+     *
+     * @param array $entity of the event
+     *
+     * @return string $result with suffix.
+     */
+    public function setRecurrenceEventId($entity = null)
+    {
+        $start = is_object($entity) ? $entity->start_date : $entity['start_date'];
+        $end = is_object($entity) ? $entity->end_date : $entity['end_date'];
+        $id = is_object($entity) ? $entity->id : $entity['id'];
+
+        $result = sprintf("%s__%s_%s", $id, strtotime($start), strtotime($end));
+
+        return $result;
+    }
+
+    /**
+     * Parse recurrent event id suffix
+     *
+     * @param string $id containing date suffix
+     * @return array $result containing start/end pair.
+     */
+    public function getRecurrenceEventId($id = null)
+    {
+        $result = [];
+
+        if (empty($id)) {
+            return $result;
+        }
+
+        if (preg_match('/(^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})(__(\d+)?_(\d+)?)?/', $id, $matches)) {
+            $result['id'] = $matches[1];
+            $result['start'] = !empty($matches[3]) ? date('Y-m-d H:i:s', $matches[3]) : null;
+            $result['end'] = !empty($matches[4]) ? date('Y-m-d H:i:s', $matches[4]) : null;
+        }
+
+        return $result;
+    }
+
+    /**
      * Get Events of specific calendar
      *
      * @param \Cake\ORM\Table $calendar record
@@ -232,7 +276,7 @@ class CalendarEventsTable extends Table
                         $entity->start = $entity->start_date->i18nFormat('yyyy-MM-dd HH:mm:ss');
                         $entity->end = $entity->end_date->i18nFormat('yyyy-MM-dd HH:mm:ss');
 
-                        $entity->id = $entity->id . '__' . $this->setIdSuffix($entity);
+                        $entity->id = $this->setRecurrenceEventId($entity);
 
                         array_push($recurringEvents, $entity->toArray());
                         unset($entity);
@@ -393,7 +437,7 @@ class CalendarEventsTable extends Table
             $entity->start = $entity->start_date->i18nFormat('yyyy-MM-dd HH:mm:ss');
             $entity->end = $entity->end_date->i18nFormat('yyyy-MM-dd HH:mm:ss');
 
-            $entity->id = $origin['id'] . '__' . $this->setIdSuffix($entity);
+            $entity->id = $this->setRecurrenceEventId($entity);
 
             array_push($result, $entity->toArray());
 
@@ -402,50 +446,6 @@ class CalendarEventsTable extends Table
 
         return $result;
     }
-
-    /**
-     * Set ID suffix for recurring events
-     *
-     * We attach timestamp suffix for recurring events
-     * that haven't been saved in the DB yet.
-     *
-     * @param array $entity of the event
-     *
-     * @return string $result with suffix.
-     */
-    public function setIdSuffix($entity = null)
-    {
-        if (is_object($entity)) {
-            $result = strtotime($entity->start_date) . '_' . strtotime($entity->end_date);
-        } else {
-            $result = strtotime($entity['start_date']) . '_' . strtotime($entity['end_date']);
-        }
-
-        return $result;
-    }
-
-    /**
-     * Parse recurrent event id suffix
-     *
-     * @param string $timestamp containing date suffix
-     * @return array $result containing start/end pair.
-     */
-    public function getIdSuffix($timestamp = null)
-    {
-        $result = [];
-
-        if (empty($timestamp)) {
-            return $result;
-        }
-
-        if (preg_match('/(\d+)\_(\d+)/i', $timestamp, $parts)) {
-            $result['start'] = date('Y-m-d H:i:s', $parts[1]);
-            $result['end'] = date('Y-m-d H:i:s', $parts[2]);
-        }
-
-        return $result;
-    }
-
     /**
      * Get RRULE configuration from the event
      *
@@ -566,12 +566,12 @@ class CalendarEventsTable extends Table
      * @param array $data with name parts
      * @param array $options for extra settings if needed
      *
-     * @return string $name containing event type definition.
+     * @return string|null $name containing event type definition.
      */
     public function getEventTypeName(array $data = [], array $options = [])
     {
         if (empty($data['name'])) {
-            return;
+            return null;
         }
 
         $prefix = !empty($options['prefix']) ? $options['prefix'] : 'Config';
@@ -586,22 +586,19 @@ class CalendarEventsTable extends Table
     /**
      * Get Event info
      *
-     * @param array $options containing event id
+     * @param array $id of the record
      *
-     * @return array $result containing record data
+     * @return array|\Cake\Datasource\EntityInterface $result containing record data
      */
-    public function getEventInfo($options = [])
+    public function getEventInfo($id = null)
     {
         $result = [];
-        $end = $start = null;
 
-        if (empty($options)) {
+        if (empty($id)) {
             return $result;
         }
 
-        if (!empty($options['timestamp'])) {
-            $range = $this->getIdSuffix($options['timestamp']);
-        }
+        $options = $this->getRecurrenceEventId($id);
 
         $result = $this->find()
                 ->where(['id' => $options['id']])
@@ -609,14 +606,14 @@ class CalendarEventsTable extends Table
                 ->first();
 
         //@NOTE: we're faking the start/end intervals for recurring events
-        if (!empty($range['end'])) {
-            $time = Time::parse($range['end']);
+        if (!empty($options['end'])) {
+            $time = Time::parse($options['end']);
             $result->end_date = $time;
             unset($time);
         }
 
-        if (!empty($range['start'])) {
-            $time = Time::parse($range['start']);
+        if (!empty($options['start'])) {
+            $time = Time::parse($options['start']);
             $result->start_date = $time;
             unset($time);
         }
@@ -890,6 +887,7 @@ class CalendarEventsTable extends Table
      * Set Calendar Event Post data
      *
      * @param array $data from the POST
+     * @param \Cake\Datasource\EntityInterface $calendar record
      * @return array $result to be saved in ORM
      */
     public function setCalendarEventData(array $data = [], $calendar = null)
@@ -928,6 +926,7 @@ class CalendarEventsTable extends Table
      * Get Calendar Event for UI
      *
      * @param string $id uuid of the record
+     * @param \Cake\Datasource\EntityInterface $calendar record
      * @return array $result of the record.
      */
     public function getCalendarEventById($id = null, $calendar = null)

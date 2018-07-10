@@ -195,10 +195,10 @@ export default {
     openEvent (event) {
       const self = this
       this.getCalendarInfo({ id: event.id }).then(response => {
-        self.eventInfo = response.calEvent
+        self.eventInfo = response.data
 
         Object.assign(self.modal, {
-          title: response.calEvent.title,
+          title: response.data.title,
           showModal: true,
           showSaveButton: false,
           showFooter: true,
