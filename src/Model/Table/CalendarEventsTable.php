@@ -29,17 +29,6 @@ use \RRule\RRule;
 
 /**
  * CalendarEvents Model
- *
- * @property \Cake\ORM\Association\BelongsTo $Calendars
- * @property \Cake\ORM\Association\BelongsTo $EventSources
- *
- * @method \Qobo\Calendar\Model\Entity\CalendarEvent get($primaryKey, $options = [])
- * @method \Qobo\Calendar\Model\Entity\CalendarEvent newEntity($data = null, array $options = [])
- * @method \Qobo\Calendar\Model\Entity\CalendarEvent[] newEntities(array $data, array $options = [])
- * @method \Qobo\Calendar\Model\Entity\CalendarEvent|bool save(\Cake\Datasource\EntityInterface $entity, $options = [])
- * @method \Qobo\Calendar\Model\Entity\CalendarEvent patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
- * @method \Qobo\Calendar\Model\Entity\CalendarEvent[] patchEntities($entities, array $data, array $options = [])
- * @method \Qobo\Calendar\Model\Entity\CalendarEvent findOrCreate($search, callable $callback = null, $options = [])
  */
 class CalendarEventsTable extends Table
 {
@@ -205,6 +194,7 @@ class CalendarEventsTable extends Table
 
         $options = array_merge($options, ['calendar_id' => $calendar->id]);
         $resultSet = $this->findCalendarEvents($options);
+
         if (empty($resultSet)) {
             return $result;
         }
@@ -336,23 +326,7 @@ class CalendarEventsTable extends Table
     public function getInfiniteEvents($calendarId, $events, $options = [])
     {
         $result = $existingEventIds = [];
-        $range = $this->getEventRange($options);
-
-        $query = $this->find();
-        $query->where([
-            'is_recurring' => true,
-            'calendar_id' => $calendarId
-        ]);
-
-        if (!empty($range['start'])) {
-            $query->andWhere($range['start']);
-        }
-
-        if (!empty($range['end'])) {
-            $query->andWhere($range['end']);
-        }
-
-        $query->contain(['CalendarAttendees']);
+        $query = $this->findCalendarEvents($options, true);
 
         if (!$query) {
             return $result;
@@ -380,72 +354,6 @@ class CalendarEventsTable extends Table
         return $result;
     }
 
-    /**
-     * Pre-populate Recurring events based on the parent event
-     *
-     * @param array $origin event object
-     * @param array $options with events configs
-     *
-     * @return array $result with assembled recurring entities
-     */
-    public function getRecurringEvents($origin, array $options = [])
-    {
-        $result = [];
-        $rule = $this->getRRuleConfiguration($origin['recurrence']);
-
-        if (empty($rule) || empty($options['period'])) {
-            return $result;
-        }
-
-        $rrule = new RRule($rule, new \DateTime($origin['start_date']));
-
-        $st = $en = null;
-
-        if (!empty($options['period']['end_date'])) {
-            $en = new DateTime($options['period']['end_date']);
-        }
-
-        //new \DateTime($origin['start_date']),
-        $eventDates = $rrule->getOccurrencesBetween(
-            new \DateTime($options['period']['start_date']),
-            $en
-        );
-
-        $startDateTime = new \DateTime($origin['start_date'], new \DateTimeZone('UTC'));
-        $endDateTime = new \DateTime($origin['end_date'], new \DateTimeZone('UTC'));
-        $diff = $startDateTime->diff($endDateTime);
-
-        $diffString = $diff->format('%R%y years, %R%a days, %R%h hours, %R%i minutes');
-
-        foreach ($eventDates as $eventDate) {
-            if ($eventDate->format('Y-m-d') == $startDateTime->format('Y-m-d')) {
-                continue;
-            }
-
-            $entity = $this->newEntity();
-            $entity = $this->patchEntity($entity, $origin);
-
-            $entity->start_date->year((int)$eventDate->format('Y'));
-            $entity->start_date->month((int)$eventDate->format('m'));
-            $entity->start_date->day((int)$eventDate->format('d'));
-
-            $entity->end_date = clone $entity->start_date;
-            $entity->end_date->modify($diffString);
-
-            $entity->start_date->i18nFormat('yyyy-MM-dd HH:mm:ss');
-            $entity->end_date->i18nFormat('yyyy-MM-dd HH:mm:ss');
-            $entity->start = $entity->start_date->i18nFormat('yyyy-MM-dd HH:mm:ss');
-            $entity->end = $entity->end_date->i18nFormat('yyyy-MM-dd HH:mm:ss');
-
-            $entity->id = $this->setRecurrenceEventId($entity);
-
-            array_push($result, $entity->toArray());
-
-            unset($entity);
-        }
-
-        return $result;
-    }
     /**
      * Get RRULE configuration from the event
      *
@@ -674,9 +582,14 @@ class CalendarEventsTable extends Table
      *
      * @return array $result with events found.
      */
-    protected function findCalendarEvents($options = [])
+    protected function findCalendarEvents($options = [], $isInfinite = false)
     {
         $conditions = [];
+
+        if ($isInfinite) {
+            $range = $this->getEventRange($options);
+            $conditions['is_recurring'] = true;
+        }
 
         if (!empty($options['calendar_id'])) {
             $conditions['calendar_id'] = $options['calendar_id'];
@@ -690,10 +603,19 @@ class CalendarEventsTable extends Table
             $conditions['end_date <='] = $options['period']['end_date'];
         }
 
+        if ($isInfinite && !empty($range)) {
+            unset($conditions['start_date >=']);
+            unset($conditions['end_date <=']);
+            $conditions = array_merge($conditions, $range['start'], $range['end']);
+        }
+
         $result = $this->find()
                 ->where($conditions)
-                ->contain(['CalendarAttendees'])
-                ->toArray();
+                ->contain(['CalendarAttendees']);
+
+        if (!$isInfinite) {
+            $result = $result->toArray();
+        }
 
         return $result;
     }
@@ -806,7 +728,6 @@ class CalendarEventsTable extends Table
             $response['entity'] = $saved;
         } else {
             $response['errors'] = $event->getErrors();
-            dd($entity);
         }
 
         return $response;

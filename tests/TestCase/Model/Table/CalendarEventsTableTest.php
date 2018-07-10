@@ -93,46 +93,6 @@ class CalendarEventsTableTest extends TestCase
         $this->assertEmpty($result);
     }
 
-    public function testGetRecurringEvents()
-    {
-        $event = $this->CalendarEvents->find()
-            ->where([
-                'is_recurring' => true,
-                'event_type' => 'default_event',
-            ])
-            ->first();
-
-        $event->recurrence = json_decode($event->recurrence, true);
-        $result = $this->CalendarEvents->getRecurringEvents($event->toArray(), [
-            'period' => [
-                'start_date' => '2017-08-01 09:00:00',
-                'end_date' => '2020-08-01 09:00:00',
-            ],
-        ]);
-
-        $this->assertNotEmpty($result);
-    }
-
-    public function testGetRecurringEventsEmptyRRule()
-    {
-        $event = $this->CalendarEvents->find()
-            ->where([
-                'is_recurring' => true,
-                'event_type' => 'special_event',
-            ])
-            ->first();
-        $event->recurrence = json_decode($event->recurrence, true);
-
-        $result = $this->CalendarEvents->getRecurringEvents($event->toArray(), [
-            'period' => [
-                'start_date' => '2017-08-01 09:00:00',
-                'end_date' => '2020-08-01 09:00:00',
-            ],
-        ]);
-
-        $this->assertEmpty($result);
-    }
-
     public function testGetCalendarEvents()
     {
         $calendars = TableRegistry::get('Qobo/Calendar.Calendars');
