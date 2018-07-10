@@ -195,30 +195,6 @@ class CalendarsTable extends Table
     }
 
     /**
-     * Get Calendar Types
-     *
-     * @param array $options with extra filters
-     *
-     * @return array $result containing calendar types.
-     */
-    public function getTypes($options = [])
-    {
-        $result = ['Json' => 'Json'];
-
-        $config = Configure::read('Calendar.Types');
-
-        if (!empty($config)) {
-            $result['Config'] = 'Config';
-        }
-
-        $result['GoogleCalendar'] = 'Google Calendar API';
-
-        asort($result);
-
-        return $result;
-    }
-
-    /**
      * Synchronize calendars
      *
      * @param array $options passed from the outside.

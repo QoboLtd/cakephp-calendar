@@ -284,6 +284,15 @@ class CalendarEventsTableTest extends TestCase
         $this->assertTrue(is_array($result));
     }
 
+    public function testGetCalendarEventById()
+    {
+        $eventId = '00000000-0000-0000-0000-000000000005';
+
+        $result = $this->CalendarEvents->getCalendarEventById($eventId);
+
+        $this->assertEquals($eventId, $result['id']);
+    }
+
     /**
      * @dataProvider testGetEventRangeProvider
      */

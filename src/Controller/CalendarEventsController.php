@@ -58,15 +58,15 @@ class CalendarEventsController extends AppController
     public function add()
     {
         $this->request->allowMethod(['post', 'patch', 'put']);
-        $this->Calendars = TableRegistry::get('Calendars');
         $response = [
             'success' => false,
             'data' => [],
             'errors' => [],
         ];
-        $data = $this->request->getData();
-        $postData = [];
 
+        $this->Calendars = TableRegistry::get('Calendars');
+
+        $data = $this->request->getData();
         if (empty($data['calendar_id'])) {
             $response['errors'][] = "Calendar ID is missing";
             $this->set(compact('response'));
@@ -76,31 +76,9 @@ class CalendarEventsController extends AppController
         }
 
         $calendar = $this->Calendars->get($data['calendar_id']);
+        $postData = $this->CalendarEvents->setCalendarEventData($data, $calendar);
+
         $calendarEvent = $this->CalendarEvents->newEntity();
-
-        if (!empty($data['recurrence'])) {
-            $intervals = $this->CalendarEvents->getRecurrence($data['recurrence'], [
-                'start' => $data['start_date'],
-                'end' => $data['end_date'],
-                'limit' => 1
-            ]);
-
-            $data['end_date'] = $intervals[0]['end'];
-            $data['is_recurring'] = true;
-            $data['recurrence'] = json_encode(['RRULE:' . $data['recurrence']]);
-        }
-
-        if (empty($data['title'])) {
-            $data['title'] = $this->CalendarEvents->setEventTitle($data, $calendar);
-        }
-
-        $postData['CalendarEvents'] = $data;
-
-        if (!empty($data['attendees_ids'])) {
-            $postData['calendar_attendees']['_ids'] = $data['attendees_ids'];
-            unset($postData['attendees_ids']);
-        }
-
         $calendarEvent = $this->CalendarEvents->patchEntity(
             $calendarEvent,
             $postData,
@@ -113,24 +91,9 @@ class CalendarEventsController extends AppController
 
         if ($saved) {
             $response['success'] = true;
-            $response['message'] = 'Successfully saved Event';
-            $response['data'] = [
-                'id' => $saved->id,
-                'calendar_id' => $calendar->id,
-                'source_id' => $saved->source_id,
-                'source' => $saved->source,
-                'event_type' => $saved->event_type,
-                'title' => $saved->title,
-                'content' => $saved->content,
-                'start' => $saved->start_date,
-                'end' => $saved->end_date,
-                'color' => $calendar->color,
-                'is_recurring' => $saved->is_recurring,
-                'recurrence' => json_decode($saved->recurrence, true),
-            ];
+            $response['data'] = $this->CalendarEvents->getCalendarEventById($saved->id);
         } else {
             $response['errors'] = $calendarEvent->getErrors();
-            $response['success'] = false;
         }
 
         $this->set(compact('response'));

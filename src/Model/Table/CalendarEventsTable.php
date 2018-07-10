@@ -215,7 +215,9 @@ class CalendarEventsTable extends Table
             $eventItem = $this->prepareEventData($event, $calendar);
 
             if (!empty($eventItem['recurrence'])) {
-                $intervals = $this->getRecurrence($eventItem['recurrence'], [
+                $recurrence = $this->getRRuleConfiguration($eventItem['recurrence']);
+
+                $intervals = $this->getRecurrence($recurrence, [
                     'start' => $eventItem['start_date'],
                     'end' => $eventItem['end_date'], //$options['period']['end_date'],
                 ]);
@@ -474,6 +476,27 @@ class CalendarEventsTable extends Table
     }
 
     /**
+     * Set valid RRULE string
+     *
+     * @param string $recurrence from the UI
+     * @return object $result json encoded array with RRULE
+     */
+    public function setRRuleConfiguration($recurrence = null)
+    {
+        $result = [];
+
+        if (!empty($recurrence)) {
+            if (!preg_match('/RRULE:/', $recurrence)) {
+                $result = 'RRULE:' . $recurrence;
+            }
+        }
+
+        $result = json_encode($result);
+
+        return $result;
+    }
+
+    /**
      * Get Event types for the calendar event
      *
      * @param array $options of the data including user
@@ -679,7 +702,7 @@ class CalendarEventsTable extends Table
         $title = (!empty($data['CalendarEvents']['title']) ? $data['CalendarEvents']['title'] : '');
 
         if (empty($title)) {
-            $title .= $calendar->name;
+            $title .= !empty($calendar->name) ? $calendar->name : '';
 
             if (!empty($data['CalendarEvents']['event_type'])) {
                 $title .= ' - ' . Inflector::humanize($data['CalendarEvents']['event_type']);
@@ -838,15 +861,7 @@ class CalendarEventsTable extends Table
 
         $limit = (!empty($data['limit']) ? $data['limit'] : null);
 
-        if (!is_string($recurrence)) {
-            return $result;
-        }
-        $recurrence = json_decode($recurrence, true);
-        $recurrence = array_shift($recurrence);
-        $recurrence = str_replace('RRULE:', '', $recurrence);
-
         $rrule = new RRule($recurrence, $startDate);
-
         $intervals = $rrule->getOccurrencesBetween($startDate, $untilDate, $limit);
 
         if (!empty($intervals)) {
@@ -867,6 +882,90 @@ class CalendarEventsTable extends Table
                 array_push($result, $range);
             }
         }
+
+        return $result;
+    }
+
+    /**
+     * Set Calendar Event Post data
+     *
+     * @param array $data from the POST
+     * @return array $result to be saved in ORM
+     */
+    public function setCalendarEventData(array $data = [], $calendar = null)
+    {
+        $result = [
+            'CalendarEvents' => [],
+        ];
+
+        $result['CalendarEvents'] = $data;
+
+        if (!empty($data['recurrence'])) {
+            $recurrence = $this->getRRuleConfiguration($data['recurrence']);
+            $intervals = $this->getRecurrence($recurrence, [
+                'start' => $data['start_date'],
+                'end' => $data['end_date'],
+                'limit' => 1
+            ]);
+            $result['CalendarEvents']['end_date'] = $intervals[0]['end'];
+            $result['CalendarEvents']['is_recurring'] = true;
+            $result['CalendarEvents']['recurrence'] = $this->setRRuleConfiguration($data['recurrence']);
+        }
+
+        if (!empty($data['attendees_ids'])) {
+            $result['calendar_attendees']['_ids'] = $data['attendees_ids'];
+            unset($result['CalendarEvents']['attendees_ids']);
+        }
+
+        if (empty($data['title'])) {
+            $result['CalendarEvents']['title'] = $this->setEventTitle($data, $calendar);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Get Calendar Event for UI
+     *
+     * @param string $id uuid of the record
+     * @return array $result of the record.
+     */
+    public function getCalendarEventById($id = null, $calendar = null)
+    {
+        $this->Calendars = TableRegistry::get('Qobo/Calendar.Calendars');
+
+        $result = $attendees = [];
+
+        if (empty($id)) {
+            return $result;
+        }
+
+        $query = $this->find()
+            ->contain(['CalendarAttendees'])
+            ->where(['id' => $id]);
+
+        $entity = $query->first();
+
+        if (!$entity) {
+            return $result;
+        }
+
+        if (!empty($entity->calendar_attendees)) {
+            $attendees = $entity->calendar_attendees;
+            $entity->__unset('calendar_attendees');
+        }
+
+        $entity->start = $entity->start_date;
+        $entity->end = $entity->end_date;
+
+        if ($calendar) {
+            if (empty($entity->calendar_id)) {
+                $entity->calendar_id = $calendar->id;
+            }
+        }
+
+        $entity->color = $this->Calendars->getColor($calendar);
+        $result = $entity->toArray();
 
         return $result;
     }

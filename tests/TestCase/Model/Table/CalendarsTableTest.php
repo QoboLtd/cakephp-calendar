@@ -84,12 +84,6 @@ class CalendarsTableTest extends TestCase
         $this->assertEventFired((string)EventName::PLUGIN_CALENDAR_MODEL_GET_CALENDARS(), EventManager::instance());
     }
 
-    public function testGetCalendarTypes()
-    {
-        $result = $this->Calendars->getTypes();
-        $this->assertTrue(is_array($result));
-    }
-
     public function testGetCalendars()
     {
         $result = $this->Calendars->getCalendars();
