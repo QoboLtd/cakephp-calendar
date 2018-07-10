@@ -64,12 +64,10 @@ class CalendarEventsControllerTest extends IntegrationTestCase
     {
         $eventId = '00000000-0000-0000-0000-000000000004';
 
-        $item = $this->CalendarEvents->get($eventId);
-
         $this->post('/calendars/calendar-events/view', ['id' => $eventId]);
-        $calEvent = $this->viewVariable('calEvent');
 
-        $this->assertEquals($item->title, $calEvent->title);
+        $response = $this->viewVariable('response');
+        $this->assertEquals(true, $response['success']);
     }
 
     public function testGetEventTypesResponseOk()
