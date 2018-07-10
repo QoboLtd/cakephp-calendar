@@ -107,23 +107,26 @@ class CalendarEventsController extends AppController
      */
     public function view()
     {
-        $calEvent = [];
-        $this->viewBuilder()->setLayout('Qobo/Calendar.ajax');
+        $response = [
+            'success' => false,
+            'data' => [],
+            'errors' => []
+        ];
 
         if ($this->request->is(['post', 'patch', 'put'])) {
             $data = $this->request->getData();
+            $result = $this->CalendarEvents->getEventInfo($data['id']);
 
-            if (preg_match('/\_\_/', $data['id'])) {
-                $parts = explode('__', $data['id']);
-                $data['id'] = $parts[0];
-                $data['timestamp'] = $parts[1];
+            if (!empty($result)) {
+                $response['success'] = true;
+                $response['data'] = $result;
+            } else {
+                $response['errors'][] = "Couldn't find Event with id {$data['id']}";
             }
-
-            $calEvent = $this->CalendarEvents->getEventInfo($data);
         }
 
-        $this->set(compact('calEvent'));
-        $this->set('_serialize', ['calEvent']);
+        $this->set(compact('response'));
+        $this->set('_serialize', 'response');
     }
 
     /**
