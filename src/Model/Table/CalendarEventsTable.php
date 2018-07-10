@@ -218,66 +218,40 @@ class CalendarEventsTable extends Table
      */
     public function getEvents($calendar, $options = [])
     {
-        $result = $infiniteEvents = [];
+        $result = [];
 
         if (!$calendar) {
             return $result;
         }
-        $events = $this->findCalendarEvents($options);
-        $infiniteEvents = $this->getInfiniteEvents($calendar->id, $events, $options);
 
-        if (!empty($infiniteEvents)) {
-            $events = array_merge($events, $infiniteEvents);
-        }
+        $events = $this->findCalendarEvents($options);
+
+        $infiniteEvents = $this->getInfiniteEvents($calendar->id, $events, $options);
+        $events = array_merge($events, $infiniteEvents);
 
         if (empty($events)) {
             return $result;
         }
 
         foreach ($events as $k => $event) {
-            $extra = [];
-            if (!empty($event['calendar_attendees'])) {
-                foreach ($event['calendar_attendees'] as $att) {
-                    array_push($extra, $att->display_name);
-                }
-            }
-
-            if (!empty($extra)) {
-                $event['title'] .= ' - ' . implode("\n", $extra);
-            }
-
             $eventItem = $this->prepareEventData($event, $calendar);
 
-            if (!empty($eventItem['recurrence'])) {
-                $recurrence = $this->getRRuleConfiguration($eventItem['recurrence']);
-
-                $intervals = $this->getRecurrence($recurrence, [
-                    'start' => $eventItem['start_date'],
-                    'end' => $eventItem['end_date'], //$options['period']['end_date'],
-                ]);
-                $recurringEvents = [];
-                if (!empty($intervals)) {
-                    foreach ($intervals as $interval) {
-                        $entity = $this->newEntity();
-                        $entity = $this->patchEntity($entity, $eventItem);
-                        $entity->id = $eventItem['id'];
-                        $entity->start_date = $interval['start'];
-                        $entity->end_date = $interval['end'];
-                        $entity->start = $entity->start_date->i18nFormat('yyyy-MM-dd HH:mm:ss');
-                        $entity->end = $entity->end_date->i18nFormat('yyyy-MM-dd HH:mm:ss');
-
-                        $entity->id = $this->setRecurrenceEventId($entity);
-
-                        array_push($recurringEvents, $entity->toArray());
-                        unset($entity);
-                    }
-                }
-
-                if (!empty($recurringEvents)) {
-                    $result = array_merge($result, $recurringEvents);
-                }
-            } else {
+            if (empty($eventItem['recurrence'])) {
                 array_push($result, $eventItem);
+                continue;
+            }
+
+            $recurringEvents = [];
+            $recurrence = $this->getRRuleConfiguration($eventItem['recurrence']);
+
+            $intervals = $this->getRecurrence($recurrence, [
+                'start' => $eventItem['start_date'],
+                'end' => $eventItem['end_date'],
+            ]);
+
+            foreach ($intervals as $interval) {
+                $entity = $this->prepareRecurringEventData($eventItem, $interval, $calendar);
+                array_push($result, $entity->toArray());
             }
         }
 
@@ -542,6 +516,43 @@ class CalendarEventsTable extends Table
     }
 
     /**
+     * Prepare Recurring Event Data
+     *
+     * Substitute original dates with recurring dates
+     *
+     * @param array $event of the original instance
+     * @param array $interval pair with start/end dates to be used
+     * @param \Cake\Datasource\EntityInterface $calendar instance
+     * @param array $options in case of extra configs
+     *
+     * @return \Cake\Datasource\EntityInterface $entity of the recurring event
+     */
+    public function prepareRecurringEventData($event = null, $interval = [], $calendar = null, array $options = [])
+    {
+        $this->Calendars = TableRegistry::get('Qobo/Calendar.Calendars');
+
+        $entity = null;
+
+        if (empty($event)) {
+            return $entity;
+        }
+
+        $entity = $this->newEntity();
+        $entity = $this->patchEntity($entity, $event);
+        $entity->start_date = $interval['start'];
+        $entity->end_date = $interval['end'];
+
+        $entity->start = $entity->start_date->i18nFormat('yyyy-MM-dd HH:mm:ss');
+        $entity->end = $entity->end_date->i18nFormat('yyyy-MM-dd HH:mm:ss');
+        $entity->id = $event['id'];
+
+        $entity->id = $this->setRecurrenceEventId($entity);
+        $entity->color = $this->Calendars->getColor($calendar);
+
+        return $entity;
+    }
+
+    /**
      * PrepareEventData method
      *
      * @param array $event of the calendar
@@ -553,6 +564,10 @@ class CalendarEventsTable extends Table
     protected function prepareEventData($event, $calendar, $options = [])
     {
         $item = [];
+
+        if (empty($options['title'])) {
+            $event['title'] = $this->getEventTitle($event);
+        }
 
         $item = [
             'id' => $event['id'],
@@ -643,6 +658,31 @@ class CalendarEventsTable extends Table
         }
 
         return $title;
+    }
+
+    /**
+     * Get Event Title based on the Event information
+     *
+     * @param array $event of the calendar event instance
+     * @param array $options with extra options
+     *
+     * @return string $event[title] with new title if extras present
+     */
+    public function getEventTitle($event = null, array $options = [])
+    {
+        $extra = [];
+
+        if (!empty($event['calendar_attendees'])) {
+            foreach ($event['calendar_attendees'] as $att) {
+                array_push($extra, $att->display_name);
+            }
+        }
+
+        if (!empty($extra)) {
+            $event['title'] .= ' - ' . implode("\n", $extra);
+        }
+
+        return $event['title'];
     }
 
     /**

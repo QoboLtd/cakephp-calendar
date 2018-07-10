@@ -187,6 +187,10 @@ class CalendarsTable extends Table
     {
         $color = Configure::read('Calendar.Configs.color');
 
+        if (!empty($entity->color)) {
+            $color = $entity->color;
+        }
+
         if (!$color) {
             $color = '#337ab7';
         }
