@@ -69,6 +69,24 @@ export default {
       }
     }
   },
+  beforeMount () {
+    const self = this
+
+    if (this.public == true) {
+      this.getCalendars({ public: this.public }).then(response => {
+        if (self.public == true) {
+          let activeIds = []
+          response.forEach(element => {
+            activeIds.push(element.id)
+          })
+
+          if (activeIds.length) {
+            self.$store.commit('calendars/setActiveIds', activeIds)
+          }
+        }
+      })
+    }
+  },
   mounted () {
     const self = this
     self.calendar = $(self.$refs.calendar)
@@ -81,7 +99,7 @@ export default {
           self.openEvent(event)
         },
         dayClick (dateMoment, event, view) {
-          if (self.public != 'true') {
+          if (self.public !== true) {
             self.createEvent(dateMoment, event, view)
           }
         },
@@ -118,8 +136,17 @@ export default {
     },
     rangeChecksum () {
       const self = this
-
       if (this.activeIds.length) {
+        this.activeIds.forEach(id => {
+          self.getCalendarEvents({calendar_id: id})
+        })
+        this.updateEventSources()
+      }
+    },
+    activeIds () {
+      const self = this
+
+      if (this.public == true && this.activeIds.length) {
         this.activeIds.forEach(id => {
           self.getCalendarEvents({calendar_id: id})
         })
@@ -129,6 +156,7 @@ export default {
   },
   methods: {
     ...mapActions({
+      getCalendars: 'calendars/getData',
       getCalendarEvents: 'calendars/events/getData',
       getCalendarInfo: 'calendars/events/getItemById',
       addCalendarEvent: 'event/addCalendarEvent',
