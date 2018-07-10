@@ -587,11 +587,13 @@ class CalendarEventsTable extends Table
      * Get Event info
      *
      * @param array $id of the record
+     * @param \Cake\Datasource\EntityInterface $calendar instance
      *
      * @return array|\Cake\Datasource\EntityInterface $result containing record data
      */
-    public function getEventInfo($id = null)
+    public function getEventInfo($id = null, $calendar = null)
     {
+        $this->Calendars = TableRegistry::get('Qobo/Calendar.Calendars');
         $result = [];
 
         if (empty($id)) {
@@ -609,14 +611,24 @@ class CalendarEventsTable extends Table
         if (!empty($options['end'])) {
             $time = Time::parse($options['end']);
             $result->end_date = $time;
+            $result->end = $time;
             unset($time);
         }
 
         if (!empty($options['start'])) {
             $time = Time::parse($options['start']);
             $result->start_date = $time;
+            $result->start = $time;
             unset($time);
         }
+
+        if ($calendar) {
+            if (empty($result->calendar_id)) {
+                $result->calendar_id = $calendar->id;
+            }
+        }
+
+        $result->color = $this->Calendars->getColor($calendar);
 
         return $result;
     }
@@ -918,53 +930,6 @@ class CalendarEventsTable extends Table
         if (empty($data['title'])) {
             $result['CalendarEvents']['title'] = $this->setEventTitle($data, $calendar);
         }
-
-        return $result;
-    }
-
-    /**
-     * Get Calendar Event for UI
-     *
-     * @param string $id uuid of the record
-     * @param \Cake\Datasource\EntityInterface $calendar record
-     * @return array $result of the record.
-     */
-    public function getCalendarEventById($id = null, $calendar = null)
-    {
-        $this->Calendars = TableRegistry::get('Qobo/Calendar.Calendars');
-
-        $result = $attendees = [];
-
-        if (empty($id)) {
-            return $result;
-        }
-
-        $query = $this->find()
-            ->contain(['CalendarAttendees'])
-            ->where(['id' => $id]);
-
-        $entity = $query->first();
-
-        if (!$entity) {
-            return $result;
-        }
-
-        if (!empty($entity->calendar_attendees)) {
-            $attendees = $entity->calendar_attendees;
-            $entity->__unset('calendar_attendees');
-        }
-
-        $entity->start = $entity->start_date;
-        $entity->end = $entity->end_date;
-
-        if ($calendar) {
-            if (empty($entity->calendar_id)) {
-                $entity->calendar_id = $calendar->id;
-            }
-        }
-
-        $entity->color = $this->Calendars->getColor($calendar);
-        $result = $entity->toArray();
 
         return $result;
     }

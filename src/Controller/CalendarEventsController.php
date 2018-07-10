@@ -91,7 +91,7 @@ class CalendarEventsController extends AppController
 
         if ($saved) {
             $response['success'] = true;
-            $response['data'] = $this->CalendarEvents->getCalendarEventById($saved->id);
+            $response['data'] = $this->CalendarEvents->getEventInfo($saved->id, $calendar);
         } else {
             $response['errors'] = $calendarEvent->getErrors();
         }
