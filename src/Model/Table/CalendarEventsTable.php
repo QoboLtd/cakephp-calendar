@@ -410,6 +410,7 @@ class CalendarEventsTable extends Table
         }
 
         $configs = Configure::read('Calendar.Types');
+
         foreach ($configs as $calendar) {
             if (empty($calendar['calendar_events'])) {
                 continue;
@@ -421,19 +422,7 @@ class CalendarEventsTable extends Table
                     'type' => $type,
                 ]);
 
-                if (empty($value)) {
-                    continue;
-                }
-
                 $result[$value] = $value;
-            }
-        }
-
-        if (!empty($eventTypes) && is_string($eventTypes)) {
-            $eventTypes = json_decode($eventTypes, true);
-
-            foreach ($eventTypes as $eventType) {
-                array_push($result, $eventType);
             }
         }
 

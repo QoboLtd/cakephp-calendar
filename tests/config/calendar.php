@@ -7,6 +7,11 @@ return [
         ],
         'Types' => [
             [
+                'name' => 'Test',
+                'value' => 'test_default',
+                'calendar_events' => [],
+            ],
+            [
                 'name' => 'Default',
                 'value' => 'default',
                 'calendar_events' => [
