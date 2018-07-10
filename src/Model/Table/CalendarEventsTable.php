@@ -213,13 +213,35 @@ class CalendarEventsTable extends Table
             }
 
             $eventItem = $this->prepareEventData($event, $calendar);
-            array_push($result, $eventItem);
 
             if (!empty($eventItem['recurrence'])) {
-                $recurringEvents = $this->getRecurringEvents($eventItem, $options);
+                $intervals = $this->getRecurrence($eventItem['recurrence'], [
+                    'start' => $eventItem['start_date'],
+                    'end' => $eventItem['end_date'], //$options['period']['end_date'],
+                ]);
+                $recurringEvents = [];
+                if (!empty($intervals)) {
+                    foreach ($intervals as $interval) {
+                        $entity = $this->newEntity();
+                        $entity = $this->patchEntity($entity, $eventItem);
+                        $entity->id = $eventItem['id'];
+                        $entity->start_date = $interval['start'];
+                        $entity->end_date = $interval['end'];
+                        $entity->start = $entity->start_date->i18nFormat('yyyy-MM-dd HH:mm:ss');
+                        $entity->end = $entity->end_date->i18nFormat('yyyy-MM-dd HH:mm:ss');
+
+                        $entity->id = $entity->id . '__' . $this->setIdSuffix($entity);
+
+                        array_push($recurringEvents, $entity->toArray());
+                        unset($entity);
+                    }
+                }
+
                 if (!empty($recurringEvents)) {
                     $result = array_merge($result, $recurringEvents);
                 }
+            } else {
+                array_push($result, $eventItem);
             }
         }
 
@@ -815,6 +837,13 @@ class CalendarEventsTable extends Table
         $untilDate = new Time($data['end']);
 
         $limit = (!empty($data['limit']) ? $data['limit'] : null);
+
+        if (!is_string($recurrence)) {
+            return $result;
+        }
+        $recurrence = json_decode($recurrence, true);
+        $recurrence = array_shift($recurrence);
+        $recurrence = str_replace('RRULE:', '', $recurrence);
 
         $rrule = new RRule($recurrence, $startDate);
 

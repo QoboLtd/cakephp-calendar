@@ -10,6 +10,11 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+use Qobo\Utils\Utility;
+
+$icons = Utility::getIcons();
+$colors = Utility::getColors();
+
 /**
  * @var \App\View\AppView $this
  */

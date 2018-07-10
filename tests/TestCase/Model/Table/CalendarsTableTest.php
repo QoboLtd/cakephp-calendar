@@ -95,13 +95,15 @@ class CalendarsTableTest extends TestCase
         $result = $this->Calendars->getCalendars();
         $this->assertTrue(!empty($result));
 
-        $result = $this->Calendars->getCalendars(['id' => '00000000-0000-0000-0000-000000000001']);
-        $this->assertNotEmpty($result);
-        $this->assertEquals($result[0]->id, '00000000-0000-0000-0000-000000000001');
-
         $result = $this->Calendars->getCalendars(['conditions' => ['id' => '00000000-0000-0000-0000-000000000001']]);
         $this->assertNotEmpty($result);
         $this->assertEquals($result[0]->id, '00000000-0000-0000-0000-000000000001');
+    }
+
+    public function testGetCalendarsEmpty()
+    {
+        $result = $this->Calendars->getCalendars(['conditions' => ['id' => '00000000-0000-0000-0000-120000000001']]);
+        $this->assertEmpty($result);
     }
 
     public function testGetByAllowedEventTypes()

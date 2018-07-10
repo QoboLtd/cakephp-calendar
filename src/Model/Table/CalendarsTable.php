@@ -78,7 +78,8 @@ class CalendarsTable extends Table
             ->allowEmpty('id', 'create');
 
         $validator
-            ->allowEmpty('name');
+            ->requirePresence('name', 'create')
+            ->notEmpty('name');
 
         $validator
             ->allowEmpty('color');
@@ -165,18 +166,12 @@ class CalendarsTable extends Table
                 ->all();
         $result = $query->toArray();
 
-        if (!empty($result)) {
-            foreach ($result as $item) {
-                if (!empty($item->event_types)) {
-                    $item->event_types = json_decode($item->event_types, true);
-                } else {
-                    $item->event_types = [];
-                }
-            }
-        }
-
         if (empty($result)) {
             return $result;
+        }
+
+        foreach ($result as $item) {
+            $item->event_types = $this->getEventTypes($item->event_types);
         }
 
         return $result;
@@ -340,5 +335,24 @@ class CalendarsTable extends Table
         }
 
         return $response;
+    }
+
+    /**
+     * Get Event Types saved within Calendar
+     *
+     * @param string $data of the event type
+     * @return array $result with event types decoded.
+     */
+    protected function getEventTypes($data)
+    {
+        $result = [];
+
+        if (empty($data)) {
+            return $result;
+        }
+
+        $result = json_decode($data, true);
+
+        return $result;
     }
 }
