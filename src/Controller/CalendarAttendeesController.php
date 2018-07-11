@@ -25,19 +25,6 @@ class CalendarAttendeesController extends AppController
 {
 
     /**
-     * Index method
-     *
-     * @return \Cake\Http\Response|void
-     */
-    public function index()
-    {
-        $calendarAttendees = $this->paginate($this->CalendarAttendees);
-
-        $this->set(compact('calendarAttendees'));
-        $this->set('_serialize', ['calendarAttendees']);
-    }
-
-    /**
      * View method
      *
      * @param string|null $id Calendar Attendee id.
@@ -50,55 +37,7 @@ class CalendarAttendeesController extends AppController
             'contain' => ['CalendarEvents']
         ]);
 
-        $this->set('calendarAttendee', $calendarAttendee);
-        $this->set('_serialize', ['calendarAttendee']);
-    }
-
-    /**
-     * Add method
-     *
-     * @return \Cake\Http\Response|null Redirects on successful add, renders view otherwise.
-     */
-    public function add()
-    {
-        $calendarAttendee = $this->CalendarAttendees->newEntity();
-        if ($this->request->is('post')) {
-            $calendarAttendee = $this->CalendarAttendees->patchEntity($calendarAttendee, $this->request->getData());
-            if ($this->CalendarAttendees->save($calendarAttendee)) {
-                $this->Flash->success(__('The calendar attendee has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The calendar attendee could not be saved. Please, try again.'));
-        }
-        $calendarEvents = $this->CalendarAttendees->CalendarEvents->find('list', ['limit' => 200]);
-        $this->set(compact('calendarAttendee', 'calendarEvents'));
-        $this->set('_serialize', ['calendarAttendee']);
-    }
-
-    /**
-     * Edit method
-     *
-     * @param string|null $id Calendar Attendee id.
-     * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
-     * @throws \Cake\Network\Exception\NotFoundException When record not found.
-     */
-    public function edit($id = null)
-    {
-        $calendarAttendee = $this->CalendarAttendees->get($id, [
-            'contain' => ['CalendarEvents']
-        ]);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $calendarAttendee = $this->CalendarAttendees->patchEntity($calendarAttendee, $this->request->getData());
-            if ($this->CalendarAttendees->save($calendarAttendee)) {
-                $this->Flash->success(__('The calendar attendee has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The calendar attendee could not be saved. Please, try again.'));
-        }
-        $calendarEvents = $this->CalendarAttendees->CalendarEvents->find('list', ['limit' => 200]);
-        $this->set(compact('calendarAttendee', 'calendarEvents'));
+        $this->set(compact('calendarAttendee'));
         $this->set('_serialize', ['calendarAttendee']);
     }
 
@@ -119,7 +58,7 @@ class CalendarAttendeesController extends AppController
             $this->Flash->error(__('The calendar attendee could not be deleted. Please, try again.'));
         }
 
-        return $this->redirect(['action' => 'index']);
+        return $this->redirect(['plugin' => 'Qobo/Calendar', 'controller' => 'Calendars', 'action' => 'index']);
     }
 
     /**
@@ -131,12 +70,9 @@ class CalendarAttendeesController extends AppController
      */
     public function lookup()
     {
+        $this->request->allowMethod(['post', 'put', 'patch']);
         $result = [];
-        $searchTerm = $this->request->query('term');
-        $calendarId = $this->request->query('calendar_id');
-        $eventType = $this->request->query('event_type');
-
-        $eventsTable = TableRegistry::get('Qobo/Calendar.CalendarEvents');
+        $searchTerm = $this->request->getData('term');
 
         $query = $this->CalendarAttendees->find()
             ->where([
@@ -145,7 +81,6 @@ class CalendarAttendeesController extends AppController
                     'contact_details LIKE' => "%$searchTerm%"
                 ]
             ]);
-
         $attendees = $query->toArray();
 
         foreach ($attendees as $k => $att) {

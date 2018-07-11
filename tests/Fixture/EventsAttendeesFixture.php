@@ -45,5 +45,12 @@ class EventsAttendeesFixture extends TestFixture
             'trashed' => null,
             'response_status' => 'needsAction'
         ],
+        [
+            'id' => '00000000-0000-0000-0000-000000000001',
+            'calendar_event_id' => '00000000-0000-0000-0000-000000000005',
+            'calendar_attendee_id' => '00000000-0000-0000-0000-000000000001',
+            'trashed' => null,
+            'response_status' => 'needsAction',
+        ]
     ];
 }

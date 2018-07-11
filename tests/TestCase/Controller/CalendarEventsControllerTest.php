@@ -1,8 +1,10 @@
 <?php
 namespace Qobo\Calendar\Test\TestCase\Controller;
 
+use Cake\ORM\TableRegistry;
 use Cake\TestSuite\IntegrationTestCase;
 use Qobo\Calendar\Controller\CalendarEventsController;
+use Qobo\Calendar\Model\Table\CalendarEventsTable;
 
 /**
  * Qobo\Calendar\Controller\CalendarEventsController Test Case
@@ -16,56 +18,169 @@ class CalendarEventsControllerTest extends IntegrationTestCase
      * @var array
      */
     public $fixtures = [
-        'plugin.qobo/calendar.calendar_events'
+        'plugin.qobo/calendar.users',
+        'plugin.qobo/calendar.calendar_events',
+        'plugin.qobo/calendar.events_attendees',
+        'plugin.qobo/calendar.calendar_attendees',
+        'plugin.qobo/calendar.calendars',
     ];
 
-    /**
-     * Test index method
-     *
-     * @return void
-     */
-    public function testIndex()
+    public function setUp()
     {
-        $this->markTestIncomplete('Not implemented yet.');
+        parent::setUp();
+
+        $userId = '00000000-0000-0000-0000-000000000001';
+        $this->session([
+            'Auth' => [
+                'User' => TableRegistry::get('Users')->get($userId)->toArray()
+            ]
+        ]);
+        $config = TableRegistry::exists('CalendarEvents') ? [] : ['className' => CalendarEventsTable::class];
+        $this->CalendarEvents = TableRegistry::get('CalendarEvents', $config);
     }
 
-    /**
-     * Test view method
-     *
-     * @return void
-     */
-    public function testView()
+    public function tearDown()
     {
-        $this->markTestIncomplete('Not implemented yet.');
+        parent::tearDown();
     }
 
-    /**
-     * Test add method
-     *
-     * @return void
-     */
-    public function testAdd()
+    public function testIndexGetException()
     {
-        $this->markTestIncomplete('Not implemented yet.');
+        $this->get('/calendars/calendar-events');
+        $this->assertResponseError();
     }
 
-    /**
-     * Test edit method
-     *
-     * @return void
-     */
-    public function testEdit()
+    public function testIndexPostResponseOk()
     {
-        $this->markTestIncomplete('Not implemented yet.');
+        $calendarId = '00000000-0000-0000-0000-000000000001';
+
+        $this->post('/calendars/calendar-events/index', ['calendar_id' => $calendarId]);
+        $events = $this->viewVariable('events');
+        $this->assertNotEmpty($events);
+        $this->assertTrue(is_array($events));
     }
 
-    /**
-     * Test delete method
-     *
-     * @return void
-     */
-    public function testDelete()
+    public function testViewResponseOk()
     {
-        $this->markTestIncomplete('Not implemented yet.');
+        $eventId = '00000000-0000-0000-0000-000000000004';
+
+        $this->post('/calendars/calendar-events/view', ['id' => $eventId]);
+
+        $response = $this->viewVariable('response');
+        $this->assertEquals(true, $response['success']);
+    }
+
+    public function testGetEventTypesResponseOk()
+    {
+        $calendarId = '00000000-0000-0000-0000-000000000001';
+
+        $this->post('/calendars/calendar-events/get-event-types', ['calendar_id' => $calendarId]);
+        $eventTypes = $this->viewVariable('eventTypes');
+
+        $this->assertNotEmpty($eventTypes);
+    }
+
+    public function testAddResponseError()
+    {
+        $this->get('/calendars/calendar-events/add');
+        $this->assertResponseError();
+    }
+
+    public function testAddErrorResponse()
+    {
+        $data = [
+            'calendar_id' => null,
+            'title' => 'Calendar Foobar',
+            'content' => 'Foobar Content - 123',
+            'start_date' => '2018-04-09 09:00:00',
+            'end_date' => '2018-04-09 10:00:00',
+            'is_recurring' => false,
+        ];
+
+        $this->post('/calendars/calendar-events/add', $data);
+        $event = $this->viewVariable('response');
+
+        $this->assertNotEmpty($event['errors']);
+        $this->assertEquals($event['success'], false);
+    }
+
+    public function testAddGenerateTitle()
+    {
+        $data = [
+            'calendar_id' => '00000000-0000-0000-0000-000000000001',
+            'content' => 'Foobar - 123',
+            'start_date' => '2018-04-09 09:00:00',
+            'end_date' => '2018-04-09 10:00:00',
+            'is_recurring' => false,
+        ];
+
+        $this->post('/calendars/calendar-events/add', $data);
+        $saved = $this->CalendarEvents->find()
+            ->where([
+                'content' => $data['content']
+            ])
+            ->first();
+
+        $this->assertEquals('Calendar - 1 Event', $saved->title);
+        $this->assertEquals($saved->content, $data['content']);
+    }
+
+    public function testAddResponseOk()
+    {
+        $data = [
+            'calendar_id' => '00000000-0000-0000-0000-000000000001',
+            'content' => 'Foobar',
+            'title' => 'Test Event',
+            'start_date' => '2018-04-09 09:00:00',
+            'end_date' => '2018-04-09 10:00:00',
+            'is_recurring' => false,
+        ];
+
+        $this->post('/calendars/calendar-events/add', $data);
+        $event = $this->viewVariable('response');
+        $this->assertEquals($event['success'], true);
+
+        $saved = $this->CalendarEvents->find()
+            ->where([
+                'title' => 'Test Event',
+                'content' => $data['content']
+            ])
+            ->first();
+
+        $this->assertEquals($saved->content, $data['content']);
+    }
+
+    public function testAddRecurringEvent()
+    {
+        $data = [
+            'calendar_id' => '00000000-0000-0000-0000-000000000001',
+            'content' => 'Recurring content',
+            'title' => 'Recurring event - every day',
+            'start_date' => '2018-04-09 09:00:00',
+            'end_date' => '2018-04-09 10:00:00',
+            'is_recurring' => true,
+            'recurrence' => '["RRULE:FREQ=DAILY;INTERVAL=1;COUNT=5"]',
+            'attendees_ids' => [
+               '00000000-0000-0000-0000-000000000001'
+            ]
+        ];
+
+        $this->post('/calendars/calendar-events/add', $data);
+        $saved = $this->CalendarEvents->find()
+            ->contain(['CalendarAttendees'])
+            ->where([
+                'title' => $data['title'],
+            ])->first();
+        $this->assertEquals($saved->title, $data['title']);
+        $this->assertEquals(1, count($saved->calendar_attendees));
+        $this->assertEquals('00000000-0000-0000-0000-000000000001', $saved->calendar_attendees[0]->id);
+    }
+
+    public function testDeleteResponseOk()
+    {
+        $eventId = '00000000-0000-0000-0000-000000000004';
+
+        $this->delete('/calendars/calendar-events/delete/' . $eventId);
+        $this->assertRedirect('/calendars/calendars');
     }
 }

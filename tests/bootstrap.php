@@ -56,9 +56,9 @@ Configure::write('App', [
         ]
     ]
 ]);
-Configure::write('debug', true);
 
 $config = Configure::read('Calendar');
+Configure::write('debug', true);
 
 if (empty($config)) {
     Configure::load('calendar', 'default');
@@ -116,7 +116,7 @@ class_alias('Qobo\\' . $pluginName . '\Test\App\Controller\AppController', 'App\
 // If plugin has routes.php/bootstrap.php then load them, otherwise don't.
 $loadPluginRoutes = file_exists(dirname(__FILE__) . DS . 'config' . DS . 'routes.php');
 $loadPluginBootstrap = file_exists(dirname(__FILE__) . DS . 'config' . DS . 'bootstrap.php');
-Cake\Core\Plugin::load($pluginName, ['path' => ROOT . DS, 'autoload' => true, 'routes' => $loadPluginRoutes, 'bootstrap' => $loadPluginBootstrap]);
+Cake\Core\Plugin::load('Qobo/' . $pluginName, ['path' => ROOT . DS, 'autoload' => true, 'routes' => $loadPluginRoutes, 'bootstrap' => $loadPluginBootstrap]);
 
 Cake\Routing\DispatcherFactory::add('Routing');
 Cake\Routing\DispatcherFactory::add('ControllerFactory');

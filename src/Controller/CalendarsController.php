@@ -11,7 +11,6 @@
  */
 namespace Qobo\Calendar\Controller;
 
-use Cake\Core\Configure;
 use Cake\Event\Event;
 use Cake\Event\EventManager;
 use Cake\ORM\TableRegistry;
@@ -23,27 +22,9 @@ use Qobo\Utils\Utility;
  * Calendars Controller
  *
  * @property \Qobo\Calendar\Model\Table\CalendarsTable $Calendars
- *
- * @method \Qobo\Calendar\Model\Entity\Calendar[] paginate($object = null, array $settings = [])
  */
 class CalendarsController extends AppController
 {
-    /**
-     * {@inheritDoc}
-     */
-    public function beforeFilter(Event $event)
-    {
-        parent::beforeFilter($event);
-        $icons = Utility::getIcons();
-        $colors = Utility::getColors();
-
-        $calendarTypes = $this->Calendars->getCalendarTypes();
-
-        $this->set('calendarTypes', $calendarTypes);
-        $this->set('icons', $icons);
-        $this->set('colors', $colors);
-    }
-
     /**
      * Index method
      *
@@ -87,15 +68,8 @@ class CalendarsController extends AppController
     public function view($id = null)
     {
         $calendar = null;
-        $calendars = $this->Calendars->getCalendars([
-            'conditions' => [
-                'id' => $id
-            ]
-        ]);
 
-        if (!empty($calendars)) {
-            $calendar = array_shift($calendars);
-        }
+        $calendar = $this->Calendars->get($id);
 
         $this->set('calendar', $calendar);
         $this->set('_serialize', 'calendar');
@@ -108,10 +82,18 @@ class CalendarsController extends AppController
      */
     public function add()
     {
+        $this->CalendarEvents = TableRegistry::get('Qobo/Calendar.CalendarEvents');
         $calendar = $this->Calendars->newEntity();
+
+        $eventTypes = $this->CalendarEvents->getEventTypes(['user' => $this->Auth->user()]);
 
         if ($this->request->is('post')) {
             $data = $this->request->getData();
+
+            if (!empty($data['event_types'])) {
+                $data['event_types'] = json_encode($data['event_types']);
+            }
+
             $calendar = $this->Calendars->patchEntity($calendar, $data);
 
             if ($this->Calendars->save($calendar)) {
@@ -123,7 +105,7 @@ class CalendarsController extends AppController
             $this->Flash->error(__('The calendar could not be saved. Please, try again.'));
         }
 
-        $this->set(compact('calendar'));
+        $this->set(compact('calendar', 'eventTypes'));
         $this->set('_serialize', 'calendar');
     }
 
@@ -136,10 +118,18 @@ class CalendarsController extends AppController
      */
     public function edit($id = null)
     {
+        $this->CalendarEvents = TableRegistry::get('Qobo/Calendar.CalendarEvents');
         $calendar = $this->Calendars->get($id);
 
+        $eventTypes = $this->CalendarEvents->getEventTypes(['user' => $this->Auth->user()]);
+
         if ($this->request->is(['patch', 'post', 'put'])) {
-            $calendar = $this->Calendars->patchEntity($calendar, $this->request->getData());
+            $data = $this->request->getData();
+
+            $data['event_types'] = !empty($data['event_types']) ? $data['event_types'] : [];
+            $data['event_types'] = json_encode($data['event_types']);
+
+            $calendar = $this->Calendars->patchEntity($calendar, $data);
 
             if ($this->Calendars->save($calendar)) {
                 $this->Flash->success(__('The calendar has been saved.'));
@@ -149,7 +139,7 @@ class CalendarsController extends AppController
             $this->Flash->error(__('The calendar could not be saved. Please, try again.'));
         }
 
-        $this->set(compact('calendar'));
+        $this->set(compact('calendar', 'eventTypes'));
         $this->set('_serialize', 'calendar');
     }
 
@@ -164,6 +154,7 @@ class CalendarsController extends AppController
     {
         $this->request->allowMethod(['post', 'delete']);
         $calendar = $this->Calendars->get($id);
+
         if ($this->Calendars->delete($calendar)) {
             $this->Flash->success(__('The calendar has been deleted.'));
         } else {
@@ -171,17 +162,5 @@ class CalendarsController extends AppController
         }
 
         return $this->redirect(['action' => 'index']);
-    }
-
-    /**
-     * Get Events method
-     *
-     * Return events array based on calendar_id passed
-     *
-     * @return void
-     */
-    public function events()
-    {
-        throw new \Cake\Network\Exception\NotImplementedException("events call moved to calendar-events controller as index");
     }
 }

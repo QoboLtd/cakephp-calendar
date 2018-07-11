@@ -10,6 +10,11 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+use Qobo\Utils\Utility;
+
+$icons = Utility::getIcons();
+$colors = Utility::getColors();
+
 /**
  * @var \App\View\AppView $this
  */
@@ -61,13 +66,11 @@ foreach ($icons as $k => $v) {
                     <?= $this->Form->hidden('source_id');?>
                     <?= $this->Form->hidden('source');?>
 
-                    <?= $this->Form->input('calendar_type', [
-                        'type' => 'select',
-                        'options' => $calendarTypes,
-                        'class' => 'select2',
-                        'empty' => true
-                    ]) ?>
+                    <?php
+                        $selectedEventTypes = !empty($calendar->event_types) ? json_decode($calendar->event_types, true) : [];
+                    ?>
                     <?= $this->Form->control('is_public', ['label' => __('Publicly Accessible')]);?>
+                    <?= $this->Form->input('event_types', ['value' => $selectedEventTypes, 'type' => 'select', 'options' => $eventTypes, 'class' => 'select2', 'multiple' => 'multiple', 'empty' => true]);?>
                 </div>
                 <div class="col-xs-12 col-md-6">
                     <?= $this->Form->input('color', [

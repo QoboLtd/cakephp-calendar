@@ -51,7 +51,6 @@ class CalendarAttendeesTable extends Table
 
         $this->addBehavior('Timestamp');
         $this->addBehavior('Muffin/Trash.Trash');
-        $this->addBehavior('AuditStash.AuditLog');
 
         $this->belongsToMany('CalendarEvents', [
             'joinTable' => 'events_attendees',
@@ -93,5 +92,51 @@ class CalendarAttendeesTable extends Table
         $rules->add($rules->existsIn(['calendar_event_id'], 'CalendarEvents'));
 
         return $rules;
+    }
+
+    /**
+     * Save Calendar Attendees
+     *
+     * @param array $entity of the attendee
+     * @return array $response containing save state and saved record
+     */
+    public function saveAttendee(array $entity)
+    {
+        $response = [
+            'status' => false,
+            'errors' => [],
+            'entity' => null,
+        ];
+
+        if (empty($entity['id'])) {
+            unset($entity['id']);
+        }
+
+        $query = $this->find()
+            ->where([
+                'source' => $entity['source'],
+                'source_id' => $entity['source_id'],
+                'contact_details' => $entity['contact_details'],
+            ]);
+
+        $query->execute();
+
+        if (!$query->count()) {
+            $item = $this->newEntity();
+            $item = $this->patchEntity($item, $entity);
+        } else {
+            $item = $this->patchEntity($query->first(), $entity);
+        }
+
+        $saved = $this->save($item);
+
+        if ($saved) {
+            $response['status'] = true;
+            $response['entity'] = $saved;
+        } else {
+            $response['errors'] = $item->getErrors();
+        }
+
+        return $response;
     }
 }
