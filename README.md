@@ -17,7 +17,7 @@ Some of the things that we'll be adding shortly:
 - [x] Calendar Attendees search via auto-complete (using Select2 checkbox).
 - [x] Recurring calendar events.
 - [x] Prototyping calendar attendees.
-- [ ] Full re-write of jQuery to VueJS components.
+- [x] Full re-write of jQuery to VueJS components.
 - [ ] FreeBusy Calendar implementation.
 
 Developed by [Qobo](https://www.qobo.biz), used in [Qobrix](https://qobrix.com).
@@ -57,41 +57,54 @@ The plugin heavily relies on AdminLTE Bootstrap theme for styling, so you should
 
 ```php
 <?php
-// 'scriptBotton' is an AdminLTE typo that I kept ;(
 
 echo $this->Html->css(
     [
-        'AdminLTE./plugins/fullcalendar/fullcalendar.min.css',
-        'AdminLTE./plugins/daterangepicker/daterangepicker-bs3',
+        'Qobo/Calendar.fullcalendar.min.css',
         'AdminLTE./plugins/select2/select2.min',
+        'AdminLTE./plugins/daterangepicker/daterangepicker',
         'Qobo/Utils.select2-bootstrap.min',
-        'Qobo/Utils.select2-style',
+        'Qobo/Calendar.calendar',
     ]
 );
 
-echo $this->Html->script(
-    [
-        'AdminLTE./plugins/jQuery/jQuery-2.1.4.min', // in case you didn't include it in the layout
-        'AdminLTE./bootstrap/js/bootstrap',          // should be include in your layout.
-        'AdminLTE./plugins/daterangepicker/moment.min',
-        'AdminLTE./plugins/fullcalendar/fullcalendar.min.js',
-        'AdminLTE./plugins/daterangepicker/daterangepicker',
-        'AdminLTE./plugins/select2/select2.min',
-    ],
-    ['block' => 'scriptBotton']
-);
 
-echo $this->Html->script(
-    [
-        'Qobo/Calendar.external/nlp',
-        'Qobo/Calendar.external/rrule',
-        'Qobo/Calendar.vue.min',
-        'Qobo/Calendar.vue-select',
-        'Qobo/Calendar.calendar.js',
-    ],
-    ['block' => 'scriptBotton']
-);
+echo $this->Html->script([
+    'Qobo/Calendar./dist/vendor',
+    'Qobo/Calendar./dist/app',
+], [
+    'block' => 'scriptBottom'
+]);
+
 ?>
 ```
 
-JavaScript files should go to your footer, so you can use native cake `fetch('scriptBottom')` and replace `scriptBotton` with `scriptBottom` in the index template (assuming that you have `$this->fetch('scriptBottom');` in your layout footer.
+In order to initialise Calendar VueJS application, you should define `#qobo-calendar-app` element:
+
+```html
+
+<section class="content" id="qobo-calendar-app" token="YourApiToken">
+    <calendar :timezone="timezone" :editable="editable" :show-print-button="true"></calendar>
+</section>
+
+```
+
+VueJS Contributions
+-------------
+
+Calendar Plugin has `package.json` of all required modules, in order to modify `dist` compiled JS files.
+Run `yarn` command to install required `node_module` to proceed with development.
+
+In case you need HotReload functionality, run:
+
+```
+yarn watch
+```
+
+Preparing production ready build:
+
+```
+yarn build:prod
+```
+
+For more scripts and linters etc., please check `package.json` file.
