@@ -63,7 +63,6 @@ class CalendarsControllerTest extends IntegrationTestCase
         $this->get('/calendars/calendars/view/' . $id);
         $this->assertResponseOk();
     }
-
     public function testAddResponseOk()
     {
         $this->get('/calendars/calendars/add');
@@ -81,6 +80,41 @@ class CalendarsControllerTest extends IntegrationTestCase
             ->where(['name' => $data['name']])
             ->first();
 
+        $this->assertEquals($saved->name, $data['name']);
+    }
+
+    public function testAddResponseError()
+    {
+        $data = [];
+        $this->post('/calendars/calendars/add', $data);
+        $message = $this->_requestSession->read('Flash.flash.0');
+
+        $this->assertEquals($message['message'], 'The calendar could not be saved. Please, try again.');
+    }
+
+    public function testAddResponseOkWithEventTypes()
+    {
+        $this->get('/calendars/calendars/add');
+        $this->assertResponseOk();
+
+        $data = [
+            'name' => 'Test Calendar - fake',
+            'active' => true,
+            'event_types' => [
+                'Config::Default::Default',
+                'Json::Leads::Default'
+            ]
+        ];
+
+        $this->post('/calendars/calendars/add', $data);
+        $this->assertRedirect('/calendars/calendars');
+
+        $saved = $this->Calendars->find()
+            ->where(['name' => $data['name']])
+            ->first();
+
+        $eventTypes = json_decode($saved->event_types, true);
+        $this->assertEquals($eventTypes, $data['event_types']);
         $this->assertEquals($saved->name, $data['name']);
     }
 

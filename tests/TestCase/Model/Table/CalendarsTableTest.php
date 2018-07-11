@@ -84,24 +84,20 @@ class CalendarsTableTest extends TestCase
         $this->assertEventFired((string)EventName::PLUGIN_CALENDAR_MODEL_GET_CALENDARS(), EventManager::instance());
     }
 
-    public function testGetCalendarTypes()
-    {
-        $result = $this->Calendars->getTypes();
-        $this->assertTrue(is_array($result));
-    }
-
     public function testGetCalendars()
     {
         $result = $this->Calendars->getCalendars();
         $this->assertTrue(!empty($result));
 
-        $result = $this->Calendars->getCalendars(['id' => '00000000-0000-0000-0000-000000000001']);
-        $this->assertNotEmpty($result);
-        $this->assertEquals($result[0]->id, '00000000-0000-0000-0000-000000000001');
-
         $result = $this->Calendars->getCalendars(['conditions' => ['id' => '00000000-0000-0000-0000-000000000001']]);
         $this->assertNotEmpty($result);
         $this->assertEquals($result[0]->id, '00000000-0000-0000-0000-000000000001');
+    }
+
+    public function testGetCalendarsEmpty()
+    {
+        $result = $this->Calendars->getCalendars(['conditions' => ['id' => '00000000-0000-0000-0000-120000000001']]);
+        $this->assertEmpty($result);
     }
 
     public function testGetByAllowedEventTypes()

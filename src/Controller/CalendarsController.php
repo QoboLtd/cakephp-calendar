@@ -22,22 +22,9 @@ use Qobo\Utils\Utility;
  * Calendars Controller
  *
  * @property \Qobo\Calendar\Model\Table\CalendarsTable $Calendars
- *
- * @method \Qobo\Calendar\Model\Entity\Calendar[] paginate($object = null, array $settings = [])
  */
 class CalendarsController extends AppController
 {
-    /**
-     * {@inheritDoc}
-     */
-    public function beforeFilter(Event $event)
-    {
-        parent::beforeFilter($event);
-
-        $this->set('icons', Utility::getIcons());
-        $this->set('colors', Utility::getColors());
-    }
-
     /**
      * Index method
      *
@@ -139,9 +126,9 @@ class CalendarsController extends AppController
         if ($this->request->is(['patch', 'post', 'put'])) {
             $data = $this->request->getData();
 
-            if (!empty($data['event_types'])) {
-                $data['event_types'] = json_encode($data['event_types']);
-            }
+            $data['event_types'] = !empty($data['event_types']) ? $data['event_types'] : [];
+            $data['event_types'] = json_encode($data['event_types']);
+
             $calendar = $this->Calendars->patchEntity($calendar, $data);
 
             if ($this->Calendars->save($calendar)) {

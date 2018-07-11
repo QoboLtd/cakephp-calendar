@@ -61,4 +61,18 @@ class CalendarAttendeesControllerTest extends IntegrationTestCase
         $attendee = $this->CalendarAttendees->get($id);
         $this->assertEquals($calendarAttendee['id'], $attendee->id);
     }
+
+    public function testLookup()
+    {
+        $term = [
+            'term' => 'John'
+        ];
+
+        $this->post('/calendars/calendar-attendees/lookup.json', $term);
+        $this->assertResponseOk();
+
+        $result = $this->viewVariable('result');
+        $this->assertNotEmpty($result);
+        $this->assertEquals('00000000-0000-0000-0000-000000000001', $result[0]['id']);
+    }
 }
