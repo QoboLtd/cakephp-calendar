@@ -55,6 +55,7 @@ trait ObjectTrait
      *
      * @param \Cake\Datasource\EntityInterface $entity of the received record
      * @param \ArrayObject $options passed from the event
+     * @param array $map of the object
      *
      * @return string|null $calendarId of the record
      */
