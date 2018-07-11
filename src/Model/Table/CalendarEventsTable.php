@@ -186,38 +186,6 @@ class CalendarEventsTable extends Table
      *
      * @return array $result of events (minimal structure)
      */
-    public function getCalendarEvents($calendar, $options = [])
-    {
-        $result = [];
-
-        if (!$calendar) {
-            return $result;
-        }
-
-        $options = array_merge($options, ['calendar_id' => $calendar->id]);
-        $resultSet = $this->findCalendarEvents($options);
-
-        if (empty($resultSet)) {
-            return $result;
-        }
-
-        foreach ($resultSet as $event) {
-            $eventItem = $this->prepareEventData($event, $calendar);
-
-            array_push($result, $eventItem);
-        }
-
-        return $result;
-    }
-
-    /**
-     * Get Events of specific calendar
-     *
-     * @param \Cake\ORM\Table $calendar record
-     * @param array $options with filter params
-     *
-     * @return array $result of events (minimal structure)
-     */
     public function getEvents($calendar, $options = [])
     {
         $result = [];

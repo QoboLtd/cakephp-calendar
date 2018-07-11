@@ -73,56 +73,6 @@ class CalendarEventsTableTest extends TestCase
         $this->assertNotEmpty($result);
     }
 
-    public function testGetEventsNoEvents()
-    {
-        $result = $this->CalendarEvents->getEvents(null);
-        $this->assertEquals($result, []);
-
-        $this->Calendars = TableRegistry::get('Qobo/Calendar.Calendars');
-        $dbItems = $this->Calendars->getCalendars([
-            'conditions' => [
-                'id' => '00000000-0000-0000-0000-000000000004',
-            ]
-        ]);
-
-        $options = [
-            'calendar_id' => '00000000-0000-0000-0000-000000000004',
-        ];
-
-        $result = $this->CalendarEvents->getCalendarEvents($dbItems[0], $options);
-        $this->assertEmpty($result);
-    }
-
-    public function testGetCalendarEvents()
-    {
-        $calendars = TableRegistry::get('Qobo/Calendar.Calendars');
-        $dbItems = $calendars->getCalendars();
-
-        $result = $this->CalendarEvents->getCalendarEvents($dbItems[0]);
-        $this->assertTrue(is_array($result));
-        $this->assertNotEmpty($result);
-    }
-
-    public function testGetCalendarEventsWithPeriod()
-    {
-        $calendars = TableRegistry::get('Qobo/Calendar.Calendars');
-        $dbItems = $calendars->getCalendars();
-
-        $result = $this->CalendarEvents->getCalendarEvents($dbItems[0], [
-            'period' => [
-                'start_date' => '2017-06-16 09:00:00',
-                'end_date' => '2017-06-16 20:00:00',
-            ],
-        ]);
-
-        $this->assertNotEmpty($result);
-        $this->assertTrue(is_array($result));
-
-        $result = $this->CalendarEvents->getCalendarEvents(null);
-        $this->assertEquals($result, []);
-        $this->assertTrue(is_array($result));
-    }
-
     /**
      * @dataProvider testEventTitleProvider
      */
