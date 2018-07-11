@@ -60,6 +60,8 @@ class CalendarEventsTable extends Table
             'joinTable' => 'events_attendees',
             'foreignKey' => 'calendar_event_id',
         ]);
+
+        $this->Calendars = TableRegistry::get('Qobo/Calendar.Calendars');
     }
 
     /**
@@ -199,7 +201,7 @@ class CalendarEventsTable extends Table
             return $result;
         }
 
-        foreach ($resultSet as $k => $event) {
+        foreach ($resultSet as $event) {
             $eventItem = $this->prepareEventData($event, $calendar);
 
             array_push($result, $eventItem);
@@ -226,14 +228,14 @@ class CalendarEventsTable extends Table
 
         $events = $this->findCalendarEvents($options);
 
-        $infiniteEvents = $this->getInfiniteEvents($calendar->id, $events, $options);
+        $infiniteEvents = $this->getInfiniteEvents($events, $options);
         $events = array_merge($events, $infiniteEvents);
 
         if (empty($events)) {
             return $result;
         }
 
-        foreach ($events as $k => $event) {
+        foreach ($events as $event) {
             $eventItem = $this->prepareEventData($event, $calendar);
 
             if (empty($eventItem['recurrence'])) {
@@ -241,7 +243,6 @@ class CalendarEventsTable extends Table
                 continue;
             }
 
-            $recurringEvents = [];
             $recurrence = $this->getRRuleConfiguration($eventItem['recurrence']);
 
             $intervals = $this->getRecurrence($recurrence, [
@@ -291,13 +292,12 @@ class CalendarEventsTable extends Table
     /**
      * Get infinite calendar events for given calendar
      *
-     * @param mixed $calendarId as its id.
      * @param array $events from findCalendarEvents
      * @param array $options containing month viewport (end/start interval).
      *
      * @return array $result containing event records
      */
-    public function getInfiniteEvents($calendarId, $events, $options = [])
+    public function getInfiniteEvents($events, $options = [])
     {
         $result = $existingEventIds = [];
         $query = $this->findCalendarEvents($options, true);
@@ -464,7 +464,6 @@ class CalendarEventsTable extends Table
      */
     public function getEventInfo($id = null, $calendar = null)
     {
-        $this->Calendars = TableRegistry::get('Qobo/Calendar.Calendars');
         $result = [];
 
         if (empty($id)) {
@@ -512,14 +511,11 @@ class CalendarEventsTable extends Table
      * @param array $event of the original instance
      * @param array $interval pair with start/end dates to be used
      * @param \Cake\Datasource\EntityInterface $calendar instance
-     * @param array $options in case of extra configs
      *
      * @return \Cake\Datasource\EntityInterface $entity of the recurring event
      */
-    public function prepareRecurringEventData($event = null, $interval = [], $calendar = null, array $options = [])
+    public function prepareRecurringEventData($event = null, $interval = [], $calendar = null)
     {
-        $this->Calendars = TableRegistry::get('Qobo/Calendar.Calendars');
-
         $entity = null;
 
         if (empty($event)) {
@@ -583,6 +579,7 @@ class CalendarEventsTable extends Table
      * findCalendarEvents method
      *
      * @param array $options containing conditions for query
+     * @param bool $isInfinite flag to find recurring infinite events like (birthdays)
      *
      * @return array $result with events found.
      */
@@ -653,11 +650,10 @@ class CalendarEventsTable extends Table
      * Get Event Title based on the Event information
      *
      * @param array $event of the calendar event instance
-     * @param array $options with extra options
      *
      * @return string $event[title] with new title if extras present
      */
-    public function getEventTitle($event = null, array $options = [])
+    public function getEventTitle($event = null)
     {
         $extra = [];
 
@@ -685,7 +681,6 @@ class CalendarEventsTable extends Table
     public function sync($calendar, $options = [])
     {
         $result = [];
-        $table = TableRegistry::get('Qobo/Calendar.CalendarEvents');
 
         if (empty($calendar)) {
             return $result;
@@ -703,7 +698,7 @@ class CalendarEventsTable extends Table
             return $result;
         }
 
-        foreach ($calendarEvents as $k => $calendarInfo) {
+        foreach ($calendarEvents as $calendarInfo) {
             if (empty($calendarInfo['events'])) {
                 continue;
             }
