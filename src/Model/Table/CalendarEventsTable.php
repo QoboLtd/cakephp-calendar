@@ -183,7 +183,7 @@ class CalendarEventsTable extends Table
      *
      * @param \Cake\ORM\Table $calendar record
      * @param array $options with filter params
-     * @param boolean $isInfinite flag to find inifinite events like birthdays
+     * @param bool $isInfinite flag to find inifinite events like birthdays
      *
      * @return array $result of events (minimal structure)
      */
@@ -263,7 +263,7 @@ class CalendarEventsTable extends Table
      *
      * @param array $events from findCalendarEvents
      * @param array $options containing month viewport (end/start interval).
-     * @param boolean $isInfinite flag for infinite events like birthdays
+     * @param bool $isInfinite flag for infinite events like birthdays
      *
      * @return array $result containing event records
      */
