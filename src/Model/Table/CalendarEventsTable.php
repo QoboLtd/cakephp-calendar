@@ -183,10 +183,11 @@ class CalendarEventsTable extends Table
      *
      * @param \Cake\ORM\Table $calendar record
      * @param array $options with filter params
+     * @param boolean $isInfinite flag to find inifinite events like birthdays
      *
      * @return array $result of events (minimal structure)
      */
-    public function getEvents($calendar, $options = [])
+    public function getEvents($calendar, $options = [], $isInfinite = true)
     {
         $result = [];
 
@@ -196,7 +197,7 @@ class CalendarEventsTable extends Table
 
         $events = $this->findCalendarEvents($options);
 
-        $infiniteEvents = $this->getInfiniteEvents($events, $options);
+        $infiniteEvents = $this->getInfiniteEvents($events, $options, $isInfinite);
         $events = array_merge($events, $infiniteEvents);
 
         if (empty($events)) {
@@ -262,13 +263,14 @@ class CalendarEventsTable extends Table
      *
      * @param array $events from findCalendarEvents
      * @param array $options containing month viewport (end/start interval).
+     * @param boolean $isInfinite flag for infinite events like birthdays
      *
      * @return array $result containing event records
      */
-    public function getInfiniteEvents($events, $options = [])
+    public function getInfiniteEvents($events, $options = [], $isInfinite = true)
     {
         $result = $existingEventIds = [];
-        $query = $this->findCalendarEvents($options, true);
+        $query = $this->findCalendarEvents($options, $isInfinite);
 
         if (!$query) {
             return $result;
@@ -554,7 +556,6 @@ class CalendarEventsTable extends Table
     protected function findCalendarEvents($options = [], $isInfinite = false)
     {
         $conditions = [];
-
         if ($isInfinite) {
             $range = $this->getEventRange($options);
             $conditions['is_recurring'] = true;
