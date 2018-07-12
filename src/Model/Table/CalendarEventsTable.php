@@ -179,13 +179,6 @@ class CalendarEventsTable extends Table
 
         $events = $this->findCalendarEvents($options);
 
-        $infiniteEvents = $this->getInfiniteEvents($events, $options, $isInfinite);
-        $events = array_merge($events, $infiniteEvents);
-
-        if (empty($events)) {
-            return $result;
-        }
-
         foreach ($events as $event) {
             $eventItem = $this->prepareEventData($event, $calendar);
 
@@ -199,6 +192,25 @@ class CalendarEventsTable extends Table
             $intervals = $this->getRecurrence($recurrence, [
                 'start' => $eventItem['start_date'],
                 'end' => $eventItem['end_date'],
+            ]);
+
+            foreach ($intervals as $interval) {
+                $entity = $this->prepareRecurringEventData($eventItem, $interval, $calendar);
+                array_push($result, $entity->toArray());
+            }
+        }
+
+        $infiniteEvents = $this->getInfiniteEvents($events, $options, $isInfinite);
+
+        foreach ($infiniteEvents as $event) {
+            $eventItem = $this->prepareEventData($event, $calendar);
+
+            $recurrence = $this->getRRuleConfiguration($eventItem['recurrence']);
+            $intervals = $this->getRecurrence($recurrence, [
+                'start' => $eventItem['start_date'],
+                'end' => $options['period']['end_date'],
+                'from' => $options['period']['start_date'],
+                'fixTime' => true,
             ]);
 
             foreach ($intervals as $interval) {
@@ -269,7 +281,7 @@ class CalendarEventsTable extends Table
                 continue;
             }
 
-            $rule = $this->getRRuleConfiguration(json_decode($item->recurrence, true));
+            $rule = $this->getRRuleConfiguration($item->recurrence);
             $rrule = new RRule($rule);
 
             if ($rrule->isInfinite()) {
@@ -512,7 +524,7 @@ class CalendarEventsTable extends Table
             'event_type' => (!empty($event['event_type']) ? $event['event_type'] : null),
             'is_recurring' => $event['is_recurring'],
             'is_allday' => $event['is_allday'],
-            'recurrence' => $this->setRRuleConfiguration($event['recurrence']),
+            'recurrence' => $event['recurrence'],
         ];
 
         return $item;
@@ -756,23 +768,27 @@ class CalendarEventsTable extends Table
     public function getRecurrence($recurrence, array $data)
     {
         $result = [];
+
         $startDate = new Time($data['start']);
         $untilDate = new Time($data['end']);
+        $fromDate = !empty($data['from']) ? new Time($data['from']) : new Time($data['start']);
 
+        $fixTime = isset($data['fixTime']) ? $data['fixTime'] : false;
         $limit = (!empty($data['limit']) ? $data['limit'] : null);
 
         $rrule = new RRule($recurrence, $startDate);
-        $intervals = $rrule->getOccurrencesBetween($startDate, $untilDate, $limit);
+        $intervals = $rrule->getOccurrencesBetween($fromDate, $untilDate, $limit);
 
         if (!empty($intervals)) {
             $diff = $startDate->diff($untilDate);
-
             foreach ($intervals as $item) {
                 $st = new Time($item->format('Y-m-d H:i:s'));
                 $end = new Time($item->format('Y-m-d H:i:s'));
 
-                $end->addHour($diff->format('%h'));
-                $end->addMinute($diff->format('%i'));
+                if (!$fixTime) {
+                    $end->addHour($diff->format('%h'));
+                    $end->addMinute($diff->format('%i'));
+                }
 
                 $range = [
                     'start' => $st,
