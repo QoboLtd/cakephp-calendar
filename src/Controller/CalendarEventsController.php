@@ -188,21 +188,28 @@ class CalendarEventsController extends AppController
      */
     public function eventTypeConfig()
     {
-        $info = [];
         $this->request->allowMethod(['post', 'put', 'patch']);
+
+        $response = [
+            'success' => false,
+            'data' => [],
+            'errors' => [],
+        ];
+
         $data = $this->request->getData();
 
         try {
             $config = ObjectFactory::getConfig(null, 'Event', $data['event_type']);
 
             if (!empty($config)) {
-                $info = $config;
+                $response['success'] = true;
+                $response['data'] = $config;
             }
         } catch (Exception $e) {
-            // @TODO: log possible exceptions for troubleshooting.
+            $response['errors'][] = $e->getMessage();
         }
 
-        $this->set(compact('info'));
-        $this->set('_serialize', 'info');
+        $this->set(compact('response'));
+        $this->set('_serialize', 'response');
     }
 }
