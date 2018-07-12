@@ -818,12 +818,6 @@ class CalendarEventsTable extends Table
         $result['CalendarEvents'] = $data;
         if (!empty($data['recurrence'])) {
             $recurrence = $this->setRRuleConfiguration($data['recurrence']);
-            $intervals = $this->getRecurrence($data['recurrence'], [
-                'start' => $data['start_date'],
-                'end' => $data['end_date'],
-                'limit' => 1
-            ]);
-            $result['CalendarEvents']['end_date'] = $intervals[0]['end'];
             $result['CalendarEvents']['is_recurring'] = true;
             $result['CalendarEvents']['recurrence'] = $recurrence;
         }
