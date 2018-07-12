@@ -159,7 +159,7 @@ class CalendarEventsControllerTest extends IntegrationTestCase
             'start_date' => '2018-04-09 09:00:00',
             'end_date' => '2018-04-09 10:00:00',
             'is_recurring' => true,
-            'recurrence' => '["RRULE:FREQ=DAILY;INTERVAL=1;COUNT=5"]',
+            'recurrence' => 'RRULE:FREQ=DAILY;INTERVAL=1;COUNT=5',
             'attendees_ids' => [
                '00000000-0000-0000-0000-000000000001'
             ]

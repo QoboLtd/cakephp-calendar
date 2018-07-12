@@ -68,7 +68,7 @@ class CalendarEventsFixture extends TestFixture
             'trashed' => null,
             'event_type' => 'Lorem ipsum dolor sit amet',
             'is_recurring' => 0,
-            'recurrence' => '',
+            'recurrence' => null,
         ],
         [
             'id' => '00000000-0000-0000-0000-000000000002',
@@ -100,7 +100,7 @@ class CalendarEventsFixture extends TestFixture
             'trashed' => null,
             'event_type' => 'default_event',
             'is_recurring' => 1,
-            'recurrence' => '["RRULE:FREQ=YEARLY;COUNT=5"]',
+            'recurrence' => 'RRULE:FREQ=YEARLY;COUNT=5',
         ],
         [
             'id' => '00000000-0000-0000-0000-000000000004',
@@ -116,7 +116,7 @@ class CalendarEventsFixture extends TestFixture
             'trashed' => null,
             'event_type' => 'special_event',
             'is_recurring' => 1,
-            'recurrence' => '',
+            'recurrence' => null,
         ],
         [
             'id' => '00000000-0000-0000-0000-000000000005',
@@ -132,7 +132,7 @@ class CalendarEventsFixture extends TestFixture
             'trashed' => null,
             'event_type' => 'special_event',
             'is_recurring' => 1,
-            'recurrence' => '["RRULE:FREQ=MONTHLY;COUNT=2"]',
+            'recurrence' => 'RRULE:FREQ=MONTHLY;COUNT=2',
         ],
     ];
 }

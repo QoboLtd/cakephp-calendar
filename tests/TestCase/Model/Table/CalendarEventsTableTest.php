@@ -82,6 +82,9 @@ class CalendarEventsTableTest extends TestCase
         $calendar = $this->Calendars->get($options['calendar_id']);
         $result = $this->CalendarEvents->getEvents($calendar, $options, false);
         $this->assertNotEmpty($result);
+
+        $result = $this->CalendarEvents->getEvents($calendar, [], false);
+        $this->assertEquals($result, []);
     }
 
     /**
@@ -115,26 +118,6 @@ class CalendarEventsTableTest extends TestCase
                 ],
                 'Calendar - 1 - Foobar',
             ]
-        ];
-    }
-
-    /**
-     * @dataProvider testGetRRuleConfigurationProvider
-     * @exp
-     */
-    public function testGetRRuleConfguration($data, $expected, $msg)
-    {
-        $result = $this->CalendarEvents->getRRuleConfiguration($data);
-
-        $this->assertEquals($result, $expected, $msg);
-    }
-
-    public function testGetRRuleConfigurationProvider()
-    {
-        return [
-            [ ['foo' => 'bar'], '', 'RRule wasnt found'],
-            [ [], '', 'Empty array' ],
-            [ ['RRULE:FREQ=YEARLY'], 'RRULE:FREQ=YEARLY', 'Couldnt fetch correct RRULE element for array' ],
         ];
     }
 
@@ -201,6 +184,32 @@ class CalendarEventsTableTest extends TestCase
         $result = $this->CalendarEvents->getEventTypes(['calendar' => $calendar, 'user' => null]);
         $this->assertNotEmpty($result);
         $this->assertTrue(is_array($result));
+    }
+
+    public function testSetRRuleConfiguration()
+    {
+        $data = 'FREQ=MONTHLY;COUNT=30;WKST=MO';
+        $recurrence = $this->CalendarEvents->setRRuleConfiguration($data);
+        $this->assertEquals($recurrence, 'RRULE:' . $data);
+    }
+
+    /**
+     * @dataProvider testGetRRuleConfigurationProvider
+     */
+    public function testGetRRuleConfiguration($data, $expected)
+    {
+        $result = $this->CalendarEvents->getRRuleConfiguration($data);
+        $this->assertEquals($expected, $result);
+    }
+
+    public function testGetRRuleConfigurationProvider()
+    {
+        return [
+            ['FREQ=DAILY;COUNT=5', 'RRULE:FREQ=DAILY;COUNT=5'],
+            ['RRULE:FREQ=MONTHLY;COUNT=1', 'RRULE:FREQ=MONTHLY;COUNT=1'],
+            ['', null],
+            [null, null],
+        ];
     }
 
     /**

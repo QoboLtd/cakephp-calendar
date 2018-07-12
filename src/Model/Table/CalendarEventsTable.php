@@ -117,24 +117,6 @@ class CalendarEventsTable extends Table
     }
 
     /**
-     * beforeMarshal method
-     *
-     * We make sure that recurrence rule is saved as JSON.
-     *
-     * @param \Cake\Event\Event $event passed through the callback
-     * @param \ArrayObject $data about to be saved
-     * @param \ArrayObject $options to be passed
-     *
-     * @return void
-     */
-    public function beforeMarshal(Event $event, ArrayObject $data, ArrayObject $options)
-    {
-        if (!empty($data['recurrence'])) {
-            $data['recurrence'] = json_encode($data['recurrence']);
-        }
-    }
-
-    /**
      * Set ID suffix for recurring events
      *
      * We attach timestamp suffix for recurring events
@@ -305,24 +287,15 @@ class CalendarEventsTable extends Table
      *
      * @return array $result containing the RRULE
      */
-    public function getRRuleConfiguration($recurrence = [])
+    public function getRRuleConfiguration($recurrence = null)
     {
-        $result = '';
+        $result = null;
 
-        if (empty($recurrence) || is_null($recurrence)) {
+        if (empty($recurrence)) {
             return $result;
         }
 
-        if (is_string($recurrence)) {
-            $recurrence = json_decode($recurrence, true);
-        }
-        if (!empty($recurrence)) {
-            foreach ($recurrence as $rule) {
-                if (preg_match('/^RRULE:/i', $rule)) {
-                    $result = $rule;
-                }
-            }
-        }
+        $result = preg_match('/^RRULE:/', $recurrence) ? $recurrence : 'RRULE:' . $recurrence;
 
         return $result;
     }
@@ -335,15 +308,15 @@ class CalendarEventsTable extends Table
      */
     public function setRRuleConfiguration($recurrence = null)
     {
-        $result = [];
+        $result = null;
 
-        if (!empty($recurrence)) {
-            if (!preg_match('/RRULE:/', $recurrence)) {
-                $result = 'RRULE:' . $recurrence;
-            }
+        if (empty($recurrence)) {
+            return $result;
         }
 
-        $result = json_encode($result);
+        if (!preg_match('/RRULE:/', $recurrence)) {
+            $result = 'RRULE:' . $recurrence;
+        }
 
         return $result;
     }
@@ -539,7 +512,7 @@ class CalendarEventsTable extends Table
             'event_type' => (!empty($event['event_type']) ? $event['event_type'] : null),
             'is_recurring' => $event['is_recurring'],
             'is_allday' => $event['is_allday'],
-            'recurrence' => (!empty($event['recurrence']) ? json_decode($event['recurrence'], true) : null),
+            'recurrence' => $this->setRRuleConfiguration($event['recurrence']),
         ];
 
         return $item;
@@ -577,6 +550,10 @@ class CalendarEventsTable extends Table
             unset($conditions['start_date >=']);
             unset($conditions['end_date <=']);
             $conditions = array_merge($conditions, $range['start'], $range['end']);
+        }
+
+        if (empty($conditions)) {
+            return [];
         }
 
         $result = $this->find()
@@ -823,17 +800,16 @@ class CalendarEventsTable extends Table
         ];
 
         $result['CalendarEvents'] = $data;
-
         if (!empty($data['recurrence'])) {
-            $recurrence = $this->getRRuleConfiguration($data['recurrence']);
-            $intervals = $this->getRecurrence($recurrence, [
+            $recurrence = $this->setRRuleConfiguration($data['recurrence']);
+            $intervals = $this->getRecurrence($data['recurrence'], [
                 'start' => $data['start_date'],
                 'end' => $data['end_date'],
                 'limit' => 1
             ]);
             $result['CalendarEvents']['end_date'] = $intervals[0]['end'];
             $result['CalendarEvents']['is_recurring'] = true;
-            $result['CalendarEvents']['recurrence'] = $this->setRRuleConfiguration($data['recurrence']);
+            $result['CalendarEvents']['recurrence'] = $recurrence;
         }
 
         if (!empty($data['attendees_ids'])) {
