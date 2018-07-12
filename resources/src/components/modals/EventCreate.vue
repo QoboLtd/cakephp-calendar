@@ -36,6 +36,7 @@
           name="start"
           config-field="start_date"
           :event-click="currentMoment"
+          :configs="eventTypeConfigs"
           @date-changed="updateStart">
         </datepicker>
       </div>
@@ -46,6 +47,7 @@
           name="end"
           config-field="end_date"
           :event-click="currentMoment"
+          :configs="eventTypeConfigs"
           @date-changed="updateEnd">
         </datepicker>
       </div>
@@ -114,12 +116,14 @@ export default {
     return {
       attendeesList: [],
       eventTypesList: [],
+      eventTypeConfigs: null
     }
   },
   computed: {
     ...mapGetters({
       calendars: 'calendars/data',
-      findCalendarById: 'calendars/getItemById'
+      findCalendarById: 'calendars/getItemById',
+      getEventTypeConfigName: 'event/getEventTypeField'
     }),
     ...mapState({
       attendeesIds: 'event/attendeesIds'
@@ -216,9 +220,14 @@ export default {
       }
     },
     updateEventType () {
+      const self = this
+
       if (this.eventType) {
         this.getEventTypeConfig({event_type: this.eventType.value}).then(response => {
-          console.log(response.data)
+          if (!response.data.success) {
+            return
+          }
+          self.eventTypeConfigs = response.data.data
         })
       }
     },

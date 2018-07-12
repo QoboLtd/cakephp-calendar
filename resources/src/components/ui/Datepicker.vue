@@ -10,6 +10,7 @@ import moment from 'moment'
 import configMixin from '@/mixins/configMixin'
 import daterangepicker from 'daterangepicker'
 import { camelize } from 'inflected'
+import { mapGetters } from 'vuex'
 
 export default {
   mixins: [configMixin],
@@ -64,23 +65,26 @@ export default {
   },
   watch: {
     configs: function () {
+      const self = this
+
       for (let key in this.configs) {
-        if (this.configField !== key) {
+        if (self.configField !== key) {
           continue
         }
 
         let method = 'get' + camelize(key)
-        if (configMixin.methods.hasOwnProperty(method)) {
-          let result = configMixin.methods[method](
-            {
-              'name': camelize(key, false),
-              'key': key,
-              'value': this.momentObject.format(this.options.locale.format)
-            },
-            this.configs
-          )
 
-          this.updateMoment(moment(new Date(result)))
+        if (typeof this[method] === 'function') {
+          let storeFieldName = self.getEventTypeConfigName(key)
+          let args = {
+            'name': camelize(key, false),
+            'key': key,
+            'value': this.momentObject.format(this.options.locale.format)
+          }
+
+          let storeFieldValue = self[method](args, self.configs)
+
+          self.updateMoment(moment(new Date(storeFieldValue)))
         }
       }
     },
@@ -93,6 +97,11 @@ export default {
 
       this.updateMoment(currentDate)
     }
+  },
+  computed: {
+    ...mapGetters({
+      getEventTypeConfigName: 'event/getEventTypeField'
+    })
   },
   methods: {
     updateMoment (m) {

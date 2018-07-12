@@ -54,7 +54,22 @@ const getters = {
   end: state => state.end,
   recurrence: state => state.recurrence,
   title: state => state.title,
-  content: state => state.content
+  content: state => state.content,
+  getEventTypeField: (state) => (name) => {
+    if (name == 'start_date') {
+      return 'start'
+    }
+
+    if (name == 'end_date') {
+      return 'end'
+    }
+
+    if (name == 'title') {
+      return 'title'
+    }
+
+    return null
+  }
 }
 
 const actions = {
@@ -82,7 +97,7 @@ const actions = {
   },
   resetEvent ({ commit, dispatch, state }) {
     commit('resetState')
-  }
+  },
 }
 
 export default {

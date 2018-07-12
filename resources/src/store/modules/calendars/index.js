@@ -35,7 +35,6 @@ const mutations = {
     state.data.forEach((element, key) => {
       if (element.id === payload) {
         index = key
-        console.log(index)
       }
     })
     if (index) {
