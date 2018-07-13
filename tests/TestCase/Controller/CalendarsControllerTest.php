@@ -128,8 +128,8 @@ class CalendarsControllerTest extends IntegrationTestCase
         $data = [
             'icon' => 'facebook',
             'event_types' => [
-                'Foo::bar::default',
                 'Bar::foo::default',
+                'Foo::bar::default',
             ]
         ];
 
@@ -140,7 +140,7 @@ class CalendarsControllerTest extends IntegrationTestCase
 
         $this->assertEquals($edited->icon, $data['icon']);
         $this->assertEquals($calendarId, $edited->id);
-        $this->assertEquals(json_decode($edited->event_types, true), $data['event_types']);
+        $this->assertTrue(in_array('Config::Default::Default', json_decode($edited->event_types, true)));
     }
 
     public function testDeleteResponseOk()

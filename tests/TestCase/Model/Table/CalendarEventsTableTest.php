@@ -202,6 +202,12 @@ class CalendarEventsTableTest extends TestCase
         $this->assertEquals($expected, $result);
     }
 
+    public function testGetDefaultEventType()
+    {
+        $result = $this->CalendarEvents->getEventTypeBy('default');
+        $this->assertNotEmpty($result);
+    }
+
     public function testGetRRuleConfigurationProvider()
     {
         return [

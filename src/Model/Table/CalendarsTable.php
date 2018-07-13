@@ -124,6 +124,21 @@ class CalendarsTable extends Table
         if (empty($entity->color)) {
             $entity->color = $this->getColor($entity);
         }
+
+        $this->CalendarEvents = TableRegistry::get('Qobo/Calendar.CalendarEvents');
+        $default = $this->CalendarEvents->getEventTypeBy('default');
+        $defaultKey = key($default);
+        if (!empty($entity->event_types)) {
+            $types = json_decode($entity->event_types, true);
+
+            if (!in_array($defaultKey, $types)) {
+                array_push($types, $defaultKey);
+                asort($types);
+                $entity->event_types = json_encode($types);
+            }
+        } else {
+            $entity->event_types = json_encode([$defaultKey]);
+        }
     }
 
     /**
