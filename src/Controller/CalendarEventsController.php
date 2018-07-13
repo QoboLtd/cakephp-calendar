@@ -153,6 +153,18 @@ class CalendarEventsController extends AppController
             }
         }
 
+        if (!empty($data['exclude'])) {
+            foreach ($data['exclude'] as $type) {
+                foreach ($eventTypes as $k => $item) {
+                    if (preg_match("/^$type/i", $item['value'])) {
+                        unset($eventTypes[$k]);
+                    }
+                }
+            }
+
+            $eventTypes = array_values($eventTypes);
+        }
+
         $this->set(compact('eventTypes'));
         $this->set('_serialize', 'eventTypes');
     }

@@ -212,7 +212,10 @@ export default {
     updateCalendar (value) {
       const self = this
       if (this.calendar) {
-        this.getEventTypes({ calendar_id: this.calendar.id}).then(response => {
+        this.getEventTypes({
+          calendar_id: this.calendar.id,
+          exclude: ['json']
+        }).then(response => {
           self.eventTypesList = response.data
         })
       } else {
@@ -223,7 +226,7 @@ export default {
       const self = this
 
       if (this.eventType) {
-        this.getEventTypeConfig({event_type: this.eventType.value}).then(response => {
+        this.getEventTypeConfig({ event_type: this.eventType.value }).then(response => {
           if (!response.data.success) {
             return
           }

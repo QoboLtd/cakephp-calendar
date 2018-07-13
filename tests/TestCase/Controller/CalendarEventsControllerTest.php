@@ -80,6 +80,16 @@ class CalendarEventsControllerTest extends IntegrationTestCase
         $this->assertNotEmpty($eventTypes);
     }
 
+    public function testGetEventTypesResponseExclude()
+    {
+        $calendarId = '00000000-0000-0000-0000-000000000001';
+
+        $this->post('/calendars/calendar-events/get-event-types.json', ['calendar_id' => $calendarId, 'exclude' => ['json']]);
+        $eventTypes = $this->viewVariable('eventTypes');
+        $this->assertEquals(count($eventTypes), 1);
+        $this->assertNotEmpty($eventTypes);
+    }
+
     public function testAddResponseError()
     {
         $this->get('/calendars/calendar-events/add');
