@@ -334,6 +334,52 @@ class CalendarEventsTable extends Table
     }
 
     /**
+     * Get Event Types from Configure::read()
+     *
+     * @param string $name of the event type
+     *
+     * @return array $result containing key/value pair of event types.
+     */
+    public function getEventTypeBy($name = null)
+    {
+        $result = [];
+        $configs = Configure::read('Calendar.Types');
+
+        if (empty($configs)) {
+            return $result;
+        }
+
+        if (!empty($name)) {
+            $configs = array_filter($configs, function ($item) use ($name) {
+                if ($name == $item['value']) {
+                    return $item;
+                }
+            });
+        }
+
+        $configs = array_values($configs);
+
+        foreach ($configs as $k => $calendar) {
+            if (empty($calendar['calendar_events'])) {
+                continue;
+            }
+
+            foreach ($calendar['calendar_events'] as $type => $properties) {
+                $value = $this->getEventTypeName([
+                    'name' => $calendar['name'],
+                    'type' => $type,
+                ]);
+
+                $result[$value] = $value;
+            }
+        }
+
+        asort($result);
+
+        return $result;
+    }
+
+    /**
      * Get Event types for the calendar event
      *
      * @param array $options of the data including user
@@ -364,24 +410,8 @@ class CalendarEventsTable extends Table
             $result = array_merge($result, $event->result);
         }
 
-        $configs = Configure::read('Calendar.Types');
-
-        foreach ($configs as $calendar) {
-            if (empty($calendar['calendar_events'])) {
-                continue;
-            }
-
-            foreach ($calendar['calendar_events'] as $type => $properties) {
-                $value = $this->getEventTypeName([
-                    'name' => $calendar['name'],
-                    'type' => $type,
-                ]);
-
-                $result[$value] = $value;
-            }
-        }
-
-        asort($result);
+        $configEventTypes = $this->getEventTypeBy();
+        $result = array_merge($result, $configEventTypes);
 
         return $result;
     }
