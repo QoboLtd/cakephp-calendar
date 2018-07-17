@@ -23,16 +23,16 @@
 import { mapGetters, mapActions } from 'vuex'
 import * as $ from 'jquery'
 import fullCalendar from 'fullcalendar'
-import Modal from '@/components/Modal.vue'
 import EventCreate from '@/components/modals/EventCreate.vue'
 import EventView from '@/components/modals/EventView.vue'
+import Modal from '@/components/Modal.vue'
 
 export default {
   props: ['editable', 'timezone', 'public', 'showPrintButton'],
   components: {
-    Modal,
     EventCreate,
-    EventView
+    EventView,
+    Modal
   },
   data () {
     return {
@@ -53,13 +53,14 @@ export default {
         header: {
           left: 'prev,next',
           center: 'title',
-          right: 'month,agendaWeek,agendaDay'
+          right: 'month,agendaWeek,agendaDay, listWeek'
         },
         buttonText: {
-          today: 'today',
-          month: 'month',
-          week: 'week',
-          day: 'day'
+          today: 'Today',
+          month: 'Month',
+          week: 'Week',
+          day: 'Day',
+          listWeek: 'Weekly Agenda'
         },
         lazyFetching: false,
         defaultView: 'month',
