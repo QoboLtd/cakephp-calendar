@@ -18,6 +18,7 @@ use Cake\Event\EventListenerInterface;
 use Cake\Event\EventManager;
 use Cake\Network\Request;
 use Cake\ORM\TableRegistry;
+use Cake\View\View;
 use Qobo\Calendar\Event\EventName;
 use Qobo\Calendar\Object\ObjectFactory;
 use Qobo\Calendar\Object\Objects\ObjectInterface;
@@ -60,7 +61,10 @@ class GetCalendarsListener implements EventListenerInterface
         $calendarsTable = TableRegistry::get('Qobo/Calendar.Calendars');
         $eventsTable = TableRegistry::get('Qobo/Calendar.CalendarEvents');
         $calendars = $calendarsTable->getByAllowedEventTypes($table->alias());
+
         $options['entity'] = $entity;
+        $options['viewEntity'] = new View();
+
         $entities = $eventsTable->getEventsFromEntities($table, $calendars, $options);
 
         if (!empty($entities)) {

@@ -58,19 +58,19 @@ trait ObjectTrait
      * @param \ArrayObject $options passed from the event
      * @param array $map of the object
      *
-     * @return string|null $calendarId of the record
+     * @return string|null $result of the record
      */
     public function getCalendarId(EntityInterface $entity, ArrayObject $options, $map = null)
     {
-        $calendarId = null;
+        $result = null;
 
         if (empty($options['calendar'])) {
-            return $calendarId;
+            return $result;
         }
 
-        $calendarId = $options['calendar']->id;
+        $result = $options['calendar']->id;
 
-        return $calendarId;
+        return $result;
     }
 
     /**
@@ -79,15 +79,17 @@ trait ObjectTrait
      * @param \Cake\Datasource\EntityInterface $entity of the event
      * @param \ArrayObject $options based on the configs
      * @param array $map of the config
+     *
+     * @return \Cake\I18n\Time
      */
     public function getCalendarEventEndDate(EntityInterface $entity, ArrayObject $options, $map = null)
     {
         $source = $map->end_date->options->source;
-        $time = Time::parse($entity->get($source));
+        $result = Time::parse($entity->get($source));
 
-        $time->modify('+ 1 hour');
+        $result->modify('+ 1 hour');
 
-        return $time;
+        return $result;
     }
 
     /**
@@ -96,6 +98,8 @@ trait ObjectTrait
      * @param \Cake\Datasource\EntityInterface $entity of the event
      * @param \ArrayObject $options of the configs
      * @param array $map of the config fields
+     *
+     * @return string
      */
     public function getCalendarEventTitle(EntityInterface $entity, ArrayObject $options, $map = null)
     {
@@ -103,8 +107,33 @@ trait ObjectTrait
 
         $displayField = $entity->get($table->displayField());
 
-        $title = sprintf("%s - %s", Inflector::humanize($entity->source()), $displayField);
+        $result = sprintf("%s - %s", Inflector::humanize($entity->source()), $displayField);
 
-        return $title;
+        return $result;
+    }
+
+    /**
+     * Get Calendar Event Content
+     *
+     * Prepopulate content of the calendar event with backlink to source
+     *
+     * @param \Cake\Datasource\EntityInterface $entity of the origin orm
+     * @param \ArrayObject $options of the configs
+     * @param array $map of the config conversion
+     *
+     * @return string
+     */
+    public function getCalendarEventContent(EntityInterface $entity, ArrayObject $options, $map = null)
+    {
+        $source = $map->content->options->source;
+        $result = $entity->get($source);
+
+        if (!empty($options['viewEntity'])) {
+            $url = $options['viewEntity']->Html->link(__('Source'), ['action' => 'view', $entity->get('id')]);
+
+            $result .= "<br/><p>Reference: $url </p>";
+        }
+
+        return $result;
     }
 }
