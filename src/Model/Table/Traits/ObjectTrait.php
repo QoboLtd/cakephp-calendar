@@ -79,15 +79,17 @@ trait ObjectTrait
      * @param \Cake\Datasource\EntityInterface $entity of the event
      * @param \ArrayObject $options based on the configs
      * @param array $map of the config
+     *
+     * @return \Cake\I18n\Time $data with end_date value
      */
     public function getCalendarEventEndDate(EntityInterface $entity, ArrayObject $options, $map = null)
     {
         $source = $map->end_date->options->source;
-        $time = Time::parse($entity->get($source));
+        $data = Time::parse($entity->get($source));
 
-        $time->modify('+ 1 hour');
+        $data->modify('+ 1 hour');
 
-        return $time;
+        return $data;
     }
 
     /**
@@ -96,6 +98,8 @@ trait ObjectTrait
      * @param \Cake\Datasource\EntityInterface $entity of the event
      * @param \ArrayObject $options of the configs
      * @param array $map of the config fields
+     *
+     * @return string $data with title content
      */
     public function getCalendarEventTitle(EntityInterface $entity, ArrayObject $options, $map = null)
     {
@@ -103,8 +107,33 @@ trait ObjectTrait
 
         $displayField = $entity->get($table->displayField());
 
-        $title = sprintf("%s - %s", Inflector::humanize($entity->source()), $displayField);
+        $data = sprintf("%s - %s", Inflector::humanize($entity->source()), $displayField);
 
-        return $title;
+        return $data;
+    }
+
+    /**
+     * Get Calendar Event Content
+     *
+     * Prepopulate content of the calendar event with backlink to source
+     *
+     * @param \Cake\Datasource\EntityInterface $entity of the origin orm
+     * @param \ArrayObject $options of the configs
+     * @param array $map of the config conversion
+     *
+     * @return string $data containing calendar event text
+     */
+    public function getCalendarEventContent(EntityInterface $entity, ArrayObject $options, $map = null)
+    {
+        $source = $map->content->options->source;
+        $data = $entity->get($source);
+
+        if (!empty($options['viewEntity']))  {
+            $url = $options['viewEntity']->Html->link(__('Source'), ['action' => 'view', $entity->get('id')]);
+
+            $data .= "<br/><p>Reference: $url </p>";
+        }
+
+        return $data;
     }
 }
