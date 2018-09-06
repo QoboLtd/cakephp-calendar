@@ -3,6 +3,7 @@ namespace Qobo\Calendar\Model\Table\Traits;
 
 use Cake\Datasource\EntityInterface;
 use Cake\Event\Event;
+use Cake\I18n\Time;
 use Cake\ORM\TableRegistry;
 use Cake\Utility\Inflector;
 use Qobo\Calendar\Object\Objects\Event as EventObject;
@@ -70,5 +71,40 @@ trait ObjectTrait
         $calendarId = $options['calendar']->id;
 
         return $calendarId;
+    }
+
+    /**
+     * Get Calendar Event end_date
+     *
+     * @param \Cake\Datasource\EntityInterface $entity of the event
+     * @param \ArrayObject $options based on the configs
+     * @param array $map of the config
+     */
+    public function getCalendarEventEndDate(EntityInterface $entity, ArrayObject $options, $map = null)
+    {
+        $source = $map->end_date->options->source;
+        $time = Time::parse($entity->get($source));
+
+        $time->modify('+ 1 hour');
+
+        return $time;
+    }
+
+    /**
+     * Get Calendar Event Title
+     *
+     * @param \Cake\Datasource\EntityInterface $entity of the event
+     * @param \ArrayObject $options of the configs
+     * @param array $map of the config fields
+     */
+    public function getCalendarEventTitle(EntityInterface $entity, ArrayObject $options, $map = null)
+    {
+        $table = TableRegistry::getTableLocator()->get($entity->source());
+
+        $displayField = $entity->get($table->displayField());
+
+        $title = sprintf("%s - %s", Inflector::humanize($entity->source()), $displayField);
+
+        return $title;
     }
 }
