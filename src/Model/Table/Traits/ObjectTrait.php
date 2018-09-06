@@ -58,19 +58,19 @@ trait ObjectTrait
      * @param \ArrayObject $options passed from the event
      * @param array $map of the object
      *
-     * @return string|null $calendarId of the record
+     * @return string|null $result of the record
      */
     public function getCalendarId(EntityInterface $entity, ArrayObject $options, $map = null)
     {
-        $calendarId = null;
+        $result = null;
 
         if (empty($options['calendar'])) {
-            return $calendarId;
+            return $result;
         }
 
-        $calendarId = $options['calendar']->id;
+        $result = $options['calendar']->id;
 
-        return $calendarId;
+        return $result;
     }
 
     /**
@@ -80,16 +80,16 @@ trait ObjectTrait
      * @param \ArrayObject $options based on the configs
      * @param array $map of the config
      *
-     * @return \Cake\I18n\Time $data with end_date value
+     * @return \Cake\I18n\Time
      */
     public function getCalendarEventEndDate(EntityInterface $entity, ArrayObject $options, $map = null)
     {
         $source = $map->end_date->options->source;
-        $data = Time::parse($entity->get($source));
+        $result = Time::parse($entity->get($source));
 
-        $data->modify('+ 1 hour');
+        $result->modify('+ 1 hour');
 
-        return $data;
+        return $result;
     }
 
     /**
@@ -99,7 +99,7 @@ trait ObjectTrait
      * @param \ArrayObject $options of the configs
      * @param array $map of the config fields
      *
-     * @return string $data with title content
+     * @return string
      */
     public function getCalendarEventTitle(EntityInterface $entity, ArrayObject $options, $map = null)
     {
@@ -107,9 +107,9 @@ trait ObjectTrait
 
         $displayField = $entity->get($table->displayField());
 
-        $data = sprintf("%s - %s", Inflector::humanize($entity->source()), $displayField);
+        $result = sprintf("%s - %s", Inflector::humanize($entity->source()), $displayField);
 
-        return $data;
+        return $result;
     }
 
     /**
@@ -121,19 +121,19 @@ trait ObjectTrait
      * @param \ArrayObject $options of the configs
      * @param array $map of the config conversion
      *
-     * @return string $data containing calendar event text
+     * @return string
      */
     public function getCalendarEventContent(EntityInterface $entity, ArrayObject $options, $map = null)
     {
         $source = $map->content->options->source;
-        $data = $entity->get($source);
+        $result = $entity->get($source);
 
-        if (!empty($options['viewEntity']))  {
+        if (!empty($options['viewEntity'])) {
             $url = $options['viewEntity']->Html->link(__('Source'), ['action' => 'view', $entity->get('id')]);
 
-            $data .= "<br/><p>Reference: $url </p>";
+            $result .= "<br/><p>Reference: $url </p>";
         }
 
-        return $data;
+        return $result;
     }
 }
