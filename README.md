@@ -7,6 +7,7 @@ CakePHP-Calendar Plugin
 [![Latest Unstable Version](https://poser.pugx.org/qobo/cakephp-calendar/v/unstable)](https://packagist.org/packages/qobo/cakephp-calendar)
 [![License](https://poser.pugx.org/qobo/cakephp-calendar/license)](https://packagist.org/packages/qobo/cakephp-calendar)
 [![codecov](https://codecov.io/gh/QoboLtd/cakephp-calendar/branch/master/graph/badge.svg)](https://codecov.io/gh/QoboLtd/cakephp-calendar)
+[![BCH compliance](https://bettercodehub.com/edge/badge/QoboLtd/cakephp-calendar?branch=master)](https://bettercodehub.com/)
 
 About
 -----
