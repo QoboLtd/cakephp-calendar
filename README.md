@@ -7,6 +7,7 @@ CakePHP-Calendar Plugin
 [![Latest Unstable Version](https://poser.pugx.org/qobo/cakephp-calendar/v/unstable)](https://packagist.org/packages/qobo/cakephp-calendar)
 [![License](https://poser.pugx.org/qobo/cakephp-calendar/license)](https://packagist.org/packages/qobo/cakephp-calendar)
 [![codecov](https://codecov.io/gh/QoboLtd/cakephp-calendar/branch/master/graph/badge.svg)](https://codecov.io/gh/QoboLtd/cakephp-calendar)
+[![BCH compliance](https://bettercodehub.com/edge/badge/QoboLtd/cakephp-calendar?branch=master)](https://bettercodehub.com/)
 
 About
 -----
@@ -20,7 +21,7 @@ Some of the things that we'll be adding shortly:
 - [x] Full re-write of jQuery to VueJS components.
 - [ ] FreeBusy Calendar implementation.
 
-Developed by [Qobo](https://www.qobo.biz), used in [Qobrix](https://qobrix.com).
+This plugin is developed by [Qobo](https://www.qobo.biz) for [Qobrix](https://qobrix.com).  It can be used as standalone CakePHP plugin, or as part of the [project-template-cakephp](https://github.com/QoboLtd/project-template-cakephp) installation.
 
 **NOTE**: The plugin is under development, so any **Bug Reports** and **Pull Requests** are more than welcomed.
 
