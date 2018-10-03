@@ -24,6 +24,7 @@ use Cake\Validation\Validator;
 use \ArrayObject;
 use \RRule\RRule;
 
+
 /**
  * CalendarEvents Model
  *
@@ -243,17 +244,21 @@ class CalendarEventsTable extends Table
 
         //@NOTE: sqlite doesn't support date_format or month functions
         if (!empty($options['period'])) {
-            if (!empty($options['period']['start_date'])) {
-                $query->andWhere([
-                    'MONTH(start_date) >=' => date('m', strtotime($options['period']['start_date'])),
-                ]);
+            // @NOTE: using intervals + IN() statement includes
+            // month jumps between 11th and 01st months.
+            $start = new \DateTime($options['period']['start_date']);
+            $end = new \DateTime($options['period']['end_date']);
+            $interval = \DateInterval::createFromDateString('1 month');
+
+            $sequence = new \DatePeriod($start, $interval, $end);
+            $months = [];
+            foreach ($sequence as $dt) {
+                array_push($months, $dt->format('m'));
             }
 
-            if (!empty($options['period']['end_date'])) {
-                $query->andWhere([
-                    'MONTH(end_date) <=' => date('m', strtotime($options['period']['end_date'])),
-                ]);
-            }
+            $query->andWhere([
+                'MONTH(start_date) IN' => $months,
+            ]);
         }
 
         $query->contain(['CalendarAttendees']);
@@ -262,12 +267,12 @@ class CalendarEventsTable extends Table
             // @NOTE: if no recurring events found for this month,
             // let's check for MONTHLY/WEEKLY/DAILY events for given
             // calendar with the same YEAR recurring events.
-            $year = (!empty($options['period']['start_date'])) ? date('Y', strtotime($options['period']['start_date'])) : date('Y');
+            // $year = (!empty($options['period']['start_date'])) ? date('Y', strtotime($options['period']['start_date'])) : date('Y');
 
             $query->where([
                 'is_recurring' => true,
                 'calendar_id' => $calendarId,
-                'YEAR(start_date) >=' => $year,
+                // 'YEAR(start_date) >=' => $year,
             ], [], true);
         }
 
