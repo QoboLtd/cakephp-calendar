@@ -209,7 +209,6 @@ class CalendarEventsTable extends Table
             if (!empty($extra)) {
                 $event['title'] .= ' - ' . implode("\n", $extra);
             }
-
             $eventItem = $this->prepareEventData($event, $calendar);
             array_push($result, $eventItem);
 
@@ -259,7 +258,20 @@ class CalendarEventsTable extends Table
 
         $query->contain(['CalendarAttendees']);
 
-        if (!$query) {
+        if (!$query->count()) {
+            // @NOTE: if no recurring events found for this month,
+            // let's check for MONTHLY/WEEKLY/DAILY events for given
+            // calendar with the same YEAR recurring events.
+            $year = (!empty($options['period']['start_date'])) ? date('Y', strtotime($options['period']['start_date'])) : date('Y');
+
+            $query->where([
+                'is_recurring' => true,
+                'calendar_id' => $calendarId,
+                'YEAR(start_date) >=' => $year,
+            ], [], true);
+        }
+
+        if (!$query->count()) {
             return $result;
         }
 

@@ -54,22 +54,6 @@ class CalendarEventsTableTest extends TestCase
         parent::tearDown();
     }
 
-    public function testGetEvents()
-    {
-        $result = $this->CalendarEvents->getEvents(null);
-        $this->assertEquals($result, []);
-
-        $this->Calendars = TableRegistry::get('Qobo/Calendar.Calendars');
-        $dbItems = $this->Calendars->getCalendars();
-
-        $options = [
-            'calendar_id' => $dbItems[0]->id,
-        ];
-
-        $result = $this->CalendarEvents->getEvents($dbItems[0], $options);
-        $this->assertNotEmpty($result);
-    }
-
     public function testGetEventsNoEvents()
     {
         $result = $this->CalendarEvents->getEvents(null);
