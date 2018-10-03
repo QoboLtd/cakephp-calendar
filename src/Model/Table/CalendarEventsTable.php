@@ -24,7 +24,6 @@ use Cake\Validation\Validator;
 use \ArrayObject;
 use \RRule\RRule;
 
-
 /**
  * CalendarEvents Model
  *
