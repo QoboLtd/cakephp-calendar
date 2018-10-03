@@ -82,7 +82,6 @@ class SyncTask extends Shell
         if (!empty($this->params['end'])) {
             $options['period']['end_date'] = $this->params['end'];
         }
-
         $result['calendars'] = $table->syncCalendars($options);
 
         if (empty($result['calendars'])) {
@@ -238,17 +237,20 @@ class SyncTask extends Shell
                 $entity->content = sprintf("%s %s", $user->first_name, $user->last_name);
                 $entity->is_recurring = true;
                 $entity->is_allday = true;
-
-                $entity->start_date = date('Y-m-d 09:00:00', strtotime($user->birthdate));
-                $entity->end_date = date('Y-m-d 18:00:00', strtotime($user->birthdate));
+                $entity->start_date = date('Y-m-d 09:00:00', strtotime($user->birthdate->format('Y-m-d')));
+                $entity->end_date = date('Y-m-d 18:00:00', strtotime($user->birthdate->format('Y-m-d')));
                 $entity->recurrence = json_encode(['RRULE:FREQ=YEARLY']);
                 $birthdayEvent = $eventsTable->save($entity);
 
                 $result['added'][] = $birthdayEvent;
             } else {
+                // @NOTE: patching user birthdays in case mistake was done
+                // via user profiles.
                 $entity = $eventsTable->patchEntity($birthdayEvent, [
                     'title' => sprintf("%s %s", $user->first_name, $user->last_name),
                     'is_allday' => true,
+                    'start_date' => date('Y-m-d 09:00:00', strtotime($user->birthdate->format('Y-m-d'))),
+                    'end_date' => date('Y-m-d 18:00:00', strtotime($user->birthdate->format('Y-m-d'))),
                 ]);
 
                 $birthdayEvent = $eventsTable->save($entity);
