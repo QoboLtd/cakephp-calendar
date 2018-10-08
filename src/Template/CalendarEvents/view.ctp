@@ -9,6 +9,7 @@
  * @copyright     Copyright (c) Qobo Ltd. (https://www.qobo.biz)
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
+$calEvent = !empty($response['data']) ? $response['data'] : null;
 
 $color = (!empty($calEvent->calendar->color) ? $calEvent->calendar->color : null);
 $icon = (!empty($calEvent->calendar->icon) ? $calEvent->calendar->icon : null);
