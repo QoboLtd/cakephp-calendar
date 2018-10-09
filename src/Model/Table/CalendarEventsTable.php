@@ -11,6 +11,7 @@
  */
 namespace Qobo\Calendar\Model\Table;
 
+use ArrayObject;
 use Cake\Core\Configure;
 use Cake\Datasource\EntityInterface;
 use Cake\Event\Event;
@@ -21,7 +22,8 @@ use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\Utility\Inflector;
 use Cake\Validation\Validator;
-use \ArrayObject;
+use DateTime;
+use DateTimeZone;
 use \RRule\RRule;
 
 /**
@@ -240,8 +242,8 @@ class CalendarEventsTable extends Table
             }, $events);
         }
 
-        $start = new \DateTime($options['period']['start_date']);
-        $end = new \DateTime($options['period']['end_date']);
+        $start = new DateTime($options['period']['start_date']);
+        $end = new DateTime($options['period']['end_date']);
 
         foreach ($query as $item) {
             if (in_array($item->id, $existingEventIds) || empty($item->recurrence)) {
@@ -249,7 +251,7 @@ class CalendarEventsTable extends Table
             }
             $format = 'Ymd\THis\Z';
             $rule = $this->getRRuleConfiguration(json_decode($item->recurrence, true));
-            $dtstart = new \DateTime($item->get('start_date')->format($format));
+            $dtstart = new DateTime($item->get('start_date')->format($format));
             // @NOTE: we shorten the list of YEARLY occurences,
             // as the library starts from DTSTART point, and keeps
             // cloning objects with each occurrence till it finds those
@@ -292,15 +294,15 @@ class CalendarEventsTable extends Table
             return $result;
         }
 
-        $rrule = new RRule($rule, new \DateTime($origin['start_date']));
+        $rrule = new RRule($rule, new DateTime($origin['start_date']));
 
         //new \DateTime($origin['start_date']),
         $eventDates = $rrule->getOccurrencesBetween(
-            new \DateTime($options['period']['start_date']),
-            new \DateTime($options['period']['end_date'])
+            new DateTime($options['period']['start_date']),
+            new DateTime($options['period']['end_date'])
         );
-        $startDateTime = new \DateTime($origin['start_date'], new \DateTimeZone('UTC'));
-        $endDateTime = new \DateTime($origin['end_date'], new \DateTimeZone('UTC'));
+        $startDateTime = new DateTime($origin['start_date'], new DateTimeZone('UTC'));
+        $endDateTime = new DateTime($origin['end_date'], new DateTimeZone('UTC'));
         $diff = $startDateTime->diff($endDateTime);
 
         $diffString = $diff->format('%R%y years, %R%a days, %R%h hours, %R%i minutes');
