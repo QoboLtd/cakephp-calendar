@@ -247,17 +247,16 @@ class CalendarEventsTable extends Table
             if (in_array($item->id, $existingEventIds) || empty($item->recurrence)) {
                 continue;
             }
-
+            $format = 'Ymd\THis\Z';
             $rule = $this->getRRuleConfiguration(json_decode($item->recurrence, true));
-            $dtstart = $item->get('start_date')->format('Y-m-d');
-
+            $dtstart = new \DateTime($item->get('start_date')->format($format));
             // @NOTE: we shorten the list of YEARLY occurences,
             // as the library starts from DTSTART point, and keeps
             // cloning objects with each occurrence till it finds those
             // that match occurrence intervals.
             if (preg_match('/FREQ=YEARLY/', $rule)) {
                 $yearNow = date('Y');
-                $dtstart = $item->get('start_date')->format("$yearNow-m-d");
+                $dtstart = $item->get('start_date')->format("${yearNow}md\THis\Z");
             }
 
             $rrule = new RRule($rule, $dtstart);
