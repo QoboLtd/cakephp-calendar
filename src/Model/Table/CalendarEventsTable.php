@@ -189,7 +189,6 @@ class CalendarEventsTable extends Table
         }
         $events = $this->findCalendarEvents($options);
         $infiniteEvents = $this->getInfiniteEvents($calendar->id, $events, $options);
-
         if (!empty($infiniteEvents)) {
             $events = array_merge($events, $infiniteEvents);
         }
@@ -197,7 +196,6 @@ class CalendarEventsTable extends Table
         if (empty($events)) {
             return $result;
         }
-
         foreach ($events as $k => $event) {
             $eventItem = $this->prepareEventData($event, $calendar);
             array_push($result, $eventItem);
@@ -230,40 +228,7 @@ class CalendarEventsTable extends Table
         $query = $this->find();
         $query->where(['is_recurring' => true]);
         $query->andWhere(['calendar_id' => $calendarId]);
-
-        //@NOTE: sqlite doesn't support date_format or month functions
-        if (!empty($options['period'])) {
-            // @NOTE: using intervals + IN() statement includes
-            // month jumps between 11th and 01st months.
-            $start = new \DateTime($options['period']['start_date']);
-            $end = new \DateTime($options['period']['end_date']);
-            $interval = \DateInterval::createFromDateString('1 month');
-
-            $sequence = new \DatePeriod($start, $interval, $end);
-            $months = [];
-            foreach ($sequence as $dt) {
-                array_push($months, $dt->format('m'));
-            }
-
-            $query->andWhere([
-                'MONTH(start_date) IN' => $months,
-            ]);
-        }
-
         $query->contain(['CalendarAttendees']);
-
-        if (!$query->count()) {
-            // @NOTE: if no recurring events found for this month,
-            // let's check for MONTHLY/WEEKLY/DAILY events for given
-            // calendar with the same YEAR recurring events.
-            // $year = (!empty($options['period']['start_date'])) ? date('Y', strtotime($options['period']['start_date'])) : date('Y');
-
-            $query->where([
-                'is_recurring' => true,
-                'calendar_id' => $calendarId,
-                // 'YEAR(start_date) >=' => $year,
-            ], [], true);
-        }
 
         if (!$query->count()) {
             return $result;
@@ -275,13 +240,32 @@ class CalendarEventsTable extends Table
             }, $events);
         }
 
+        $start = new \DateTime($options['period']['start_date']);
+        $end = new \DateTime($options['period']['end_date']);
+
         foreach ($query as $item) {
             if (in_array($item->id, $existingEventIds) || empty($item->recurrence)) {
                 continue;
             }
 
             $rule = $this->getRRuleConfiguration(json_decode($item->recurrence, true));
-            $rrule = new RRule($rule);
+            $dtstart = $item->get('start_date')->format('Y-m-d');
+
+            // @NOTE: we shorten the list of YEARLY occurences,
+            // as the library starts from DTSTART point, and keeps
+            // cloning objects with each occurrence till it finds those
+            // that match occurrence intervals.
+            if (preg_match('/FREQ=YEARLY/', $rule)) {
+                $yearNow = date('Y');
+                $dtstart = $item->get('start_date')->format("$yearNow-m-d");
+            }
+
+            $rrule = new RRule($rule, $dtstart);
+            $occurences = $rrule->getOccurrencesBetween($start, $end);
+
+            if (empty($occurences)) {
+                continue;
+            }
 
             if ($rrule->isInfinite()) {
                 array_push($result, $item);
