@@ -199,16 +199,6 @@ class CalendarEventsTable extends Table
         }
 
         foreach ($events as $k => $event) {
-            $extra = [];
-            if (!empty($event['calendar_attendees'])) {
-                foreach ($event['calendar_attendees'] as $att) {
-                    array_push($extra, $att->display_name);
-                }
-            }
-
-            if (!empty($extra)) {
-                $event['title'] .= ' - ' . implode("\n", $extra);
-            }
             $eventItem = $this->prepareEventData($event, $calendar);
             array_push($result, $eventItem);
 
