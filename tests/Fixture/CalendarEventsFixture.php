@@ -196,7 +196,7 @@ class CalendarEventsFixture extends TestFixture
             'trashed' => null,
             'event_type' => 'special_event',
             'is_recurring' => 1,
-            'recurrence' => '["RRULE:FREQ=WEEKLY;BYDAY=MO,WE,FR;UNTIL=20170830T210000Z"]',
+            'recurrence' => '["RRULE:FREQ=WEEKLY;BYDAY=MO,WE,FR"]',
             'is_allday' => 0,
         ],
     ];
