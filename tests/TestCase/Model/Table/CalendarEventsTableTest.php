@@ -4,6 +4,8 @@ namespace Qobo\Calendar\Test\TestCase\Model\Table;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 use Qobo\Calendar\Model\Table\CalendarEventsTable;
+use \RRule\RRule;
+use DateTime;
 
 /**
  * Qobo\Calendar\Model\Table\CalendarEventsTable Test Case
@@ -251,5 +253,41 @@ class CalendarEventsTableTest extends TestCase
 
         $result = $this->CalendarEvents->getEventInfo([]);
         $this->assertEmpty($result);
+    }
+
+    public function testUntilDateParams()
+    {
+        $eventId = '00000000-0000-0000-0000-000000000002';
+        $event = $this->CalendarEvents->get($eventId);
+
+        $rrule = $this->CalendarEvents->getRRuleConfiguration(json_decode($event->get('recurrence'), true));
+        $dtstart = $this->CalendarEvents->getRecurrenceStartDate($event->get('start_date'), $rrule);
+
+        $rruleObject = new RRule($rrule, $dtstart);
+        $this->assertNotEmpty($rruleObject->getRule()['DTSTART']);
+    }
+
+    /**
+     * @dataProvider providerTestUntilDateTimeParams
+     */
+    public function testUntilDateTimeParams($id)
+    {
+        $eventId = '00000000-0000-0000-0000-000000000001';
+        $event = $this->CalendarEvents->get($eventId);
+
+        $rrule = $this->CalendarEvents->getRRuleConfiguration(json_decode($event->get('recurrence'), true));
+        $dtstart = $this->CalendarEvents->getRecurrenceStartDate($event->get('start_date'), $rrule);
+        $rruleObject = new RRule($rrule, $dtstart);
+
+        $this->assertNotEmpty($rruleObject->getRule()['DTSTART']);
+    }
+
+    public function providerTestUntilDateTimeParams()
+    {
+        return [
+            ['00000000-0000-0000-0000-000000000001'],
+            ['00000000-0000-0000-0000-000000000002'],
+            ['00000000-0000-0000-0000-000000000003']
+        ];
     }
 }
