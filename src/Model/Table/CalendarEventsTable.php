@@ -290,6 +290,7 @@ class CalendarEventsTable extends Table
      *
      * @param array $origin event object
      * @param array $options with events configs
+     * @param array $events to be displayed and checked for exclusion
      *
      * @return array $result with assembled recurring entities
      */
