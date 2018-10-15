@@ -209,7 +209,7 @@ class CalendarEventsTable extends Table
                 continue;
             }
 
-            $items = $this->getRecurringEvents($eventItem, $options);
+            $items = $this->getRecurringEvents($eventItem, $options, $events);
 
             if (empty($items)) {
                 continue;
@@ -294,7 +294,7 @@ class CalendarEventsTable extends Table
      *
      * @return array $result with assembled recurring entities
      */
-    public function getRecurringEvents($origin, array $options = [])
+    public function getRecurringEvents($origin, array $options = [], array $events = [])
     {
         $result = [];
         $rule = $this->getRRuleConfiguration($origin['recurrence']);
@@ -322,6 +322,9 @@ class CalendarEventsTable extends Table
             if ($eventDate->format('Y-m-d') == $startDateTime->format('Y-m-d')) {
                 continue;
             }
+            if ($this->isOccurrenceSkipped($eventDate, $origin, $events)) {
+                continue;
+            }
 
             $entity = $this->newEntity();
             $entity = $this->patchEntity($entity, $origin);
@@ -340,6 +343,50 @@ class CalendarEventsTable extends Table
             array_push($result, $entity->toArray());
 
             unset($entity);
+        }
+
+        return $result;
+    }
+
+    /**
+     *  Method to skip Recurrence event in case it was moved outside of the chain.
+     *
+     * Recurrence IDs in Google Calendar are built based on RFC5545 and have types:
+     *
+     * - <Event UID>_<Date|DateTime Zulu> of the slot it was moved from.
+     * - <Event UID>_R<Date|DateTime Zulu> if initial recurring event was upgraded
+     * @see stackoverflow.com/a/45566601/155007
+     *
+     * @param \DateTime $occurrence slot of reccurrence chain
+     * @param array $event origin that we use to create the chain
+     * @param array $events of other events we have to be compared to.
+     *
+     * @return bool $result whether we should skip an event or not.
+     */
+    public function isOccurrenceSkipped(DateTime $occurrence, $event, $events = [])
+    {
+        $result = false;
+
+        // nothing to compare with.
+        if (empty($events)) {
+            return $result;
+        }
+
+        // not originated from Google Calendar
+        // @TODO: use `source_id` later for internal events too.
+        if (empty($event['source_id'])) {
+            return $result;
+        }
+
+        $reccurrenceId = $event['source_id'];
+        $occurrenceDate = $occurrence->format('Ymd');
+
+        foreach ($events as $k => $item) {
+            $regex = "{$reccurrenceId}_[R]?{$occurrenceDate}([T|\d|Z]+)?";
+
+            if (preg_match("/$regex/", $item['source_id'], $matches)) {
+                $result = true;
+            }
         }
 
         return $result;
