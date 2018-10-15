@@ -108,8 +108,8 @@ class CalendarEventsTableTest extends TestCase
 
         $result = $this->CalendarEvents->getRecurringEvents($event->toArray(), [
             'period' => [
-                'start_date' => '2017-08-01 09:00:00',
-                'end_date' => '2020-08-01 09:00:00',
+                'start_date' => '2071-08-01 09:00:00',
+                'end_date' => '2090-08-01 09:00:00',
             ],
         ]);
 
