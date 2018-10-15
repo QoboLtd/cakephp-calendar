@@ -91,5 +91,17 @@ class CalendarsFixture extends TestFixture
             'trashed' => null,
             'calendar_type' => null,
         ],
+        [
+            'id' => '00000000-0000-0000-0000-000000000001',
+            'name' => 'Calendar With Until events',
+            'color' => '#29c619',
+            'icon' => 'user',
+            'source_id' => 'source-4',
+            'source' => null,
+            'created' => '2018-10-15 11:19:02',
+            'modified' => '2018-10-15 11:19:02',
+            'trashed' => null,
+            'calendar_type' => null,
+        ],
     ];
 }

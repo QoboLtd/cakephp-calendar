@@ -249,9 +249,10 @@ class CalendarEventsTable extends Table
             if (in_array($item->id, $existingEventIds) || empty($item->recurrence)) {
                 continue;
             }
-            $format = 'Ymd\THis\Z';
+
             $rule = $this->getRRuleConfiguration(json_decode($item->recurrence, true));
-            $dtstart = new DateTime($item->get('start_date')->format($format));
+            $dtstart = $this->getRecurrenceStartDate($item->get('start_date'), $rule);
+
             // @NOTE: we shorten the list of YEARLY occurences,
             // as the library starts from DTSTART point, and keeps
             // cloning objects with each occurrence till it finds those
@@ -287,16 +288,15 @@ class CalendarEventsTable extends Table
     public function getRecurringEvents($origin, array $options = [])
     {
         $result = [];
-
         $rule = $this->getRRuleConfiguration($origin['recurrence']);
 
         if (empty($rule)) {
             return $result;
         }
 
-        $rrule = new RRule($rule, new DateTime($origin['start_date']));
+        $dtstart = $this->getRecurrenceStartDate(new Time($origin['start_date']), $rule);
+        $rrule = new RRule($rule, $dtstart);
 
-        //new \DateTime($origin['start_date']),
         $eventDates = $rrule->getOccurrencesBetween(
             new DateTime($options['period']['start_date']),
             new DateTime($options['period']['end_date'])
@@ -552,5 +552,32 @@ class CalendarEventsTable extends Table
         }
 
         return $title;
+    }
+
+    /**
+     * Get Recurrence Start Date
+     *
+     * Based on UNTIL parameter DTSTART and UNTIL parameters should match its
+     * types.
+     *
+     * @param \Cake\I18n\Time $start property of the event
+     * @param string $rrule string of the event
+     *
+     * @return mixed $result is either date string or DateTime object.
+     */
+    public function getRecurrenceStartDate(Time $start, $rrule)
+    {
+        $format = 'Ymd\THis\Z';
+        $result = $start->format($format);
+
+        if (preg_match('/UNTIL=/', $rrule)) {
+            if (preg_match('/UNTIL=(\d{8}T?\d{6}Z?)/', $rrule)) {
+                $result = new DateTime($start->format($format));
+            } else {
+                $result = $start->format('Y-m-d');
+            }
+        }
+
+        return $result;
     }
 }
