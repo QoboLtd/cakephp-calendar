@@ -189,7 +189,9 @@ class CalendarEventsTable extends Table
         if (!$calendar) {
             return $result;
         }
+
         $events = $this->findCalendarEvents($options);
+
         $infiniteEvents = $this->getInfiniteEvents($calendar->id, $events, $options);
         if (!empty($infiniteEvents)) {
             $events = array_merge($events, $infiniteEvents);
@@ -198,17 +200,22 @@ class CalendarEventsTable extends Table
         if (empty($events)) {
             return $result;
         }
+
         foreach ($events as $k => $event) {
             $eventItem = $this->prepareEventData($event, $calendar);
             array_push($result, $eventItem);
 
-            if (!empty($eventItem['recurrence'])) {
-                $recurringEvents = $this->getRecurringEvents($eventItem, $options);
-
-                if (!empty($recurringEvents)) {
-                    $result = array_merge($result, $recurringEvents);
-                }
+            if (empty($eventItem['recurrence'])) {
+                continue;
             }
+
+            $items = $this->getRecurringEvents($eventItem, $options);
+
+            if (empty($items)) {
+                continue;
+            }
+
+            $result = array_merge($result, $items);
         }
 
         return $result;
@@ -242,16 +249,14 @@ class CalendarEventsTable extends Table
             }, $events);
         }
 
-        $start = new DateTime($options['period']['start_date']);
-        $end = new DateTime($options['period']['end_date']);
-
         foreach ($query as $item) {
             if (in_array($item->id, $existingEventIds) || empty($item->recurrence)) {
                 continue;
             }
-            $format = 'Ymd\THis\Z';
+
             $rule = $this->getRRuleConfiguration(json_decode($item->recurrence, true));
-            $dtstart = new DateTime($item->get('start_date')->format($format));
+            $dtstart = $this->getRecurrenceStartDate($item->get('start_date'), $rule);
+
             // @NOTE: we shorten the list of YEARLY occurences,
             // as the library starts from DTSTART point, and keeps
             // cloning objects with each occurrence till it finds those
@@ -262,9 +267,13 @@ class CalendarEventsTable extends Table
             }
 
             $rrule = new RRule($rule, $dtstart);
-            $occurences = $rrule->getOccurrencesBetween($start, $end);
+            $occurrences = $this->getOccurrences(
+                $rrule,
+                $options['period']['start_date'],
+                $options['period']['end_date']
+            );
 
-            if (empty($occurences)) {
+            if (empty($occurrences)) {
                 continue;
             }
 
@@ -287,20 +296,21 @@ class CalendarEventsTable extends Table
     public function getRecurringEvents($origin, array $options = [])
     {
         $result = [];
-
         $rule = $this->getRRuleConfiguration($origin['recurrence']);
 
         if (empty($rule)) {
             return $result;
         }
 
-        $rrule = new RRule($rule, new DateTime($origin['start_date']));
+        $dtstart = $this->getRecurrenceStartDate(new Time($origin['start_date']), $rule);
+        $rrule = new RRule($rule, $dtstart);
 
-        //new \DateTime($origin['start_date']),
-        $eventDates = $rrule->getOccurrencesBetween(
-            new DateTime($options['period']['start_date']),
-            new DateTime($options['period']['end_date'])
+        $eventDates = $this->getOccurrences(
+            $rrule,
+            $options['period']['start_date'],
+            $options['period']['end_date']
         );
+
         $startDateTime = new DateTime($origin['start_date'], new DateTimeZone('UTC'));
         $endDateTime = new DateTime($origin['end_date'], new DateTimeZone('UTC'));
         $diff = $startDateTime->diff($endDateTime);
@@ -552,5 +562,59 @@ class CalendarEventsTable extends Table
         }
 
         return $title;
+    }
+
+    /**
+     * Get Recurrence Start Date
+     *
+     * Based on UNTIL parameter DTSTART and UNTIL parameters should match its
+     * types.
+     *
+     * @param \Cake\I18n\Time $start property of the event
+     * @param string $rrule string of the event
+     *
+     * @return mixed $result is either date string or DateTime object.
+     */
+    public function getRecurrenceStartDate(Time $start, $rrule)
+    {
+        $format = 'Ymd\THis\Z';
+        $result = $start->format($format);
+
+        if (! preg_match('/UNTIL=/', $rrule)) {
+            return $result;
+        }
+
+        if (preg_match('/UNTIL=(\d{8}T?\d{6}Z?)/', $rrule)) {
+            $result = new DateTime($start->format($format));
+        } else {
+            $result = $start->format('Y-m-d');
+        }
+
+        return $result;
+    }
+
+    /**
+     * Get Occurrences of recurring events
+     *
+     * @param \RRule\RRule $rrule instance of Recurrence
+     * @param mixed $start of the occurrence
+     * @param mixed $end of the occurrences
+     *
+     * @return array with DateTime objects of each occurrence
+     */
+    public function getOccurrences(RRule $rrule, $start = null, $end = null)
+    {
+        $result = [];
+        if (! $start instanceof DateTime) {
+            $start = new DateTime($start);
+        }
+
+        if (! $end instanceof DateTime) {
+            $end = new DateTime($end);
+        }
+
+        $result = $rrule->getOccurrencesBetween($start, $end);
+
+        return $result;
     }
 }

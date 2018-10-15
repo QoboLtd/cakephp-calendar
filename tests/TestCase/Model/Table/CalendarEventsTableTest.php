@@ -3,7 +3,9 @@ namespace Qobo\Calendar\Test\TestCase\Model\Table;
 
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
+use DateTime;
 use Qobo\Calendar\Model\Table\CalendarEventsTable;
+use \RRule\RRule;
 
 /**
  * Qobo\Calendar\Model\Table\CalendarEventsTable Test Case
@@ -106,8 +108,8 @@ class CalendarEventsTableTest extends TestCase
 
         $result = $this->CalendarEvents->getRecurringEvents($event->toArray(), [
             'period' => [
-                'start_date' => '2017-08-01 09:00:00',
-                'end_date' => '2020-08-01 09:00:00',
+                'start_date' => '2071-08-01 09:00:00',
+                'end_date' => '2090-08-01 09:00:00',
             ],
         ]);
 
@@ -251,5 +253,41 @@ class CalendarEventsTableTest extends TestCase
 
         $result = $this->CalendarEvents->getEventInfo([]);
         $this->assertEmpty($result);
+    }
+
+    public function testUntilDateParams()
+    {
+        $eventId = '00000000-0000-0000-0000-000000000002';
+        $event = $this->CalendarEvents->get($eventId);
+
+        $rrule = $this->CalendarEvents->getRRuleConfiguration(json_decode($event->get('recurrence'), true));
+        $dtstart = $this->CalendarEvents->getRecurrenceStartDate($event->get('start_date'), $rrule);
+
+        $rruleObject = new RRule($rrule, $dtstart);
+        $this->assertNotEmpty($rruleObject->getRule()['DTSTART']);
+    }
+
+    /**
+     * @dataProvider providerTestUntilDateTimeParams
+     */
+    public function testUntilDateTimeParams($id)
+    {
+        $eventId = '00000000-0000-0000-0000-000000000001';
+        $event = $this->CalendarEvents->get($eventId);
+
+        $rrule = $this->CalendarEvents->getRRuleConfiguration(json_decode($event->get('recurrence'), true));
+        $dtstart = $this->CalendarEvents->getRecurrenceStartDate($event->get('start_date'), $rrule);
+        $rruleObject = new RRule($rrule, $dtstart);
+
+        $this->assertNotEmpty($rruleObject->getRule()['DTSTART']);
+    }
+
+    public function providerTestUntilDateTimeParams()
+    {
+        return [
+            ['00000000-0000-0000-0000-000000000001'],
+            ['00000000-0000-0000-0000-000000000002'],
+            ['00000000-0000-0000-0000-000000000003']
+        ];
     }
 }
