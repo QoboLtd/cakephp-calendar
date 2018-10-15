@@ -3,9 +3,9 @@ namespace Qobo\Calendar\Test\TestCase\Model\Table;
 
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
+use DateTime;
 use Qobo\Calendar\Model\Table\CalendarEventsTable;
 use \RRule\RRule;
-use DateTime;
 
 /**
  * Qobo\Calendar\Model\Table\CalendarEventsTable Test Case
