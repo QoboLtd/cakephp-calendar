@@ -96,6 +96,7 @@ VueJS Contributions
 Calendar Plugin has `package.json` of all required modules, in order to modify `dist` compiled JS files.
 Run `yarn` command to install required `node_module` to proceed with development.
 
+<<<<<<< HEAD
 In case you need HotReload functionality, run:
 
 ```
