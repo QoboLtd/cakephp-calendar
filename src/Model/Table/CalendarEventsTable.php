@@ -16,7 +16,7 @@ use Cake\Datasource\EntityInterface;
 use Cake\Event\Event;
 use Cake\Event\EventManager;
 use Cake\I18n\Time;
-use Cake\ORM\Entity;
+use Cake\ORM\ResultSet;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
@@ -182,6 +182,7 @@ class CalendarEventsTable extends Table
 
         $events = $this->findCalendarEvents($options);
 
+        /** @var \Cake\Datasource\EntityInterface $event */
         foreach ($events as $event) {
             $eventItem = $this->prepareEventData($event->toArray(), $calendar);
 
@@ -203,6 +204,10 @@ class CalendarEventsTable extends Table
 
             foreach ($intervals as $interval) {
                 $entity = $this->prepareRecurringEventData($eventItem, $interval, $calendar);
+                if (empty($entity)) {
+                    continue;
+                }
+
                 array_push($result, $entity->toArray());
             }
         }
@@ -227,6 +232,10 @@ class CalendarEventsTable extends Table
 
             foreach ($intervals as $interval) {
                 $entity = $this->prepareRecurringEventData($eventItem, $interval, $calendar);
+                if (empty($entity)) {
+                    continue;
+                }
+
                 array_push($result, $entity->toArray());
             }
         }
@@ -469,6 +478,7 @@ class CalendarEventsTable extends Table
 
         $options = $this->getRecurrenceEventId($id);
 
+        /** @var \Cake\ORM\Query $query */
         $query = $this->find()
                 ->where(['id' => $options['id']])
                 ->contain(['CalendarAttendees']);
@@ -547,7 +557,7 @@ class CalendarEventsTable extends Table
      *
      * @return mixed[] $item containing calendar event record.
      */
-    protected function prepareEventData(array $event = [], ?EntityInterface $calendar = null, array $options = []): array
+    protected function prepareEventData(array $event, EntityInterface $calendar, array $options = []): array
     {
         $item = [];
 
@@ -614,14 +624,15 @@ class CalendarEventsTable extends Table
             return [];
         }
 
-        $result = $this->find()
+        /** @var \Cake\ORM\Query $query */
+        $query = $this->find()
                 ->where($conditions)
-                ->contain(['CalendarAttendees'])
-                ->all();
+                ->contain(['CalendarAttendees']);
+        $result = $query->all();
 
-        if (!$isInfinite) {
+        // if (!$isInfinite) {
             $result = $result->toArray();
-        }
+        // }
 
         return $result;
     }
@@ -718,7 +729,7 @@ class CalendarEventsTable extends Table
      * Save Calendar Event wrapper
      *
      * @param \Cake\Datasource\EntityInterface $entity of generic entity object
-     * @return array $response containing saving state of entity.
+     * @return mixed[] $response containing saving state of entity.
      */
     public function saveEvent(EntityInterface $entity): array
     {
@@ -745,6 +756,7 @@ class CalendarEventsTable extends Table
 
         $query->execute();
 
+        /** @var EntityInterface $event */
         $event = (!$query->count()) ? $this->newEntity() : $query->first();
         $event = $this->patchEntity($event, $entity);
 
@@ -872,7 +884,7 @@ class CalendarEventsTable extends Table
             unset($result['CalendarEvents']['attendees_ids']);
         }
 
-        if (empty($data['title'])) {
+        if (empty($data['title']) && $calendar instanceof EntityInterface) {
             $result['CalendarEvents']['title'] = $this->setEventTitle($data, $calendar);
         }
 

@@ -39,7 +39,10 @@ class CalendarAttendeesControllerTest extends JsonIntegrationTestCase
         $this->setRequestHeaders();
 
         $config = TableRegistry::exists('CalendarAttendees') ? [] : ['className' => CalendarAttendeesTable::class];
-        $this->CalendarAttendees = TableRegistry::get('CalendarAttendees', $config);
+
+        /** @var \Qobo\Calendar\Model\Table\CalendarAttendeesTable $table */
+        $table = TableRegistry::get('CalendarAttendees', $config);
+        $this->CalendarAttendees = $table;
     }
 
     public function tearDown()

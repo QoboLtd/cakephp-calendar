@@ -101,7 +101,7 @@ abstract class AbstractObject
         $data = [];
 
         $entityProvider = $this->getEntityProvider();
-        foreach ($this as $property => $value) {
+        foreach (get_object_vars($this) as $property => $value) {
             $method = Inflector::variable('get ' . $property);
 
             if (method_exists($this, $method) && is_callable([$this, $method])) {

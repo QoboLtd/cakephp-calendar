@@ -189,12 +189,17 @@ class CalendarEventsControllerTest extends JsonIntegrationTestCase
 
         $this->post('/calendars/calendar-events/add', $data);
 
-        /** @var \Cake\Datasource\EntityInterface $saved */
-        $saved = $this->CalendarEvents->find()
-            ->contain(['CalendarAttendees'])
+        /** @var \Cake\ORM\Query */
+        $query = $this->CalendarEvents
+            ->find()
             ->where([
                 'title' => $data['title'],
-            ])->first();
+            ])
+            ->contain(['CalendarAttendees']);
+
+        /** @var \Cake\Datasource\EntityInterface $saved */
+        $saved = $query->first();
+
         $this->assertEquals($saved->get('title'), $data['title']);
         $this->assertEquals(1, count($saved->get('calendar_attendees')));
         $this->assertEquals('00000000-0000-0000-0000-000000000001', $saved->get('calendar_attendees')[0]->id);

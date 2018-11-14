@@ -135,8 +135,6 @@ class SyncTask extends Shell
         }
 
         $lock->unlock();
-
-        return $output;
     }
 
     /**
@@ -252,7 +250,7 @@ class SyncTask extends Shell
             $entity->set('source', 'Plugin__');
             $entity->set('icon', 'birthday-cake');
 
-            $calendar = $table->save($entity);
+            $calendar = $table->saveOrFail($entity);
         }
 
         $count = 1;
@@ -271,7 +269,7 @@ class SyncTask extends Shell
                     'is_recurring' => 1,
                 ])->first();
 
-            if (!$birthdayEvent) {
+            if (!empty($birthdayEvent)) {
                 $entity = $eventsTable->newEntity();
                 $entity->set('calendar_id', $calendar->get('id'));
                 $entity->set('title', sprintf("%s %s", $user->get('first_name'), $user->get('last_name')));
