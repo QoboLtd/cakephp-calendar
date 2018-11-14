@@ -11,9 +11,9 @@
  */
 namespace Qobo\Calendar\Shell\Task;
 
-use Cake\ORM\Table;
 use CakeDC\Users\Controller\Traits\CustomUsersTableTrait;
 use Cake\Console\Shell;
+use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Exception;
 use Qobo\Utils\Utility\Lock\FileLock;
@@ -274,7 +274,7 @@ class SyncTask extends Shell
             if (!$birthdayEvent) {
                 $entity = $eventsTable->newEntity();
                 $entity->set('calendar_id', $calendar->get('id'));
-                $entity->set('title',sprintf("%s %s", $user->get('first_name'), $user->get('last_name')));
+                $entity->set('title', sprintf("%s %s", $user->get('first_name'), $user->get('last_name')));
                 $entity->set('content', sprintf("%s %s", $user->get('first_name'), $user->get('last_name')));
                 $entity->set('is_recurring', true);
                 $entity->set('is_allday', true);
