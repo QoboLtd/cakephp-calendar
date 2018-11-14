@@ -461,6 +461,9 @@ class CalendarEventsTable extends Table
                 ->where(['id' => $options['id']])
                 ->contain(['CalendarAttendees'])
                 ->first();
+        if (!($result instanceof EntityInterface)) {
+            return [];
+        }
 
         //@NOTE: we're faking the start/end intervals for recurring events
         if (!empty($options['end'])) {
@@ -512,8 +515,8 @@ class CalendarEventsTable extends Table
         $entity->set('start_date', $interval['start']);
         $entity->set('end_date', $interval['end']);
 
-        $entity->set('start', $entity->start_date->i18nFormat('yyyy-MM-dd HH:mm:ss'));
-        $entity->set('end', $entity->end_date->i18nFormat('yyyy-MM-dd HH:mm:ss'));
+        $entity->set('start', $entity->get('start_date')->i18nFormat('yyyy-MM-dd HH:mm:ss'));
+        $entity->set('end', $entity->get('end_date')->i18nFormat('yyyy-MM-dd HH:mm:ss'));
         $entity->set('id', $event['id']);
 
         $entity->set('id', $this->setRecurrenceEventId($entity));
