@@ -11,6 +11,7 @@
  */
 namespace Qobo\Calendar\Controller;
 
+use Cake\Http\Response;
 use Cake\ORM\TableRegistry;
 use Qobo\Calendar\Controller\AppController;
 
@@ -30,7 +31,7 @@ class CalendarAttendeesController extends AppController
      * @param string|null $id Calendar Attendee id.
      * @return \Cake\Http\Response|void
      */
-    public function view($id = null)
+    public function view(?string $id = null)
     {
         $calendarAttendee = $this->CalendarAttendees->get($id, [
             'contain' => ['CalendarEvents']
@@ -46,14 +47,14 @@ class CalendarAttendeesController extends AppController
      * @param string|null $id Calendar Attendee id.
      * @return \Cake\Http\Response|null Redirects to index.
      */
-    public function delete($id = null)
+    public function delete(?string $id = null): ?Response
     {
         $this->request->allowMethod(['post', 'delete']);
         $calendarAttendee = $this->CalendarAttendees->get($id);
         if ($this->CalendarAttendees->delete($calendarAttendee)) {
-            $this->Flash->success(__('The calendar attendee has been deleted.'));
+            $this->Flash->success((string)__('The calendar attendee has been deleted.'));
         } else {
-            $this->Flash->error(__('The calendar attendee could not be deleted. Please, try again.'));
+            $this->Flash->error((string)__('The calendar attendee could not be deleted. Please, try again.'));
         }
 
         return $this->redirect(['plugin' => 'Qobo/Calendar', 'controller' => 'Calendars', 'action' => 'index']);
@@ -66,11 +67,12 @@ class CalendarAttendeesController extends AppController
      *
      * @return void
      */
-    public function lookup()
+    public function lookup(): void
     {
         $this->request->allowMethod(['post', 'put', 'patch']);
         $result = [];
-        $searchTerm = $this->request->getData('term');
+        $data = $this->request->getData();
+        $searchTerm = empty($data['term']) ? '' : $data['term'];
 
         $query = $this->CalendarAttendees->find()
             ->where([

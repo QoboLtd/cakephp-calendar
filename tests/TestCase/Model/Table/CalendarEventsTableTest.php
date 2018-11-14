@@ -20,6 +20,13 @@ class CalendarEventsTableTest extends TestCase
     public $CalendarEvents;
 
     /**
+     * Test subject
+     *
+     * @var \Qobo\Calendar\Model\Table\CalendarsTable
+     */
+    public $Calendars;
+
+    /**
      * Fixtures
      *
      * @var array

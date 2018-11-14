@@ -11,10 +11,11 @@
  */
 namespace Qobo\Calendar\Model\Table;
 
-use Cake\ORM\Query;
+use Cake\Datasource\EntityInterface;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
+use RuntimeException;
 
 /**
  * CalendarAttendees Model
@@ -97,10 +98,10 @@ class CalendarAttendeesTable extends Table
     /**
      * Save Calendar Attendees
      *
-     * @param array $entity of the attendee
-     * @return array $response containing save state and saved record
+     * @param mixed[] $entity of the attendee
+     * @return mixed[] $response containing save state and saved record
      */
-    public function saveAttendee(array $entity)
+    public function saveAttendee(array $entity): array
     {
         $response = [
             'status' => false,
@@ -125,7 +126,11 @@ class CalendarAttendeesTable extends Table
             $item = $this->newEntity();
             $item = $this->patchEntity($item, $entity);
         } else {
-            $item = $this->patchEntity($query->first(), $entity);
+            $item = $query->firstOrFail();
+            if (!($item instanceof EntityInterface)) {
+                throw new RuntimeException('Expected instance of EntityInterface');
+            }
+            $item = $this->patchEntity($item, $entity);
         }
 
         $saved = $this->save($item);

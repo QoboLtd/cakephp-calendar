@@ -17,6 +17,7 @@ use Cake\Event\EventManager;
 use Cake\I18n\Time;
 use Cake\ORM\TableRegistry;
 use Cake\Utility\Inflector;
+use Exception;
 use Qobo\Calendar\Controller\AppController;
 use Qobo\Calendar\Object\ObjectFactory;
 use RRule\RRule;
@@ -36,14 +37,14 @@ class CalendarEventsController extends AppController
      * @param string|null $id Calendar Event id.
      * @return \Cake\Http\Response|void|null Redirects to index.
      */
-    public function delete($id = null)
+    public function delete(?string $id = null)
     {
         $this->request->allowMethod(['post', 'delete']);
         $calendarEvent = $this->CalendarEvents->get($id);
         if ($this->CalendarEvents->delete($calendarEvent)) {
-            $this->Flash->success(__('The calendar event has been deleted.'));
+            $this->Flash->success((string)__('The calendar event has been deleted.'));
         } else {
-            $this->Flash->error(__('The calendar event could not be deleted. Please, try again.'));
+            $this->Flash->error((string)__('The calendar event could not be deleted. Please, try again.'));
         }
 
         return $this->redirect(['plugin' => 'Qobo/Calendar', 'controller' => 'Calendars', 'action' => 'index']);
@@ -63,9 +64,10 @@ class CalendarEventsController extends AppController
             'errors' => [],
         ];
 
-        $this->Calendars = TableRegistry::get('Calendars');
+        $calendarsTable = TableRegistry::get('Calendars');
 
         $data = $this->request->getData();
+        $data = is_array($data) ? $data : [];
         if (empty($data['calendar_id'])) {
             $response['errors'][] = "Calendar ID is missing";
             $this->set(compact('response'));
@@ -74,7 +76,7 @@ class CalendarEventsController extends AppController
             return $this->response;
         }
 
-        $calendar = $this->Calendars->get($data['calendar_id']);
+        $calendar = $calendarsTable->get($data['calendar_id']);
         $postData = $this->CalendarEvents->setCalendarEventData($data, $calendar);
 
         $calendarEvent = $this->CalendarEvents->newEntity();
@@ -136,12 +138,12 @@ class CalendarEventsController extends AppController
     public function getEventTypes()
     {
         $this->request->allowMethod(['post', 'patch', 'put']);
-        $this->Calendars = TableRegistry::Get('Qobo/Calendar.Calendars');
+        $calendarsTable = TableRegistry::Get('Qobo/Calendar.Calendars');
 
         $eventTypes = [];
         $data = $this->request->getData();
 
-        $calendar = $this->Calendars->get($data['calendar_id']);
+        $calendar = $calendarsTable->get($data['calendar_id']);
         $types = $this->CalendarEvents->getEventTypes(['calendar' => $calendar, 'user' => $this->Auth->user()]);
 
         foreach ($types as $item) {
@@ -176,13 +178,13 @@ class CalendarEventsController extends AppController
     public function index()
     {
         $this->request->allowMethod(['post', 'put', 'patch']);
-        $this->Calendars = TableRegistry::get('Qobo/Calendar.Calendars');
+        $calendarsTable = TableRegistry::get('Qobo/Calendar.Calendars');
 
         $events = [];
         $data = $this->request->getData();
-
+        $data = is_array($data)? $data : [];
         if (!empty($data['calendar_id'])) {
-            $calendar = $this->Calendars->get($data['calendar_id']);
+            $calendar = $calendarsTable->get($data['calendar_id']);
             $events = $this->CalendarEvents->getEvents($calendar, $data);
         }
 
@@ -218,6 +220,7 @@ class CalendarEventsController extends AppController
             }
         } catch (Exception $e) {
             $response['errors'][] = $e->getMessage();
+            throw $e;
         }
 
         $this->set(compact('response'));

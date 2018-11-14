@@ -79,9 +79,7 @@ class EventTest extends TestCase
 
     public function testSetRecurrence(): void
     {
-        $recurrence = (object)[
-            'foo' => 'bar',
-        ];
+        $recurrence = 'foo';
 
         $obj = new Event();
         $obj->setRecurrence($recurrence);

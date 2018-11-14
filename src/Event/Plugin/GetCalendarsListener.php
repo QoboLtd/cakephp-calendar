@@ -17,6 +17,7 @@ use Cake\Event\Event;
 use Cake\Event\EventListenerInterface;
 use Cake\Event\EventManager;
 use Cake\Network\Request;
+use Cake\ORM\Entity;
 use Cake\ORM\TableRegistry;
 use Cake\View\View;
 use Qobo\Calendar\Event\EventName;
@@ -34,11 +35,11 @@ class GetCalendarsListener implements EventListenerInterface
     public function implementedEvents()
     {
         return [
-            (string)EventName::APP_MODEL_GET_CALENDARS => 'getPluginCalendars',
-            (string)EventName::APP_MODEL_GET_EVENTS => 'getPluginCalendarEvents',
-            (string)EventName::PLUGIN_CALENDAR_MODEL_GET_CALENDARS => 'sendGetCalendarsToApp',
-            (string)EventName::PLUGIN_CALENDAR_MODEL_GET_EVENTS => 'sendGetCalendarEventsToApp',
-            (string)EventName::APP_ADD_EVENT => 'addEvent',
+            (string)EventName::APP_MODEL_GET_CALENDARS() => 'getPluginCalendars',
+            (string)EventName::APP_MODEL_GET_EVENTS() => 'getPluginCalendarEvents',
+            (string)EventName::PLUGIN_CALENDAR_MODEL_GET_CALENDARS() => 'sendGetCalendarsToApp',
+            (string)EventName::PLUGIN_CALENDAR_MODEL_GET_EVENTS() => 'sendGetCalendarEventsToApp',
+            (string)EventName::APP_ADD_EVENT() => 'addEvent',
         ];
     }
 
@@ -53,12 +54,20 @@ class GetCalendarsListener implements EventListenerInterface
      *
      * @return void
      */
-    public function addEvent(Event $event, EntityInterface $entity, ArrayObject $options = null)
+    public function addEvent(Event $event, EntityInterface $entity, ArrayObject $options = null): void
     {
         $entities = $result = [];
+
+        if (empty($options)) {
+            $options = new ArrayObject();
+        }
+
+        /** @var \Cake\ORM\Table $table */
         $table = $event->getSubject();
 
+        /** @var \Qobo\Calendar\Model\Table\CalendarsTable $calendarsTable */
         $calendarsTable = TableRegistry::get('Qobo/Calendar.Calendars');
+        /** @var \Qobo\Calendar\Model\Table\CalendarEventsTable $eventsTable */
         $eventsTable = TableRegistry::get('Qobo/Calendar.CalendarEvents');
         $calendars = $calendarsTable->getByAllowedEventTypes($table->alias());
 
@@ -81,13 +90,16 @@ class GetCalendarsListener implements EventListenerInterface
      * Re-broadcasting the event outside of the plugin
      *
      * @param \Cake\Event\Event $event received by the plugin
-     * @param array $options for calendar conditions
+     * @param mixed[] $options for calendar conditions
      *
      * @return void
      */
-    public function sendGetCalendarsToApp(Event $event, $options = [])
+    public function sendGetCalendarsToApp(Event $event, array $options = []): void
     {
         $eventName = preg_replace('/^(Plugin)/', 'App', $event->getName());
+        if (empty($eventName)) {
+            return;
+        }
 
         $ev = new Event($eventName, $this, [
             'options' => $options
@@ -102,14 +114,17 @@ class GetCalendarsListener implements EventListenerInterface
      * Re-broadcasting the event outside of the plugin
      *
      * @param \Cake\Event\Event $event received by the plugin
-     * @param \Cake\ORM\Entity $calendar instance
-     * @param array $options for calendar conditions
+     * @param \Cake\Datasource\EntityInterface $calendar instance
+     * @param mixed[] $options for calendar conditions
      *
      * @return void
      */
-    public function sendGetCalendarEventsToApp(Event $event, $calendar, $options = [])
+    public function sendGetCalendarEventsToApp(Event $event, EntityInterface $calendar, array $options = []): void
     {
         $eventName = preg_replace('/^(Plugin)/', 'App', $event->getName());
+        if (empty($eventName)) {
+            return;
+        }
 
         $ev = new Event($eventName, $this, [
             'calendar' => $calendar,
@@ -125,13 +140,15 @@ class GetCalendarsListener implements EventListenerInterface
      * Get calendars from the plugin only.
      *
      * @param \Cake\Event\Event $event passed through
-     * @param array $options for calendars
+     * @param mixed[] $options for calendars
      *
      * @return void
      */
-    public function getPluginCalendars(Event $event, $options = [])
+    public function getPluginCalendars(Event $event, array $options = []): void
     {
         $content = $result = [];
+
+        /** @var \Qobo\Calendar\Model\Table\CalendarsTable $table */
         $table = TableRegistry::get('Qobo/Calendar.Calendars');
 
         if (!empty($event->result)) {
@@ -167,13 +184,14 @@ class GetCalendarsListener implements EventListenerInterface
      * Get calendar events from the plugin only.
      *
      * @param \Cake\Event\Event $event passed through
-     * @param \Cake\ORM\Entity $calendar instance
-     * @param array $options for calendars
+     * @param \Cake\Datasource\EntityInterface $calendar instance
+     * @param mixed[] $options for calendars
      *
      * @return void
      */
-    public function getPluginCalendarEvents(Event $event, $calendar, $options = [])
+    public function getPluginCalendarEvents(Event $event, EntityInterface $calendar, array $options = []): void
     {
+        /** @var \Qobo\Calendar\Model\Table\CalendarEventsTable $table */
         $table = TableRegistry::get('Qobo/Calendar.CalendarEvents');
 
         $events = $table->getEvents($calendar, $options);

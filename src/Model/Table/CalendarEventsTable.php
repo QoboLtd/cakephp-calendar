@@ -16,19 +16,19 @@ use Cake\Datasource\EntityInterface;
 use Cake\Event\Event;
 use Cake\Event\EventManager;
 use Cake\I18n\Time;
-use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Utility\Inflector;
 use Cake\Validation\Validator;
-use DateTime;
+use Qobo\Calendar\Event\EventName;
 use Qobo\Calendar\Object\ObjectFactory;
 use \ArrayObject;
 use \RRule\RRule;
 
 /**
  * CalendarEvents Model
+ * @property \Qobo\Calendar\Model\Table\CalendarsTable $Calendars
  */
 class CalendarEventsTable extends Table
 {
@@ -122,15 +122,15 @@ class CalendarEventsTable extends Table
      * We attach timestamp suffix for recurring events
      * that haven't been saved in the DB yet.
      *
-     * @param array $entity of the event
+     * @param \Cake\Datasource\EntityInterface|array $entity of the event
      *
      * @return string $result with suffix.
      */
-    public function setRecurrenceEventId($entity = null)
+    public function setRecurrenceEventId($entity = null): string
     {
-        $start = is_object($entity) ? $entity->start_date : $entity['start_date'];
-        $end = is_object($entity) ? $entity->end_date : $entity['end_date'];
-        $id = is_object($entity) ? $entity->id : $entity['id'];
+        $start = $entity instanceof EntityInterface ? $entity->get('start_date') : $entity['start_date'];
+        $end = $entity instanceof EntityInterface ? $entity->get('end_date') : $entity['end_date'];
+        $id = $entity instanceof EntityInterface ? $entity->get('id') : $entity['id'];
 
         $result = sprintf("%s__%s_%s", $id, strtotime($start), strtotime($end));
 
@@ -141,9 +141,9 @@ class CalendarEventsTable extends Table
      * Parse recurrent event id suffix
      *
      * @param string $id containing date suffix
-     * @return array $result containing start/end pair.
+     * @return mixed[] $result containing start/end pair.
      */
-    public function getRecurrenceEventId($id = null)
+    public function getRecurrenceEventId(?string $id = null): array
     {
         $result = [];
 
@@ -163,13 +163,13 @@ class CalendarEventsTable extends Table
     /**
      * Get Events of specific calendar
      *
-     * @param \Cake\ORM\Table $calendar record
-     * @param array $options with filter params
+     * @param \Cake\Datasource\EntityInterface|null $calendar record
+     * @param mixed[] $options with filter params
      * @param bool $isInfinite flag to find inifinite events like birthdays
      *
-     * @return array $result of events (minimal structure)
+     * @return mixed[] $result of events (minimal structure)
      */
-    public function getEvents($calendar, $options = [], $isInfinite = true)
+    public function getEvents(?EntityInterface $calendar, array $options = [], bool $isInfinite = true): array
     {
         $result = [];
 
@@ -225,10 +225,10 @@ class CalendarEventsTable extends Table
     /**
      * Get Event Range condition
      *
-     * @param array $options containiner period with start_date/end_date params
-     * @return array $result containing start/end keys with month dates.
+     * @param mixed[] $options containiner period with start_date/end_date params
+     * @return mixed[] $result containing start/end keys with month dates.
      */
-    public function getEventRange(array $options = [])
+    public function getEventRange(array $options = []): array
     {
         $result = [];
 
@@ -255,13 +255,13 @@ class CalendarEventsTable extends Table
     /**
      * Get infinite calendar events for given calendar
      *
-     * @param array $events from findCalendarEvents
-     * @param array $options containing month viewport (end/start interval).
+     * @param mixed[] $events from findCalendarEvents
+     * @param mixed[] $options containing month viewport (end/start interval).
      * @param bool $isInfinite flag for infinite events like birthdays
      *
-     * @return array $result containing event records
+     * @return mixed[] $result containing event records
      */
-    public function getInfiniteEvents($events, $options = [], $isInfinite = true)
+    public function getInfiniteEvents(array $events, array $options = [], bool $isInfinite = true): array
     {
         $result = $existingEventIds = [];
         $query = $this->findCalendarEvents($options, $isInfinite);
@@ -338,9 +338,9 @@ class CalendarEventsTable extends Table
      *
      * @param string $name of the event type
      *
-     * @return array $result containing key/value pair of event types.
+     * @return mixed[] $result containing key/value pair of event types.
      */
-    public function getEventTypeBy($name = null)
+    public function getEventTypeBy(? string $name = null): array
     {
         $result = [];
         $configs = Configure::read('Calendar.Types');
@@ -382,10 +382,10 @@ class CalendarEventsTable extends Table
     /**
      * Get Event types for the calendar event
      *
-     * @param array $options of the data including user
-     * @return array $result with event types.
+     * @param mixed[] $options of the data including user
+     * @return mixed[] $result with event types.
      */
-    public function getEventTypes(array $options = [])
+    public function getEventTypes(array $options = []): array
     {
         $result = [];
 
@@ -419,12 +419,12 @@ class CalendarEventsTable extends Table
     /**
      * Get Event Type name
      *
-     * @param array $data with name parts
-     * @param array $options for extra settings if needed
+     * @param mixed[] $data with name parts
+     * @param mixed[] $options for extra settings if needed
      *
      * @return string|null $name containing event type definition.
      */
-    public function getEventTypeName(array $data = [], array $options = [])
+    public function getEventTypeName(array $data = [], array $options = []): ?string
     {
         if (empty($data['name'])) {
             return null;
@@ -442,12 +442,12 @@ class CalendarEventsTable extends Table
     /**
      * Get Event info
      *
-     * @param array $id of the record
+     * @param string $id of the record
      * @param \Cake\Datasource\EntityInterface $calendar instance
      *
      * @return array|\Cake\Datasource\EntityInterface $result containing record data
      */
-    public function getEventInfo($id = null, $calendar = null)
+    public function getEventInfo(?string $id = null, ?EntityInterface $calendar = null)
     {
         $result = [];
 
@@ -465,21 +465,21 @@ class CalendarEventsTable extends Table
         //@NOTE: we're faking the start/end intervals for recurring events
         if (!empty($options['end'])) {
             $time = Time::parse($options['end']);
-            $result->end_date = $time;
-            $result->end = $time;
+            $result->set('end_date', $time);
+            $result->set('end', $time);
             unset($time);
         }
 
         if (!empty($options['start'])) {
             $time = Time::parse($options['start']);
-            $result->start_date = $time;
-            $result->start = $time;
+            $result->set('start_date', $time);
+            $result->set('start', $time);
             unset($time);
         }
 
         if ($calendar) {
             if (empty($result->calendar_id)) {
-                $result->calendar_id = $calendar->id;
+                $result->set('calendar_id', $calendar->id);
             }
         }
 
@@ -509,15 +509,15 @@ class CalendarEventsTable extends Table
 
         $entity = $this->newEntity();
         $entity = $this->patchEntity($entity, $event);
-        $entity->start_date = $interval['start'];
-        $entity->end_date = $interval['end'];
+        $entity->set('start_date', $interval['start']);
+        $entity->set('end_date', $interval['end']);
 
-        $entity->start = $entity->start_date->i18nFormat('yyyy-MM-dd HH:mm:ss');
-        $entity->end = $entity->end_date->i18nFormat('yyyy-MM-dd HH:mm:ss');
-        $entity->id = $event['id'];
+        $entity->set('start', $entity->start_date->i18nFormat('yyyy-MM-dd HH:mm:ss'));
+        $entity->set('end', $entity->end_date->i18nFormat('yyyy-MM-dd HH:mm:ss'));
+        $entity->set('id', $event['id']);
 
-        $entity->id = $this->setRecurrenceEventId($entity);
-        $entity->color = $this->Calendars->getColor($calendar);
+        $entity->set('id', $this->setRecurrenceEventId($entity));
+        $entity->set('color',  $this->Calendars->getColor($calendar));
 
         return $entity;
     }
@@ -525,13 +525,13 @@ class CalendarEventsTable extends Table
     /**
      * PrepareEventData method
      *
-     * @param array $event of the calendar
-     * @param array $calendar currently checked
-     * @param array $options with extra configs
+     * @param mixed[] $event of the calendar
+     * @param \Cake\Datasource\EntityInterface $calendar currently checked
+     * @param mixed[] $options with extra configs
      *
-     * @return array $item containing calendar event record.
+     * @return mixed[] $item containing calendar event record.
      */
-    protected function prepareEventData($event, $calendar, $options = [])
+    protected function prepareEventData(array $event, EntityInterface $calendar, array $options = []): array
     {
         $item = [];
 
@@ -547,10 +547,10 @@ class CalendarEventsTable extends Table
             'end_date' => date('Y-m-d H:i:s', strtotime($event['end_date'])),
             'start' => date('Y-m-d H:i:s', strtotime($event['start_date'])),
             'end' => date('Y-m-d H:i:s', strtotime($event['end_date'])),
-            'color' => (empty($event['color']) ? $calendar->color : $event['color']),
+            'color' => (empty($event['color']) ? $calendar->get('color') : $event['color']),
             'source' => $event['source'],
             'source_id' => $event['source_id'],
-            'calendar_id' => $calendar->id,
+            'calendar_id' => $calendar->get('id'),
             'event_type' => (!empty($event['event_type']) ? $event['event_type'] : null),
             'is_recurring' => $event['is_recurring'],
             'is_allday' => $event['is_allday'],
@@ -563,12 +563,12 @@ class CalendarEventsTable extends Table
     /**
      * findCalendarEvents method
      *
-     * @param array $options containing conditions for query
+     * @param mixed[] $options containing conditions for query
      * @param bool $isInfinite flag to find recurring infinite events like (birthdays)
      *
-     * @return array $result with events found.
+     * @return mixed[] $result with events found.
      */
-    protected function findCalendarEvents($options = [], $isInfinite = false)
+    protected function findCalendarEvents(array $options = [], bool $isInfinite = false): array
     {
         $conditions = [];
         if ($isInfinite) {
@@ -600,7 +600,8 @@ class CalendarEventsTable extends Table
 
         $result = $this->find()
                 ->where($conditions)
-                ->contain(['CalendarAttendees']);
+                ->contain(['CalendarAttendees'])
+                ->all();
 
         if (!$isInfinite) {
             $result = $result->toArray();
@@ -612,12 +613,12 @@ class CalendarEventsTable extends Table
     /**
      * Set Event Title
      *
-     * @param array $data from the request
+     * @param mixed[] $data from the request
      * @param \Cake\Datasource\EntityInterface $calendar from db
      *
      * @return string $title with the event content
      */
-    public function setEventTitle($data, $calendar)
+    public function setEventTitle(array $data, EntityInterface $calendar): string
     {
         $title = (!empty($data['CalendarEvents']['title']) ? $data['CalendarEvents']['title'] : '');
 
@@ -637,11 +638,11 @@ class CalendarEventsTable extends Table
     /**
      * Get Event Title based on the Event information
      *
-     * @param array $event of the calendar event instance
+     * @param mixed[] $event of the calendar event instance
      *
      * @return string $event[title] with new title if extras present
      */
-    public function getEventTitle($event = null)
+    public function getEventTitle(array $event = []): string
     {
         $extra = [];
 
@@ -661,12 +662,12 @@ class CalendarEventsTable extends Table
     /**
      * Synchronize calendar events
      *
-     * @param \Cake\ORM\Entity $calendar instance from the db
-     * @param array $options with extra configs
+     * @param \Cake\Datasource\EntityInterface $calendar instance from the db
+     * @param mixed[] $options with extra configs
      *
-     * @return array $result with events responses.
+     * @return mixed[] $result with events responses.
      */
-    public function sync($calendar, $options = [])
+    public function sync(EntityInterface $calendar, array $options = []): array
     {
         $result = [];
 
@@ -701,7 +702,7 @@ class CalendarEventsTable extends Table
      * @param \Cake\Datasource\EntityInterface $entity of generic entity object
      * @return array $response containing saving state of entity.
      */
-    public function saveEvent($entity)
+    public function saveEvent(EntityInterface $entity): array
     {
         $response = [
             'status' => false,
@@ -709,7 +710,7 @@ class CalendarEventsTable extends Table
             'entity' => null,
         ];
 
-        if ($entity instanceof \Cake\Datasource\EntityInterface) {
+        if ($entity instanceof EntityInterface) {
             $entity = $entity->toArray();
         }
 
@@ -752,12 +753,12 @@ class CalendarEventsTable extends Table
      * crossing of instances.
      *
      * @param \Cake\ORM\Table $table instance of original entity table
-     * @param array $calendars that it might be saved to
+     * @param mixed[] $calendars that it might be saved to
      * @param \ArrayObject $options originally received from event caught
      *
-     * @return array $entities of converted CalendarEvent entitites.
+     * @return mixed[] $entities of converted CalendarEvent entitites.
      */
-    public function getEventsFromEntities($table, $calendars, $options)
+    public function getEventsFromEntities(Table $table, array $calendars, ArrayObject $options): array
     {
         $entities = [];
 
@@ -791,11 +792,11 @@ class CalendarEventsTable extends Table
      * date intervals when the user will be working
      *
      * @param string $recurrence in RRULE RFC standard
-     * @param array $data with start/end string from the form
+     * @param mixed[] $data with start/end string from the form
      *
-     * @return array $result containing index hashes of start/end Time objects.
+     * @return mixed[] $result containing index hashes of start/end Time objects.
      */
-    public function getRecurrence($recurrence, array $data)
+    public function getRecurrence(string $recurrence, array $data): array
     {
         $result = [];
 
@@ -816,8 +817,8 @@ class CalendarEventsTable extends Table
                 $end = new Time($item->format('Y-m-d H:i:s'));
 
                 if (!$fixTime) {
-                    $end->addHour($diff->format('%h'));
-                    $end->addMinute($diff->format('%i'));
+                    $end->addHour((int)$diff->format('%h'));
+                    $end->addMinute((int)$diff->format('%i'));
                 }
 
                 $range = [
@@ -835,11 +836,11 @@ class CalendarEventsTable extends Table
     /**
      * Set Calendar Event Post data
      *
-     * @param array $data from the POST
+     * @param mixed[] $data from the POST
      * @param \Cake\Datasource\EntityInterface $calendar record
-     * @return array $result to be saved in ORM
+     * @return mixed[] $result to be saved in ORM
      */
-    public function setCalendarEventData(array $data = [], $calendar = null)
+    public function setCalendarEventData(array $data = [], ?EntityInterface $calendar = null): array
     {
         $result = [
             'CalendarEvents' => [],
