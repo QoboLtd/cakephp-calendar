@@ -192,6 +192,10 @@ class CalendarEventsTable extends Table
 
             $recurrence = $this->getRRuleConfiguration($eventItem['recurrence']);
 
+            if (empty($recurrence)) {
+                continue;
+            }
+
             $intervals = $this->getRecurrence($recurrence, [
                 'start' => $eventItem['start_date'],
                 'end' => $eventItem['end_date'],
@@ -209,6 +213,11 @@ class CalendarEventsTable extends Table
             $eventItem = $this->prepareEventData($event->toArray(), $calendar);
 
             $recurrence = $this->getRRuleConfiguration($eventItem['recurrence']);
+
+            if (empty($recurrence)) {
+                continue;
+            }
+
             $intervals = $this->getRecurrence($recurrence, [
                 'start' => $eventItem['start_date'],
                 'end' => $options['period']['end_date'],
@@ -298,11 +307,11 @@ class CalendarEventsTable extends Table
     /**
      * Get RRULE configuration from the event
      *
-     * @param array $recurrence received from the calendar
+     * @param string $recurrence received from the calendar
      *
-     * @return array $result containing the RRULE
+     * @return string|null $result containing the RRULE
      */
-    public function getRRuleConfiguration($recurrence = null)
+    public function getRRuleConfiguration(string $recurrence = null): ?string
     {
         $result = null;
 
@@ -319,9 +328,9 @@ class CalendarEventsTable extends Table
      * Set valid RRULE string
      *
      * @param string $recurrence from the UI
-     * @return object $result json encoded array with RRULE
+     * @return string|null $result json encoded array with RRULE
      */
-    public function setRRuleConfiguration($recurrence = null)
+    public function setRRuleConfiguration(string $recurrence = null): ?string
     {
         $result = null;
 
@@ -460,10 +469,11 @@ class CalendarEventsTable extends Table
 
         $options = $this->getRecurrenceEventId($id);
 
-        $result = $this->find()
+        $query = $this->find()
                 ->where(['id' => $options['id']])
-                ->contain(['CalendarAttendees'])
-                ->first();
+                ->contain(['CalendarAttendees']);
+        $result = $query->first();
+
         if (!($result instanceof EntityInterface)) {
             return [];
         }
@@ -489,7 +499,7 @@ class CalendarEventsTable extends Table
             }
         }
 
-        $result->color = $this->Calendars->getColor($calendar);
+        $result->set('color', $this->Calendars->getColor($calendar));
 
         return $result;
     }
@@ -499,13 +509,13 @@ class CalendarEventsTable extends Table
      *
      * Substitute original dates with recurring dates
      *
-     * @param array $event of the original instance
-     * @param array $interval pair with start/end dates to be used
+     * @param mixed[] $event of the original instance
+     * @param mixed[] $interval pair with start/end dates to be used
      * @param \Cake\Datasource\EntityInterface $calendar instance
      *
-     * @return \Cake\Datasource\EntityInterface $entity of the recurring event
+     * @return \Cake\Datasource\EntityInterface|null $entity of the recurring event
      */
-    public function prepareRecurringEventData($event = null, $interval = [], $calendar = null)
+    public function prepareRecurringEventData(array $event = [], array $interval = [], EntityInterface $calendar = null): ?EntityInterface
     {
         $entity = null;
 
@@ -531,13 +541,13 @@ class CalendarEventsTable extends Table
     /**
      * PrepareEventData method
      *
-     * @param mixed $event of the calendar
+     * @param mixed[] $event of the calendar
      * @param \Cake\Datasource\EntityInterface $calendar currently checked
      * @param mixed[] $options with extra configs
      *
      * @return mixed[] $item containing calendar event record.
      */
-    protected function prepareEventData(array $event, EntityInterface $calendar, array $options = []): array
+    protected function prepareEventData(array $event = [], ?EntityInterface $calendar = null, array $options = []): array
     {
         $item = [];
 
@@ -735,12 +745,8 @@ class CalendarEventsTable extends Table
 
         $query->execute();
 
-        if (!$query->count()) {
-            $event = $this->newEntity();
-            $event = $this->patchEntity($event, $entity);
-        } else {
-            $event = $this->patchEntity($query->first(), $entity);
-        }
+        $event = (!$query->count()) ? $this->newEntity() : $query->first();
+        $event = $this->patchEntity($event, $entity);
 
         $saved = $this->save($event);
 
