@@ -102,8 +102,6 @@ class CalendarEventsTableTest extends TestCase
 
     public function testSetIdSuffix(): void
     {
-        $this->markTestSkipped();
-
         $event = [
             'id' => '123',
             'start_date' => '2019-08-01 09:00:00',

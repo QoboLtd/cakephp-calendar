@@ -7,16 +7,16 @@ use Cake\Utility\Inflector;
 abstract class AbstractObject
 {
     /** @var mixed */
-    private $id;
+    protected $id;
 
     /** @var string */
-    private $entityProvider = '';
+    protected $entityProvider = '';
 
     /** @var string */
-    private $source;
+    protected $source;
 
     /** @var string */
-    private $sourceId;
+    protected $sourceId;
 
     /**
      * Set Calendar Id

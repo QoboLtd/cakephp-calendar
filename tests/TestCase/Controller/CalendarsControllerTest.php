@@ -3,7 +3,6 @@ namespace Qobo\Calendar\Test\TestCase\Controller;
 
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\IntegrationTestCase;
-use Qobo\Calendar\Controller\CalendarsController;
 use Qobo\Calendar\Model\Table\CalendarsTable;
 use RuntimeException;
 
@@ -88,12 +87,11 @@ class CalendarsControllerTest extends IntegrationTestCase
 
     public function testAddResponseError(): void
     {
+        $data = [];
+        $this->post('/calendars/calendars/add', $data);
         if ($this->_requestSession === null) {
             throw new RuntimeException('Session can\'t be null');
         }
-
-        $data = [];
-        $this->post('/calendars/calendars/add', $data);
         $message = $this->_requestSession->read('Flash.flash.0');
 
         $this->assertEquals($message['message'], 'The calendar could not be saved. Please, try again.');
