@@ -56,7 +56,7 @@ class GetCalendarsListener implements EventListenerInterface
     public function addEvent(Event $event, EntityInterface $entity, ArrayObject $options = null)
     {
         $entities = $result = [];
-        $table = $event->subject();
+        $table = $event->getSubject();
 
         $calendarsTable = TableRegistry::get('Qobo/Calendar.Calendars');
         $eventsTable = TableRegistry::get('Qobo/Calendar.CalendarEvents');
@@ -87,7 +87,7 @@ class GetCalendarsListener implements EventListenerInterface
      */
     public function sendGetCalendarsToApp(Event $event, $options = [])
     {
-        $eventName = preg_replace('/^(Plugin)/', 'App', $event->name());
+        $eventName = preg_replace('/^(Plugin)/', 'App', $event->getName());
 
         $ev = new Event($eventName, $this, [
             'options' => $options
@@ -109,7 +109,7 @@ class GetCalendarsListener implements EventListenerInterface
      */
     public function sendGetCalendarEventsToApp(Event $event, $calendar, $options = [])
     {
-        $eventName = preg_replace('/^(Plugin)/', 'App', $event->name());
+        $eventName = preg_replace('/^(Plugin)/', 'App', $event->getName());
 
         $ev = new Event($eventName, $this, [
             'calendar' => $calendar,
