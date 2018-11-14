@@ -11,6 +11,10 @@ use Qobo\Utils\TestSuite\JsonIntegrationTestCase;
  */
 class CalendarEventsControllerTest extends JsonIntegrationTestCase
 {
+    /**
+     * @var \Qobo\Calendar\Model\Table\CalendarEventsTable
+     */
+    protected $CalendarEvents;
 
     /**
      * Fixtures
@@ -36,8 +40,12 @@ class CalendarEventsControllerTest extends JsonIntegrationTestCase
             ]
         ]);
         $this->setRequestHeaders();
-        $config = TableRegistry::exists('CalendarEvents') ? [] : ['className' => CalendarEventsTable::class];
-        $this->CalendarEvents = TableRegistry::get('CalendarEvents', $config);
+        $config = TableRegistry::exists('Qobo\Calendar.CalendarEvents') ? [] : ['className' => CalendarEventsTable::class];
+        /**
+         * @var \Qobo\Calendar\Model\Table\CalendarEventsTable $table
+         */
+        $table = TableRegistry::get('CalendarEvents', $config);
+        $this->CalendarEvents = $table;
     }
 
     public function tearDown()
@@ -45,13 +53,13 @@ class CalendarEventsControllerTest extends JsonIntegrationTestCase
         parent::tearDown();
     }
 
-    public function testIndexGetException()
+    public function testIndexGetException(): void
     {
         $this->get('/calendars/calendar-events');
         $this->assertResponseError();
     }
 
-    public function testIndexPostResponseOk()
+    public function testIndexPostResponseOk(): void
     {
         $calendarId = '00000000-0000-0000-0000-000000000001';
 
@@ -61,7 +69,7 @@ class CalendarEventsControllerTest extends JsonIntegrationTestCase
         $this->assertTrue(is_array($events));
     }
 
-    public function testViewResponseOk()
+    public function testViewResponseOk(): void
     {
         $eventId = '00000000-0000-0000-0000-000000000004';
 
@@ -71,7 +79,7 @@ class CalendarEventsControllerTest extends JsonIntegrationTestCase
         $this->assertEquals(true, $response['success']);
     }
 
-    public function testGetEventTypesResponseOk()
+    public function testGetEventTypesResponseOk(): void
     {
         $calendarId = '00000000-0000-0000-0000-000000000001';
 
@@ -81,7 +89,7 @@ class CalendarEventsControllerTest extends JsonIntegrationTestCase
         $this->assertNotEmpty($eventTypes);
     }
 
-    public function testGetEventTypesResponseExclude()
+    public function testGetEventTypesResponseExclude(): void
     {
         $calendarId = '00000000-0000-0000-0000-000000000001';
 
@@ -91,13 +99,13 @@ class CalendarEventsControllerTest extends JsonIntegrationTestCase
         $this->assertNotEmpty($eventTypes);
     }
 
-    public function testAddResponseError()
+    public function testAddResponseError(): void
     {
         $this->get('/calendars/calendar-events/add');
         $this->assertResponseError();
     }
 
-    public function testAddErrorResponse()
+    public function testAddErrorResponse(): void
     {
         $data = [
             'calendar_id' => null,
@@ -115,7 +123,7 @@ class CalendarEventsControllerTest extends JsonIntegrationTestCase
         $this->assertEquals($event['success'], false);
     }
 
-    public function testAddGenerateTitle()
+    public function testAddGenerateTitle(): void
     {
         $data = [
             'calendar_id' => '00000000-0000-0000-0000-000000000001',
@@ -136,7 +144,7 @@ class CalendarEventsControllerTest extends JsonIntegrationTestCase
         $this->assertEquals($saved->content, $data['content']);
     }
 
-    public function testAddResponseOk()
+    public function testAddResponseOk(): void
     {
         $data = [
             'calendar_id' => '00000000-0000-0000-0000-000000000001',
@@ -161,7 +169,7 @@ class CalendarEventsControllerTest extends JsonIntegrationTestCase
         $this->assertEquals($saved->content, $data['content']);
     }
 
-    public function testAddRecurringEvent()
+    public function testAddRecurringEvent(): void
     {
         $data = [
             'calendar_id' => '00000000-0000-0000-0000-000000000001',
@@ -187,7 +195,7 @@ class CalendarEventsControllerTest extends JsonIntegrationTestCase
         $this->assertEquals('00000000-0000-0000-0000-000000000001', $saved->calendar_attendees[0]->id);
     }
 
-    public function testDeleteResponseOk()
+    public function testDeleteResponseOk(): void
     {
         $eventId = '00000000-0000-0000-0000-000000000004';
 

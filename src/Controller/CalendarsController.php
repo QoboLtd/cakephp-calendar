@@ -63,7 +63,6 @@ class CalendarsController extends AppController
      *
      * @param string|null $id Calendar id.
      * @return void
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
     public function view($id = null)
     {
@@ -114,7 +113,6 @@ class CalendarsController extends AppController
      *
      * @param string|null $id Calendar id.
      * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
-     * @throws \Cake\Network\Exception\NotFoundException When record not found.
      */
     public function edit($id = null)
     {
@@ -148,7 +146,6 @@ class CalendarsController extends AppController
      *
      * @param string|null $id Calendar id.
      * @return \Cake\Http\Response|null Redirects to index.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
     public function delete($id = null)
     {

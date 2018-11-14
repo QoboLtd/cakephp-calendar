@@ -18,7 +18,7 @@ class CalendarsTableTest extends TestCase
     /**
      * Test subject
      *
-     * @var \Qobo\Calendar\Model\Table\CalendarsTable
+     * @var \Qobo\Calendar\Model\Table\CalendarsTable $Calendars
      */
     public $Calendars;
 
@@ -40,8 +40,12 @@ class CalendarsTableTest extends TestCase
     public function setUp()
     {
         parent::setUp();
-        $config = TableRegistry::exists('Calendars') ? [] : ['className' => 'Qobo\Calendar\Model\Table\CalendarsTable'];
-        $this->Calendars = TableRegistry::get('Calendars', $config);
+        $config = TableRegistry::exists('Qobo\Calendar.Calendars') ? [] : ['className' => 'Qobo\Calendar\Model\Table\CalendarsTable'];
+        /**
+         * @var \Qobo\Calendar\Model\Table\CalendarsTable $table
+         */
+        $table = TableRegistry::get('Calendars', $config);
+        $this->Calendars = $table;
 
         // @TODO: return something useful to test sync method.
         EventManager::instance()->on((string)EventName::PLUGIN_CALENDAR_MODEL_GET_CALENDARS(), function ($event, $table) {
@@ -61,7 +65,7 @@ class CalendarsTableTest extends TestCase
         parent::tearDown();
     }
 
-    public function testBeforeSave()
+    public function testBeforeSave(): void
     {
         $data = [
             'id' => '6d2b932f-b79a-4523-a2d2-3ddaadfa805c',
@@ -69,12 +73,15 @@ class CalendarsTableTest extends TestCase
         ];
 
         $entity = $this->Calendars->newEntity($data);
+        /**
+         * @var \Qobo\Calendar\Model\Entity\Calendar $saved
+         */
         $saved = $this->Calendars->save($entity);
         $this->assertEquals($saved->source, 'Plugin__');
         $this->assertEquals($saved->color, $this->Calendars->getColor());
     }
 
-    public function testSync()
+    public function testSync(): void
     {
         EventManager::instance()->setEventList(new EventList());
         $data = [];
@@ -84,7 +91,7 @@ class CalendarsTableTest extends TestCase
         $this->assertEventFired((string)EventName::PLUGIN_CALENDAR_MODEL_GET_CALENDARS(), EventManager::instance());
     }
 
-    public function testGetCalendars()
+    public function testGetCalendars(): void
     {
         $result = $this->Calendars->getCalendars();
         $this->assertTrue(!empty($result));
@@ -94,13 +101,13 @@ class CalendarsTableTest extends TestCase
         $this->assertEquals($result[0]->id, '00000000-0000-0000-0000-000000000001');
     }
 
-    public function testGetCalendarsEmpty()
+    public function testGetCalendarsEmpty(): void
     {
         $result = $this->Calendars->getCalendars(['conditions' => ['id' => '00000000-0000-0000-0000-120000000001']]);
         $this->assertEmpty($result);
     }
 
-    public function testGetByAllowedEventTypes()
+    public function testGetByAllowedEventTypes(): void
     {
         $result = $this->Calendars->getByAllowedEventTypes('Config');
         $this->assertNotEmpty($result);

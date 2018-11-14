@@ -27,14 +27,14 @@ class ObjectFactoryTest extends TestCase
         parent::tearDown();
     }
 
-    public function testGetConfigList()
+    public function testGetConfigList(): void
     {
         $result = ObjectFactory::getConfigList('Integrations', 'Event');
         $this->assertTrue(is_array($result));
         $this->assertNotEmpty($result);
     }
 
-    public function testGetConfig()
+    public function testGetConfig(): void
     {
         $result = ObjectFactory::getConfig('Integrations', 'Event', 'Json::Integrations::Default');
         $this->assertTrue(is_object($result));

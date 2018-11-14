@@ -29,7 +29,6 @@ class CalendarAttendeesController extends AppController
      *
      * @param string|null $id Calendar Attendee id.
      * @return \Cake\Http\Response|void
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
     public function view($id = null)
     {
@@ -46,7 +45,6 @@ class CalendarAttendeesController extends AppController
      *
      * @param string|null $id Calendar Attendee id.
      * @return \Cake\Http\Response|null Redirects to index.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
     public function delete($id = null)
     {

@@ -45,7 +45,7 @@ class CalendarAttendeesControllerTest extends JsonIntegrationTestCase
         parent::tearDown();
     }
 
-    public function testDeleteResponseOk()
+    public function testDeleteResponseOk(): void
     {
         $id = '00000000-0000-0000-0000-000000000001';
 
@@ -53,7 +53,7 @@ class CalendarAttendeesControllerTest extends JsonIntegrationTestCase
         $this->assertRedirect('/calendars/calendars');
     }
 
-    public function testViewResponseOk()
+    public function testViewResponseOk(): void
     {
         $id = '00000000-0000-0000-0000-000000000001';
         $this->get('/calendars/calendar-attendees/view/' . $id);
@@ -63,7 +63,7 @@ class CalendarAttendeesControllerTest extends JsonIntegrationTestCase
         $this->assertEquals($calendarAttendee['id'], $attendee->id);
     }
 
-    public function testLookup()
+    public function testLookup(): void
     {
         $term = [
             'term' => 'John'

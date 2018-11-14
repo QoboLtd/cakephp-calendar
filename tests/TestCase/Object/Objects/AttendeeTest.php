@@ -26,7 +26,7 @@ class AttendeeTest extends TestCase
         parent::tearDown();
     }
 
-    public function testSetDisplayName()
+    public function testSetDisplayName(): void
     {
         $name = 'Francis';
         $obj = new Attendee();
@@ -34,7 +34,7 @@ class AttendeeTest extends TestCase
         $this->assertEquals($name, $obj->getDisplayName());
     }
 
-    public function testSetContactDetails()
+    public function testSetContactDetails(): void
     {
         $details = 'mymymy@example.com';
         $obj = new Attendee();
