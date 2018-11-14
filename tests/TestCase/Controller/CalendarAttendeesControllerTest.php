@@ -2,7 +2,6 @@
 namespace Qobo\Calendar\Test\TestCase\Controller;
 
 use Cake\ORM\TableRegistry;
-use Qobo\Calendar\Controller\CalendarAttendeesController;
 use Qobo\Calendar\Model\Table\CalendarAttendeesTable;
 use Qobo\Utils\TestSuite\JsonIntegrationTestCase;
 
@@ -23,6 +22,9 @@ class CalendarAttendeesControllerTest extends JsonIntegrationTestCase
         'plugin.qobo/calendar.events_attendees',
         'plugin.qobo/calendar.calendars',
     ];
+
+    /** @var \Qobo\Calendar\Model\Table\CalendarAttendeesTable */
+    private $CalendarAttendees;
 
     public function setUp()
     {

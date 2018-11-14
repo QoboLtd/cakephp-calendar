@@ -196,14 +196,14 @@ class CalendarsTable extends Table
     /**
      * Get Default calendar color.
      *
-     * @param \Cake\Datasource\EntityInterface $entity of the current calendar
+     * @param \Cake\Datasource\EntityInterface|null $entity of the current calendar
      * @return string $color containing hexadecimal color notation.
      */
-    public function getColor(EntityInterface $entity): string
+    public function getColor(?EntityInterface $entity = null): string
     {
         $color = Configure::read('Calendar.Configs.color');
 
-        if (!empty($entity->get('color'))) {
+        if ($entity instanceof EntityInterface && !empty($entity->get('color'))) {
             $color = $entity->get('color');
         }
 
@@ -337,10 +337,10 @@ class CalendarsTable extends Table
     /**
      * Get Event Types saved within Calendar
      *
-     * @param string $data of the event type
+     * @param string|null $data of the event type
      * @return mixed[] $result with event types decoded.
      */
-    protected function getEventTypes(string $data): array
+    protected function getEventTypes(?string $data = null): array
     {
         $result = [];
 

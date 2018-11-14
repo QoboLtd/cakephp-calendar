@@ -11,11 +11,12 @@
  */
 namespace Qobo\Calendar\Shell\Task;
 
+use Cake\ORM\Table;
 use CakeDC\Users\Controller\Traits\CustomUsersTableTrait;
 use Cake\Console\Shell;
 use Cake\ORM\TableRegistry;
 use Exception;
-use Qobo\Utils\Utility\FileLock;
+use Qobo\Utils\Utility\Lock\FileLock;
 
 /**
  * Sync shell task.
@@ -24,10 +25,13 @@ class SyncTask extends Shell
 {
     use CustomUsersTableTrait;
 
+    /** @var \CakeDC\Users\Model\Table\UsersTable */
     protected $usersTable;
 
+    /** @var \Qobo\Calendar\Model\Table\CalendarAttendeesTable */
     protected $attendeesTable;
 
+    /** @var \Qobo\Calendar\Model\Table\CalendarsTable */
     protected $calendarsTable;
 
     /**
@@ -39,17 +43,17 @@ class SyncTask extends Shell
     {
         $parser = parent::getOptionParser();
         $parser->setDescription(
-            __('Synchronize local and remote calendars with the database')
+            (string)__('Synchronize local and remote calendars with the database')
         );
 
         $parser->addOption('start', [
-            'description' => __('Specify start interval for the events to fetch'),
-            'help' => __("Start date 'YYYY-MM-DD HH:MM:SS' for events to fetch"),
+            'description' => (string)__('Specify start interval for the events to fetch'),
+            'help' => (string)__("Start date 'YYYY-MM-DD HH:MM:SS' for events to fetch"),
         ]);
 
         $parser->addOption('end', [
-            'description' => __('Specify end interval for the events to fetch'),
-            'help' => __("End date 'YYYY-MM-DD HH:MM:SS' for events to fetch"),
+            'description' => (string)__('Specify end interval for the events to fetch'),
+            'help' => (string)__("End date 'YYYY-MM-DD HH:MM:SS' for events to fetch"),
         ]);
 
         return $parser;
@@ -72,13 +76,22 @@ class SyncTask extends Shell
             $this->abort('Import is already in progress');
         }
 
-        $this->attendeesTable = TableRegistry::get('Qobo/Calendar.CalendarAttendees');
-        $this->calendarsTable = TableRegistry::get('Qobo/Calendar.Calendars');
-        $this->usersTable = $this->getUsersTable();
+        /** @var \Qobo\Calendar\Model\Table\CalendarAttendeesTable $table */
+        $table = TableRegistry::get('Qobo/Calendar.CalendarAttendees');
+        $this->attendeesTable = $table;
+
+        /** @var \Qobo\Calendar\Model\Table\CalendarsTable $table */
+        $table = TableRegistry::get('Qobo/Calendar.Calendars');
+        $this->calendarsTable = $table;
+
+        /** @var \CakeDC\Users\Model\Table\UsersTable $table */
+        $table = $this->getUsersTable();
+        $this->usersTable = $table;
 
         $calendarsProcessed = 1;
         $output = $result = $options = [];
 
+        /** @var \Cake\Shell\Helper\ProgressHelper $progress */
         $progress = $this->helper('Progress');
         $progress->init();
 
@@ -129,10 +142,10 @@ class SyncTask extends Shell
     /**
      * Set Default Time period
      *
-     * @param array $params with CLI period options
-     * @return array $options with prepopulated opts.
+     * @param mixed[] $params with CLI period options
+     * @return mixed[] $options with prepopulated opts.
      */
-    protected function setDefaultTimePeriod(array $params = [])
+    protected function setDefaultTimePeriod(array $params = []): array
     {
         $options = [];
         if (!empty($params['start'])) {
@@ -153,18 +166,20 @@ class SyncTask extends Shell
      *
      * @return void
      */
-    protected function syncAttendees()
+    protected function syncAttendees(): void
     {
         //sync all the attendees from users.
         $users = $this->usersTable->find()->all();
         $result = [];
 
+        /** @var \Cake\Shell\Helper\ProgressHelper $progress */
         $progress = $this->helper('Progress');
         $progress->init();
         $this->out(null);
         $this->info('Syncing attendees...');
 
         $count = 1;
+        /** @var \Cake\Datasource\EntityInterface $user */
         foreach ($users as $k => $user) {
             if (empty($user->email)) {
                 continue;
@@ -175,8 +190,8 @@ class SyncTask extends Shell
             if (!$existing) {
                 $entity = $this->attendeesTable->newEntity();
 
-                $entity->display_name = $user->name;
-                $entity->contact_details = $user->email;
+                $entity->set('display_name', $user->get('name'));
+                $entity->set('contact_details', $user->get('email'));
 
                 $saved = $this->attendeesTable->save($entity);
                 if ($saved) {
@@ -205,9 +220,9 @@ class SyncTask extends Shell
      *
      * @param \Cake\ORM\Table $table of calendar instance.
      *
-     * @return array $result containing users/events saved/updated.
+     * @return mixed[] $result containing users/events saved/updated.
      */
-    protected function syncBirthdays($table = null)
+    protected function syncBirthdays(Table $table): array
     {
         $result = [
             'error' => [],
@@ -215,13 +230,16 @@ class SyncTask extends Shell
             'updated' => [],
         ];
 
+        /** @var \Qobo\Calendar\Model\Table\CalendarsTable $eventsTable */
         $eventsTable = TableRegistry::get('Qobo/Calendar.CalendarEvents');
         $users = $this->usersTable->find()->all();
 
+        /** @var \Cake\Shell\Helper\ProgressHelper $progress */
         $progress = $this->helper('Progress');
         $progress->init();
         $this->info('Syncing birthday calendar...');
 
+        /** @var \Cake\Datasource\EntityInterface $calendar */
         $calendar = $table->find()
             ->where([
                 'source' => 'Plugin__',
@@ -230,44 +248,46 @@ class SyncTask extends Shell
 
         if (empty($calendar)) {
             $entity = $table->newEntity();
-            $entity->name = 'Birthdays';
-            $entity->source = 'Plugin__';
-            $entity->icon = 'birthday-cake';
+            $entity->set('name', 'Birthdays');
+            $entity->set('source', 'Plugin__');
+            $entity->set('icon', 'birthday-cake');
 
             $calendar = $table->save($entity);
         }
 
         $count = 1;
+        /** @var \Cake\Datasource\EntityInterface $user */
         foreach ($users as $k => $user) {
-            if (empty($user->birthdate)) {
-                $result['error'][] = "User ID: {$user->id} doesn't have birth date in the system";
+            if (empty($user->get('birthdate'))) {
+                $result['error'][] = "User ID: {$user->get('id')} doesn't have birth date in the system";
                 continue;
             }
 
+            /** @var \Cake\Datasource\EntityInterface $birthdayEvent */
             $birthdayEvent = $eventsTable->find()
                 ->where([
-                    'calendar_id' => $calendar->id,
-                    'content LIKE' => "%{$user->first_name} {$user->last_name}%",
+                    'calendar_id' => $calendar->get('id'),
+                    'content LIKE' => "%{$user->get('first_name')} {$user->get('last_name')}%",
                     'is_recurring' => 1,
                 ])->first();
 
             if (!$birthdayEvent) {
                 $entity = $eventsTable->newEntity();
-                $entity->calendar_id = $calendar->id;
-                $entity->title = sprintf("%s %s", $user->first_name, $user->last_name);
-                $entity->content = sprintf("%s %s", $user->first_name, $user->last_name);
-                $entity->is_recurring = true;
-                $entity->is_allday = true;
+                $entity->set('calendar_id', $calendar->get('id'));
+                $entity->set('title',sprintf("%s %s", $user->get('first_name'), $user->get('last_name')));
+                $entity->set('content', sprintf("%s %s", $user->get('first_name'), $user->get('last_name')));
+                $entity->set('is_recurring', true);
+                $entity->set('is_allday', true);
 
-                $entity->start_date = date('Y-m-d 09:00:00', strtotime($user->birthdate));
-                $entity->end_date = date('Y-m-d 18:00:00', strtotime($user->birthdate));
-                $entity->recurrence = json_encode(['RRULE:FREQ=YEARLY']);
+                $entity->set('start_date', date('Y-m-d 09:00:00', strtotime($user->get('birthdate'))));
+                $entity->set('end_date', date('Y-m-d 18:00:00', strtotime($user->get('birthdate'))));
+                $entity->set('recurrence', json_encode(['RRULE:FREQ=YEARLY']));
                 $birthdayEvent = $eventsTable->save($entity);
 
                 $result['added'][] = $birthdayEvent;
             } else {
                 $entity = $eventsTable->patchEntity($birthdayEvent, [
-                    'title' => sprintf("%s %s", $user->first_name, $user->last_name),
+                    'title' => sprintf("%s %s", $user->get('first_name'), $user->get('last_name')),
                     'is_allday' => true,
                 ]);
 

@@ -23,9 +23,9 @@ class ObjectFactory
      * @param string $objectName target conversion object, aka 'Event'
      * @param string $configName of the map, aka 'Json::Calls::Default'
      *
-     * @return mixed[] $data containing the map for transpiling
+     * @return mixed $data containing the map for transpiling
      */
-    public static function getConfig(?string $entityName = null, ?string $objectName = null, ?string $configName = null): array
+    public static function getConfig(?string $entityName = null, ?string $objectName = null, ?string $configName = null)
     {
         $data = [];
 
@@ -78,9 +78,9 @@ class ObjectFactory
      * @param string $objectName for the target, aka 'Event'
      * @param string $configName of the map aka 'Json::Calls::Default'
      *
-     * @return mixed[] $result containing the map for conversion
+     * @return mixed $result containing the map for conversion
      */
-    public static function getDataFromConfig(string $objectName, string $configName): array
+    public static function getDataFromConfig(string $objectName, string $configName)
     {
         $result = [];
         list($format, $calendar, $type) = explode(self::TYPE_DELIMITER, $configName, 3);

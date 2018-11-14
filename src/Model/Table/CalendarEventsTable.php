@@ -16,6 +16,7 @@ use Cake\Datasource\EntityInterface;
 use Cake\Event\Event;
 use Cake\Event\EventManager;
 use Cake\I18n\Time;
+use Cake\ORM\Entity;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
@@ -61,8 +62,9 @@ class CalendarEventsTable extends Table
             'foreignKey' => 'calendar_event_id',
         ]);
 
-        /** @var \Qobo\Calendar\Model\Table\CalendarEventsTable Calendars */
-        $this->Calendars = TableRegistry::get('Qobo/Calendar.Calendars');
+        /** @var \Qobo\Calendar\Model\Table\CalendarsTable $table */
+        $table = TableRegistry::get('Qobo/Calendar.Calendars');
+        $this->Calendars = $table;
     }
 
     /**
@@ -181,7 +183,7 @@ class CalendarEventsTable extends Table
         $events = $this->findCalendarEvents($options);
 
         foreach ($events as $event) {
-            $eventItem = $this->prepareEventData($event, $calendar);
+            $eventItem = $this->prepareEventData($event->toArray(), $calendar);
 
             if (empty($eventItem['recurrence'])) {
                 array_push($result, $eventItem);
@@ -204,7 +206,7 @@ class CalendarEventsTable extends Table
         $infiniteEvents = $this->getInfiniteEvents($events, $options, $isInfinite);
 
         foreach ($infiniteEvents as $event) {
-            $eventItem = $this->prepareEventData($event, $calendar);
+            $eventItem = $this->prepareEventData($event->toArray(), $calendar);
 
             $recurrence = $this->getRRuleConfiguration($eventItem['recurrence']);
             $intervals = $this->getRecurrence($recurrence, [
@@ -521,7 +523,7 @@ class CalendarEventsTable extends Table
         $entity->set('id', $event['id']);
 
         $entity->set('id', $this->setRecurrenceEventId($entity));
-        $entity->set('color',  $this->Calendars->getColor($calendar));
+        $entity->set('color', $this->Calendars->getColor($calendar));
 
         return $entity;
     }
@@ -529,7 +531,7 @@ class CalendarEventsTable extends Table
     /**
      * PrepareEventData method
      *
-     * @param mixed[] $event of the calendar
+     * @param mixed $event of the calendar
      * @param \Cake\Datasource\EntityInterface $calendar currently checked
      * @param mixed[] $options with extra configs
      *
@@ -652,7 +654,9 @@ class CalendarEventsTable extends Table
 
         if (!empty($event['calendar_attendees'])) {
             foreach ($event['calendar_attendees'] as $att) {
-                array_push($extra, $att->display_name);
+                if ($att instanceof EntityInterface) {
+                    array_push($extra, $att->get('display_name'));
+                }
             }
         }
 

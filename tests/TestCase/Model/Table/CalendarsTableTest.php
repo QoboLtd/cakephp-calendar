@@ -78,7 +78,7 @@ class CalendarsTableTest extends TestCase
          */
         $saved = $this->Calendars->save($entity);
         $this->assertEquals($saved->source, 'Plugin__');
-        $this->assertEquals($saved->color, $this->Calendars->getColor());
+        $this->assertEquals($saved->color, $this->Calendars->getColor($entity));
     }
 
     public function testSync(): void

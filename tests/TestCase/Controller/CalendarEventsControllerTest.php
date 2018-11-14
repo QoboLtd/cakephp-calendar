@@ -134,14 +134,16 @@ class CalendarEventsControllerTest extends JsonIntegrationTestCase
         ];
 
         $this->post('/calendars/calendar-events/add', $data);
+
+        /** @var \Cake\Datasource\EntityInterface $saved */
         $saved = $this->CalendarEvents->find()
             ->where([
                 'content' => $data['content']
             ])
             ->first();
 
-        $this->assertEquals('Calendar - 1 Event', $saved->title);
-        $this->assertEquals($saved->content, $data['content']);
+        $this->assertEquals('Calendar - 1 Event', $saved->get('title'));
+        $this->assertEquals($saved->get('content'), $data['content']);
     }
 
     public function testAddResponseOk(): void
@@ -159,6 +161,7 @@ class CalendarEventsControllerTest extends JsonIntegrationTestCase
         $event = $this->viewVariable('response');
         $this->assertEquals($event['success'], true);
 
+        /** @var \Cake\Datasource\EntityInterface $saved */
         $saved = $this->CalendarEvents->find()
             ->where([
                 'title' => 'Test Event',
@@ -166,7 +169,7 @@ class CalendarEventsControllerTest extends JsonIntegrationTestCase
             ])
             ->first();
 
-        $this->assertEquals($saved->content, $data['content']);
+        $this->assertEquals($saved->get('content'), $data['content']);
     }
 
     public function testAddRecurringEvent(): void
@@ -185,14 +188,16 @@ class CalendarEventsControllerTest extends JsonIntegrationTestCase
         ];
 
         $this->post('/calendars/calendar-events/add', $data);
+
+        /** @var \Cake\Datasource\EntityInterface $saved */
         $saved = $this->CalendarEvents->find()
             ->contain(['CalendarAttendees'])
             ->where([
                 'title' => $data['title'],
             ])->first();
-        $this->assertEquals($saved->title, $data['title']);
-        $this->assertEquals(1, count($saved->calendar_attendees));
-        $this->assertEquals('00000000-0000-0000-0000-000000000001', $saved->calendar_attendees[0]->id);
+        $this->assertEquals($saved->get('title'), $data['title']);
+        $this->assertEquals(1, count($saved->get('calendar_attendees')));
+        $this->assertEquals('00000000-0000-0000-0000-000000000001', $saved->get('calendar_attendees')[0]->id);
     }
 
     public function testDeleteResponseOk(): void
