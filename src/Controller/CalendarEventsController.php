@@ -34,8 +34,7 @@ class CalendarEventsController extends AppController
      * Delete method
      *
      * @param string|null $id Calendar Event id.
-     * @return \Cake\Http\Response|null Redirects to index.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
+     * @return \Cake\Http\Response|void|null Redirects to index.
      */
     public function delete($id = null)
     {
@@ -53,7 +52,7 @@ class CalendarEventsController extends AppController
     /**
      * Create Event via AJAX call
      *
-     * @return void
+     * @return \Cake\Http\Response|void|null
      */
     public function add()
     {
@@ -103,7 +102,7 @@ class CalendarEventsController extends AppController
     /**
      * View Event via AJAX
      *
-     * @return void
+     * @return \Cake\Http\Response|void|null
      */
     public function view()
     {
@@ -132,7 +131,7 @@ class CalendarEventsController extends AppController
     /**
      * Get Event types based on the calendar id
      *
-     * @return void
+     * @return \Cake\Http\Response|void|null
      */
     public function getEventTypes()
     {
@@ -172,7 +171,7 @@ class CalendarEventsController extends AppController
     /**
      * Index method
      *
-     * @return void
+     * @return \Cake\Http\Response|void|null
      */
     public function index()
     {
@@ -196,7 +195,7 @@ class CalendarEventsController extends AppController
      *
      * Return event type configuration from ObjectFactory
      *
-     * @return void
+     * @return \Cake\Http\Response|void|null
      */
     public function eventTypeConfig()
     {
