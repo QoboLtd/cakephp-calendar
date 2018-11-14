@@ -99,7 +99,11 @@ class ObjectFactory
             }
         }
         if (!empty($result)) {
-            $result = json_decode(json_encode($result['properties']));
+            $encoded = (string)json_encode($result['properties']);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new RuntimeException(json_last_error_msg());
+            }
+            $result = json_decode($encoded);
         }
 
         return $result;
@@ -134,7 +138,7 @@ class ObjectFactory
      * Get JSON config files to map entities
      *
      * @param string|null $path to map directory config/Modules/Integrations/
-     * @return string[] $configs containing json files
+     * @return string[]
      */
     public static function getModuleFiles(?string $path = null): array
     {

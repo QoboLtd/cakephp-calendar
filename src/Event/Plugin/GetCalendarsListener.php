@@ -170,7 +170,13 @@ class GetCalendarsListener implements EventListenerInterface
 
         foreach ($calendars as $k => $calendar) {
             unset($calendar->calendar_events);
-            $content[$k]['calendar'] = json_decode(json_encode($calendar), true);
+
+            $encoded = (string)json_encode($calendar);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new \RuntimeException(json_last_error_msg());
+            }
+
+            $content[$k]['calendar'] = json_decode($encoded, true);
         }
 
         if (!empty($content)) {

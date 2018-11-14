@@ -61,6 +61,7 @@ class CalendarEventsTable extends Table
             'foreignKey' => 'calendar_event_id',
         ]);
 
+        /** @var \Qobo\Calendar\Model\Table\CalendarEventsTable Calendars */
         $this->Calendars = TableRegistry::get('Qobo/Calendar.Calendars');
     }
 

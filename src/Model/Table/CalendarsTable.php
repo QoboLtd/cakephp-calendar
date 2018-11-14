@@ -199,7 +199,7 @@ class CalendarsTable extends Table
      * @param \Cake\Datasource\EntityInterface $entity of the current calendar
      * @return string $color containing hexadecimal color notation.
      */
-    public function getColor(?EntityInterface $entity = null): string
+    public function getColor(EntityInterface $entity): string
     {
         $color = Configure::read('Calendar.Configs.color');
 

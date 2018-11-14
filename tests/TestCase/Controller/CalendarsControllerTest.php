@@ -8,6 +8,7 @@ use Qobo\Calendar\Model\Table\CalendarsTable;
 
 /**
  * Qobo\Calendar\Controller\CalendarsController Test Case
+ * @property \Cake\ORM\Table $Calendars
  */
 class CalendarsControllerTest extends IntegrationTestCase
 {
@@ -80,7 +81,7 @@ class CalendarsControllerTest extends IntegrationTestCase
             ->where(['name' => $data['name']])
             ->first();
 
-        $this->assertEquals($saved->name, $data['name']);
+        $this->assertEquals($saved->get('name'), $data['name']);
     }
 
     public function testAddResponseError(): void
@@ -113,9 +114,9 @@ class CalendarsControllerTest extends IntegrationTestCase
             ->where(['name' => $data['name']])
             ->first();
 
-        $eventTypes = json_decode($saved->event_types, true);
+        $eventTypes = json_decode($saved->get('event_types'), true);
         $this->assertEquals($eventTypes, $data['event_types']);
-        $this->assertEquals($saved->name, $data['name']);
+        $this->assertEquals($saved->get('name'), $data['name']);
     }
 
     public function testEditResponseOk(): void
