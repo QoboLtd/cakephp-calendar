@@ -51,7 +51,7 @@ class CalendarsController extends AppController
             'options' => []
         ]);
 
-        $this->eventManager()->dispatch($event);
+        $this->getEventManager()->dispatch($event);
         $calendars = $event->result;
 
         $this->set(compact('calendars'));

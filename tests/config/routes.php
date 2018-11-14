@@ -1,8 +1,17 @@
 <?php
 namespace Qobo\Calendar\Test\App\Config;
 
-use Cake\Core\Configure;
-use Cake\Core\Plugin;
 use Cake\Routing\Router;
+use Cake\Routing\Route\DashedRoute;
 
-Router::connect('/users/login', ['controller' => 'Users', 'action' => 'login']);
+Router::defaultRouteClass(DashedRoute::class);
+
+Router::connect('/:controller/:action/*');
+Router::plugin(
+    'Qobo/Calendar',
+    ['path' => '/calendars'],
+    function ($routes) {
+        $routes->setExtensions(['json']);
+        $routes->fallbacks('DashedRoute');
+    }
+);

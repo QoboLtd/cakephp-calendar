@@ -46,7 +46,7 @@ require ROOT . '/vendor/autoload.php';
 require CORE_PATH . 'config/bootstrap.php';
 
 Configure::write('App', [
-    'namespace' => $pluginName . '\Test\App',
+    'namespace' => 'Qobo\\' . $pluginName . '\Test\App',
     'paths' => [
         'templates' => [
             APP . 'Template' . DS

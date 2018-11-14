@@ -2,14 +2,14 @@
 namespace Qobo\Calendar\Test\TestCase\Controller;
 
 use Cake\ORM\TableRegistry;
-use Cake\TestSuite\IntegrationTestCase;
 use Qobo\Calendar\Controller\CalendarEventsController;
 use Qobo\Calendar\Model\Table\CalendarEventsTable;
+use Qobo\Utils\TestSuite\JsonIntegrationTestCase;
 
 /**
  * Qobo\Calendar\Controller\CalendarEventsController Test Case
  */
-class CalendarEventsControllerTest extends IntegrationTestCase
+class CalendarEventsControllerTest extends JsonIntegrationTestCase
 {
 
     /**
@@ -35,6 +35,7 @@ class CalendarEventsControllerTest extends IntegrationTestCase
                 'User' => TableRegistry::get('Users')->get($userId)->toArray()
             ]
         ]);
+        $this->setRequestHeaders();
         $config = TableRegistry::exists('CalendarEvents') ? [] : ['className' => CalendarEventsTable::class];
         $this->CalendarEvents = TableRegistry::get('CalendarEvents', $config);
     }

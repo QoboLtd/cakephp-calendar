@@ -41,8 +41,8 @@
                     ]);
                 } else {
                     $url = [
-                        'plugin' => $this->request->plugin,
-                        'controller' => $this->request->controller,
+                        'plugin' => $this->request->getParam('plugin'),
+                        'controller' => $this->request->getParam('controller'),
                         'action' => 'edit',
                         $calendar->id
                     ];

@@ -138,8 +138,8 @@ class CalendarEventsTableTest extends TestCase
 
         $result = $this->CalendarEvents->getEventInfo($eventId . '__' . '1564650000_1564736400');
 
-        $this->assertEquals(true, $result->dirty('end_date'));
-        $this->assertEquals(true, $result->dirty('start_date'));
+        $this->assertEquals(true, $result->isDirty('end_date'));
+        $this->assertEquals(true, $result->isDirty('start_date'));
     }
 
     public function testGetEventTypes()

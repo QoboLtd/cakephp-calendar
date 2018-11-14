@@ -58,12 +58,12 @@ foreach ($icons as $k => $v) {
         <div class="box-body">
             <div class="row">
                 <div class="col-xs-12 col-md-6">
-                    <?= $this->Form->input('name'); ?>
+                    <?= $this->Form->control('name'); ?>
                     <?= $this->Form->control('is_public', ['label' => __('Publicly Accessible')]);?>
-                    <?= $this->Form->input('event_types', ['type' => 'select', 'options' => $eventTypes, 'class' => 'select2', 'multiple' => 'multiple', 'empty' => true]);?>
+                    <?= $this->Form->control('event_types', ['type' => 'select', 'options' => $eventTypes, 'class' => 'select2', 'multiple' => 'multiple', 'empty' => true]);?>
                 </div>
                 <div class="col-xs-12 col-md-6">
-                    <?= $this->Form->input('color', [
+                    <?= $this->Form->control('color', [
                         'type' => 'select',
                         'options' => $colors,
                         'class' => 'select2',
@@ -71,7 +71,7 @@ foreach ($icons as $k => $v) {
                     ]) ?>
                 </div>
                 <div class="col-xs-12 col-md-6">
-                    <?= $this->Form->input('icon', [
+                    <?= $this->Form->control('icon', [
                         'type' => 'select',
                         'options' => $icons,
                         'class' => 'select2',
