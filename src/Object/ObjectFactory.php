@@ -134,7 +134,7 @@ class ObjectFactory
         return $configs;
     }
 
-    /***
+    /**
      * Get JSON config files to map entities
      *
      * @param string|null $path to map directory config/Modules/Integrations/

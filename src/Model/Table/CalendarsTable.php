@@ -37,6 +37,11 @@ use \ArrayObject;
  * @method \Qobo\Calendar\Model\Entity\Calendar[] patchEntities($entities, array $data, array $options = [])
  * @method \Qobo\Calendar\Model\Entity\Calendar findOrCreate($search, callable $callback = null, $options = [])
  *
+ * @todo implement the following methods which are being used by SyncTask
+ * @method syncCalendars(array $options)
+ * @method syncCalendarEvents($calendar, array $options)
+ * @method syncEventsAttendees($calendar, $resultEvents)
+ *
  * @mixin \Cake\ORM\Behavior\TimestampBehavior
  */
 class CalendarsTable extends Table

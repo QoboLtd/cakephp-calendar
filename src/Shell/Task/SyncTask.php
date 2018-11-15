@@ -70,6 +70,10 @@ class SyncTask extends Shell
             $lock = new FileLock('import_' . md5(__FILE__) . '.lock');
         } catch (Exception $e) {
             $this->abort($e->getMessage());
+
+            // Rethrow the exception if some reason we have reached this point
+            // This shouldn't happen since `$this->abort` throw another Exception
+            throw $e;
         }
 
         if (!$lock->lock()) {

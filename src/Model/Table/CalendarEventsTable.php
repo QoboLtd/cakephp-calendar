@@ -797,8 +797,13 @@ class CalendarEventsTable extends Table
             $options = array_merge($options->getArrayCopy(), ['calendar' => $calendar]);
             $options = new ArrayObject($options);
             $entity = $options['entity'];
-            $eventObject = $table->getObjectInstance($entity, $map, $options);
 
+            // The following is a temporary solution until the ObjectTrait is being used
+            if (!method_exists($table, 'getObjectInstance')) {
+                continue;
+            }
+
+            $eventObject = $table->getObjectInstance($entity, $map, $options);
             $calendarEntity = $eventObject->toEntity();
 
             if (!$calendarEntity) {
