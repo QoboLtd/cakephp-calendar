@@ -20,6 +20,7 @@ use Cake\ORM\Entity;
  * @property string $name
  * @property string $color
  * @property string $icon
+ * @property string $source
  * @property string $source_id
  * @property \Cake\I18n\Time $created
  * @property \Cake\I18n\Time $modified

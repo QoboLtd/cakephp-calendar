@@ -3,11 +3,12 @@ namespace Qobo\Calendar\Test\TestCase\Controller;
 
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\IntegrationTestCase;
-use Qobo\Calendar\Controller\CalendarsController;
 use Qobo\Calendar\Model\Table\CalendarsTable;
+use RuntimeException;
 
 /**
  * Qobo\Calendar\Controller\CalendarsController Test Case
+ * @property \Cake\ORM\Table $Calendars
  */
 class CalendarsControllerTest extends IntegrationTestCase
 {
@@ -41,13 +42,13 @@ class CalendarsControllerTest extends IntegrationTestCase
         parent::tearDown();
     }
 
-    public function testIndexGetResponseOk()
+    public function testIndexGetResponseOk(): void
     {
         $this->get('/calendars/calendars/index');
         $this->assertResponseOk();
     }
 
-    public function testIndexPostResponseOk()
+    public function testIndexPostResponseOk(): void
     {
         $data = [
             'public' => true,
@@ -57,13 +58,13 @@ class CalendarsControllerTest extends IntegrationTestCase
         $this->assertResponseOk();
     }
 
-    public function testViewResponseOk()
+    public function testViewResponseOk(): void
     {
         $id = '00000000-0000-0000-0000-000000000001';
         $this->get('/calendars/calendars/view/' . $id);
         $this->assertResponseOk();
     }
-    public function testAddResponseOk()
+    public function testAddResponseOk(): void
     {
         $this->get('/calendars/calendars/add');
         $this->assertResponseOk();
@@ -76,23 +77,27 @@ class CalendarsControllerTest extends IntegrationTestCase
         $this->post('/calendars/calendars/add', $data);
         $this->assertRedirect('/calendars/calendars');
 
+        /** @var \Cake\Datasource\EntityInterface $saved */
         $saved = $this->Calendars->find()
             ->where(['name' => $data['name']])
             ->first();
 
-        $this->assertEquals($saved->name, $data['name']);
+        $this->assertEquals($saved->get('name'), $data['name']);
     }
 
-    public function testAddResponseError()
+    public function testAddResponseError(): void
     {
         $data = [];
         $this->post('/calendars/calendars/add', $data);
+        if ($this->_requestSession === null) {
+            throw new RuntimeException('Session can\'t be null');
+        }
         $message = $this->_requestSession->read('Flash.flash.0');
 
         $this->assertEquals($message['message'], 'The calendar could not be saved. Please, try again.');
     }
 
-    public function testAddResponseOkWithEventTypes()
+    public function testAddResponseOkWithEventTypes(): void
     {
         $this->get('/calendars/calendars/add');
         $this->assertResponseOk();
@@ -109,16 +114,17 @@ class CalendarsControllerTest extends IntegrationTestCase
         $this->post('/calendars/calendars/add', $data);
         $this->assertRedirect('/calendars/calendars');
 
+        /** @var \Cake\Datasource\EntityInterface $saved */
         $saved = $this->Calendars->find()
             ->where(['name' => $data['name']])
             ->first();
 
-        $eventTypes = json_decode($saved->event_types, true);
+        $eventTypes = json_decode($saved->get('event_types'), true);
         $this->assertEquals($eventTypes, $data['event_types']);
-        $this->assertEquals($saved->name, $data['name']);
+        $this->assertEquals($saved->get('name'), $data['name']);
     }
 
-    public function testEditResponseOk()
+    public function testEditResponseOk(): void
     {
         $calendarId = '00000000-0000-0000-0000-000000000001';
 
@@ -136,14 +142,15 @@ class CalendarsControllerTest extends IntegrationTestCase
         $this->post('/calendars/calendars/edit/' . $calendarId, $data);
         $this->assertRedirect('/calendars/calendars');
 
+        /** @var \Cake\Datasource\EntityInterface $edited */
         $edited = $this->Calendars->get($calendarId);
 
-        $this->assertEquals($edited->icon, $data['icon']);
-        $this->assertEquals($calendarId, $edited->id);
-        $this->assertTrue(in_array('Config::Default::Default', json_decode($edited->event_types, true)));
+        $this->assertEquals($edited->get('icon'), $data['icon']);
+        $this->assertEquals($calendarId, $edited->get('id'));
+        $this->assertTrue(in_array('Config::Default::Default', json_decode($edited->get('event_types'), true)));
     }
 
-    public function testDeleteResponseOk()
+    public function testDeleteResponseOk(): void
     {
         $calendarId = '00000000-0000-0000-0000-000000000001';
 

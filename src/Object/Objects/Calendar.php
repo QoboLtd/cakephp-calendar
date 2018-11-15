@@ -1,8 +1,6 @@
 <?php
 namespace Qobo\Calendar\Object\Objects;
 
-use Cake\Utility\Inflector;
-
 class Calendar extends AbstractObject
 {
     protected $entityProvider = '\Qobo\Calendar\Model\Entity\Calendar';
@@ -33,7 +31,7 @@ class Calendar extends AbstractObject
      * @param string $name for the calendar
      * @return void
      */
-    public function setName($name)
+    public function setName(string $name): void
     {
         $this->name = $name;
     }
@@ -41,7 +39,7 @@ class Calendar extends AbstractObject
     /**
      * @return string $name of the calendar
      */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
@@ -52,7 +50,7 @@ class Calendar extends AbstractObject
      * @param string $icon class for the calendar
      * @return void
      */
-    public function setIcon($icon)
+    public function setIcon(string $icon): void
     {
         $this->icon = $icon;
     }
@@ -60,7 +58,7 @@ class Calendar extends AbstractObject
     /**
      * @return string $icon of the calendar
      */
-    public function getIcon()
+    public function getIcon(): string
     {
         return $this->icon;
     }
@@ -71,7 +69,7 @@ class Calendar extends AbstractObject
      * @param string $color of the calendar
      * @return void
      */
-    public function setColor($color)
+    public function setColor(string $color): void
     {
         $this->color = $color;
     }
@@ -79,7 +77,7 @@ class Calendar extends AbstractObject
     /**
      * @return string $color of calendar
      */
-    public function getColor()
+    public function getColor(): string
     {
         return $this->color;
     }
@@ -90,7 +88,7 @@ class Calendar extends AbstractObject
      * @param string $calendarType for the calendar
      * @return void
      */
-    public function setCalendarType($calendarType = 'default')
+    public function setCalendarType(string $calendarType = 'default'): void
     {
         $this->calendarType = $calendarType;
     }
@@ -98,7 +96,7 @@ class Calendar extends AbstractObject
     /**
      * @return string $calendarType for calendar
      */
-    public function getCalendarType()
+    public function getCalendarType(): string
     {
         return $this->calendarType;
     }
@@ -108,7 +106,7 @@ class Calendar extends AbstractObject
      * @param bool $active for the calendar
      * @return void
      */
-    public function setActive($active)
+    public function setActive(bool $active): void
     {
         $this->active = $active;
     }
@@ -116,7 +114,7 @@ class Calendar extends AbstractObject
     /**
      * @return bool $active calendar flag
      */
-    public function getActive()
+    public function getActive(): bool
     {
         return $this->active;
     }
@@ -127,7 +125,7 @@ class Calendar extends AbstractObject
      * @param bool $editable for the calendar
      * @return void
      */
-    public function setEditable($editable = false)
+    public function setEditable(bool $editable = false): void
     {
         $this->editable = $editable;
     }
@@ -135,7 +133,7 @@ class Calendar extends AbstractObject
     /**
      * @return bool $editable flag
      */
-    public function getEditable()
+    public function getEditable(): bool
     {
         return $this->editable;
     }
@@ -146,7 +144,7 @@ class Calendar extends AbstractObject
      * @param bool $isPublic calendar flag
      * @return void
      */
-    public function setIsPublic($isPublic = false)
+    public function setIsPublic(bool $isPublic = false): void
     {
         $this->isPublic = $isPublic;
     }
@@ -154,7 +152,7 @@ class Calendar extends AbstractObject
     /**
      * @return bool isPublic flag
      */
-    public function getIsPublic()
+    public function getIsPublic(): bool
     {
         return $this->isPublic;
     }

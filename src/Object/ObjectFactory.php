@@ -6,9 +6,11 @@ use Cake\Filesystem\Folder;
 use Cake\Utility\Inflector;
 use InvalidArgumentException;
 use Qobo\Calendar\Object\Parsers\Json\Event;
+use \RuntimeException;
 
 class ObjectFactory
 {
+    /** @var string */
     const TYPE_DELIMITER = '::';
 
     /**
@@ -21,13 +23,13 @@ class ObjectFactory
      * @param string $objectName target conversion object, aka 'Event'
      * @param string $configName of the map, aka 'Json::Calls::Default'
      *
-     * @return object $data containing the map for transpiling
+     * @return mixed $data containing the map for transpiling
      */
-    public static function getConfig($entityName = null, $objectName = null, $configName = null)
+    public static function getConfig(?string $entityName = null, ?string $objectName = null, ?string $configName = null)
     {
         $data = [];
 
-        if (empty($objectName)) {
+        if (empty($objectName) || empty($entityName) || empty($configName)) {
             return $data;
         }
 
@@ -47,10 +49,13 @@ class ObjectFactory
 
             $className = $namespace . $parserName;
 
-            if (class_exists($className)) {
-                $parser = new $className();
+            if (!class_exists($className)) {
+                throw new RuntimeException(
+                    sprintf('Class %s does not exist', $className)
+                );
             }
 
+            $parser = new $className();
             $configFiles = array_flip($list);
 
             if (!$configFiles[$configName]) {
@@ -73,9 +78,9 @@ class ObjectFactory
      * @param string $objectName for the target, aka 'Event'
      * @param string $configName of the map aka 'Json::Calls::Default'
      *
-     * @return object $result containing the map for conversion
+     * @return mixed $result containing the map for conversion
      */
-    public static function getDataFromConfig($objectName, $configName)
+    public static function getDataFromConfig(string $objectName, string $configName)
     {
         $result = [];
         list($format, $calendar, $type) = explode(self::TYPE_DELIMITER, $configName, 3);
@@ -94,7 +99,11 @@ class ObjectFactory
             }
         }
         if (!empty($result)) {
-            $result = json_decode(json_encode($result['properties']));
+            $encoded = (string)json_encode($result['properties']);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new RuntimeException(json_last_error_msg());
+            }
+            $result = json_decode($encoded);
         }
 
         return $result;
@@ -106,9 +115,9 @@ class ObjectFactory
      * @param string $entityName the name of the module, aka 'Calls'
      * @param string $objectName the name of the config, aka 'Json::Calls::Default'
      *
-     * @return array $configs containing the list of configs
+     * @return mixed[] $configs containing the list of configs
      */
-    public static function getConfigList($entityName, $objectName)
+    public static function getConfigList(string $entityName, string $objectName): array
     {
         $configs = [];
 
@@ -125,19 +134,18 @@ class ObjectFactory
         return $configs;
     }
 
-    /***
+    /**
      * Get JSON config files to map entities
      *
-     * @param string $path to map directory config/Modules/Integrations/
-     *
-     * @return array $configs containing json files
+     * @param string|null $path to map directory config/Modules/Integrations/
+     * @return string[]
      */
-    public static function getModuleFiles($path = null)
+    public static function getModuleFiles(?string $path = null): array
     {
         $configs = [];
 
         if (empty($path)) {
-            throw new InvalidArgumentException(__('Specify [path] for the JSON configs'));
+            throw new InvalidArgumentException((string)__('Specify [path] for the JSON configs'));
         }
 
         $folder = new Folder($path);
@@ -154,17 +162,17 @@ class ObjectFactory
      * Trim down the list of configs based on the file paths
      *
      * @param string $entityName of the object, aka 'Calls'
-     * @param array $files from the given config directory
+     * @param string[] $files from the given config directory
      * @param string $path of the basename
      *
-     * @return array $configs with files converted to human-readable format
+     * @return mixed[] $configs with files converted to human-readable format
      */
-    public static function getModuleConfigNames($entityName, array $files = [], $path = null)
+    public static function getModuleConfigNames(string $entityName, array $files = [], string $path = ''): array
     {
         $configs = [];
         foreach ($files as $k => $file) {
-            $label = str_replace($path, null, $file);
-            $label = str_replace('.json', null, $label);
+            $label = str_replace($path, '', $file);
+            $label = str_replace('.json', '', $label);
 
             $parts = array_filter(explode('/', $label));
             $parts = array_values($parts);
@@ -187,15 +195,15 @@ class ObjectFactory
      *
      * @param string $type of the object maps, aka Event|Calendar|Attendee
      *
-     * @return string $subdir for the path, aka 'calendar_events'
+     * @return string|null $subdir for the path, aka 'calendar_events'
      */
-    public static function getConfigTypeDir($type = null)
+    public static function getConfigTypeDir(?string $type = ''): ?string
     {
         $subdir = null;
         $type = Inflector::underscore(Inflector::pluralize($type));
 
         if (!in_array($type, ['events', 'attendees', 'calendars'])) {
-            throw new InvalidArgumentException(__('Wrong Config Calendar Type'));
+            throw new InvalidArgumentException((string)__('Wrong Config Calendar Type'));
         }
 
         if ('calendars' == $type) {

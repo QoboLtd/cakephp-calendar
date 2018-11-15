@@ -105,7 +105,7 @@ trait ObjectTrait
     {
         $table = TableRegistry::getTableLocator()->get($entity->source());
 
-        $displayField = $entity->get($table->displayField());
+        $displayField = $entity->get($table->getDisplayField());
 
         $result = sprintf("%s - %s", Inflector::humanize($entity->source()), $displayField);
 

@@ -62,7 +62,7 @@ foreach ($icons as $k => $v) {
         <div class="box-body">
             <div class="row">
                 <div class="col-xs-12 col-md-6">
-                    <?= $this->Form->input('name'); ?>
+                    <?= $this->Form->control('name'); ?>
                     <?= $this->Form->hidden('source_id');?>
                     <?= $this->Form->hidden('source');?>
 
@@ -70,17 +70,17 @@ foreach ($icons as $k => $v) {
                         $selectedEventTypes = !empty($calendar->event_types) ? json_decode($calendar->event_types, true) : [];
                     ?>
                     <?= $this->Form->control('is_public', ['label' => __('Publicly Accessible')]);?>
-                    <?= $this->Form->input('event_types', ['value' => $selectedEventTypes, 'type' => 'select', 'options' => $eventTypes, 'class' => 'select2', 'multiple' => 'multiple', 'empty' => true]);?>
+                    <?= $this->Form->control('event_types', ['value' => $selectedEventTypes, 'type' => 'select', 'options' => $eventTypes, 'class' => 'select2', 'multiple' => 'multiple', 'empty' => true]);?>
                 </div>
                 <div class="col-xs-12 col-md-6">
-                    <?= $this->Form->input('color', [
+                    <?= $this->Form->control('color', [
                         'type' => 'text',
                         'class' => 'calendar-colorpicker form-control',
                         'empty' => true
                     ]) ?>
                 </div>
                 <div class="col-xs-12 col-md-6">
-                    <?= $this->Form->input('icon', [
+                    <?= $this->Form->control('icon', [
                         'type' => 'select',
                         'options' => $icons,
                         'class' => 'select2',

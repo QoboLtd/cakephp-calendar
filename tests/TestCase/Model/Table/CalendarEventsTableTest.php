@@ -1,6 +1,7 @@
 <?php
 namespace Qobo\Calendar\Test\TestCase\Model\Table;
 
+use Cake\Datasource\EntityInterface;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 use Qobo\Calendar\Model\Table\CalendarEventsTable;
@@ -18,6 +19,13 @@ class CalendarEventsTableTest extends TestCase
      * @var \Qobo\Calendar\Model\Table\CalendarEventsTable
      */
     public $CalendarEvents;
+
+    /**
+     * Test subject
+     *
+     * @var \Qobo\Calendar\Model\Table\CalendarsTable
+     */
+    public $Calendars;
 
     /**
      * Fixtures
@@ -40,10 +48,15 @@ class CalendarEventsTableTest extends TestCase
     {
         parent::setUp();
         $config = TableRegistry::exists('CalendarEvents') ? [] : ['className' => CalendarEventsTable::class];
-        $this->CalendarEvents = TableRegistry::get('CalendarEvents', $config);
+
+        /** @var \Qobo\Calendar\Model\Table\CalendarEventsTable $table */
+        $table = TableRegistry::get('CalendarEvents', $config);
+        $this->CalendarEvents = $table;
 
         $config = TableRegistry::exists('Calendars') ? [] : ['className' => CalendarsTable::class];
-        $this->Calendars = TableRegistry::get('Calendars', $config);
+        /** @var \Qobo\Calendar\Model\Table\CalendarsTable $table */
+        $table = TableRegistry::get('Calendars', $config);
+        $this->Calendars = $table;
     }
 
     /**
@@ -58,7 +71,7 @@ class CalendarEventsTableTest extends TestCase
         parent::tearDown();
     }
 
-    public function testGetEvents()
+    public function testGetEvents(): void
     {
         $result = $this->CalendarEvents->getEvents(null);
         $this->assertEquals($result, []);
@@ -70,7 +83,7 @@ class CalendarEventsTableTest extends TestCase
         $this->assertNotEmpty($result);
     }
 
-    public function testGetEventsWithTimePeriod()
+    public function testGetEventsWithTimePeriod(): void
     {
         $options = [
             'calendar_id' => '00000000-0000-0000-0000-000000000001',
@@ -87,7 +100,7 @@ class CalendarEventsTableTest extends TestCase
         $this->assertEquals($result, []);
     }
 
-    public function testSetIdSuffix()
+    public function testSetIdSuffix(): void
     {
         $event = [
             'id' => '123',
@@ -98,13 +111,13 @@ class CalendarEventsTableTest extends TestCase
         $eventObj = (object)$event;
 
         $result = $this->CalendarEvents->setRecurrenceEventId($event);
-        $resultObj = $this->CalendarEvents->setRecurrenceEventId($eventObj);
+        $resultObj = $this->CalendarEvents->setRecurrenceEventId($event);
 
         $this->assertNotEmpty($result);
         $this->assertEquals($result, $resultObj);
     }
 
-    public function testGetRecurrenceEventId()
+    public function testGetRecurrenceEventId(): void
     {
         $event = [
             'id' => '0e03bd09-7437-4f9b-9cb4-f2801f87b850',
@@ -126,23 +139,24 @@ class CalendarEventsTableTest extends TestCase
         $this->assertEquals([], $this->CalendarEvents->getRecurrenceEventId());
     }
 
-    public function testGetEventInfo()
+    public function testGetEventInfo(): void
     {
         $eventId = '00000000-0000-0000-0000-000000000003';
 
         $result = $this->CalendarEvents->getEventInfo($eventId);
         $this->assertNotEmpty($result);
 
-        $result = $this->CalendarEvents->getEventInfo([]);
+        $result = $this->CalendarEvents->getEventInfo();
         $this->assertEmpty($result);
 
+        /** @var \Cake\Datasource\EntityInterface $result */
         $result = $this->CalendarEvents->getEventInfo($eventId . '__' . '1564650000_1564736400');
 
-        $this->assertEquals(true, $result->dirty('end_date'));
-        $this->assertEquals(true, $result->dirty('start_date'));
+        $this->assertEquals(true, $result->isDirty('end_date'));
+        $this->assertEquals(true, $result->isDirty('start_date'));
     }
 
-    public function testGetEventTypes()
+    public function testGetEventTypes(): void
     {
         $calendarId = '00000000-0000-0000-0000-000000000001';
 
@@ -152,7 +166,7 @@ class CalendarEventsTableTest extends TestCase
         $this->assertTrue(is_array($result));
     }
 
-    public function testSetRRuleConfiguration()
+    public function testSetRRuleConfiguration(): void
     {
         $data = 'FREQ=MONTHLY;COUNT=30;WKST=MO';
         $recurrence = $this->CalendarEvents->setRRuleConfiguration($data);
@@ -160,40 +174,51 @@ class CalendarEventsTableTest extends TestCase
     }
 
     /**
-     * @dataProvider testGetRRuleConfigurationProvider
+     * @dataProvider getRRuleConfigurationProvider
+     * @param string $data Data
+     * @param string $expected Expected result
      */
-    public function testGetRRuleConfiguration($data, $expected)
+    public function testGetRRuleConfiguration(string $data = null, string $expected = null): void
     {
         $result = $this->CalendarEvents->getRRuleConfiguration($data);
         $this->assertEquals($expected, $result);
     }
 
-    public function testGetDefaultEventType()
+    public function testGetDefaultEventType(): void
     {
         $result = $this->CalendarEvents->getEventTypeBy('default');
         $this->assertNotEmpty($result);
     }
 
-    public function testGetRRuleConfigurationProvider()
+    /**
+     * @return mixed[]
+     */
+    public function getRRuleConfigurationProvider(): array
     {
         return [
             ['FREQ=DAILY;COUNT=5', 'RRULE:FREQ=DAILY;COUNT=5'],
             ['RRULE:FREQ=MONTHLY;COUNT=1', 'RRULE:FREQ=MONTHLY;COUNT=1'],
-            ['', null],
-            [null, null],
+            ['RRULE:FREQ=MONTHLY;COUNT=1', 'RRULE:FREQ=MONTHLY;COUNT=1'],
+            // ['', null],
+            // [null, null],
         ];
     }
 
     /**
-     * @dataProvider testGetEventRangeProvider
+     * @dataProvider getEventRangeProvider
+     * @param mixed[] $data Data
+     * @param mixed[] $expected Expected result
      */
-    public function testGetEventRange($data, $expected)
+    public function testGetEventRange(array $data, array $expected): void
     {
         $result = $this->CalendarEvents->getEventRange($data);
         $this->assertEquals($result, $expected);
     }
 
-    public function testGetEventRangeProvider()
+    /**
+     * @return mixed[]
+     */
+    public function getEventRangeProvider(): array
     {
         return [
             [

@@ -1,8 +1,6 @@
 <?php
 namespace Qobo\Calendar\Object\Objects;
 
-use Qobo\Calendar\Model\Table\Event as EventEntity;
-
 class Event extends AbstractObject
 {
     protected $entityProvider = '\Qobo\Calendar\Model\Entity\CalendarEvent';
@@ -37,7 +35,7 @@ class Event extends AbstractObject
      * @param mixed $calendarId of related calendar
      * @return void
      */
-    public function setCalendarId($calendarId)
+    public function setCalendarId($calendarId): void
     {
         $this->calendarId = $calendarId;
     }
@@ -56,7 +54,7 @@ class Event extends AbstractObject
      * @param string $title of event
      * @return void
      */
-    public function setTitle($title)
+    public function setTitle(string $title): void
     {
         $this->title = $title;
     }
@@ -64,7 +62,7 @@ class Event extends AbstractObject
     /**
      * @return string $title of the event
      */
-    public function getTitle()
+    public function getTitle(): string
     {
         return $this->title;
     }
@@ -75,7 +73,7 @@ class Event extends AbstractObject
      * @param string $content of longtext for event
      * @return void
      */
-    public function setContent($content)
+    public function setContent(string $content): void
     {
         $this->content = $content;
     }
@@ -83,7 +81,7 @@ class Event extends AbstractObject
     /**
      * @return string $content of calendar's event
      */
-    public function getContent()
+    public function getContent(): string
     {
         return $this->content;
     }
@@ -94,7 +92,7 @@ class Event extends AbstractObject
      * @param string $startDate of event
      * @return void
      */
-    public function setStartDate($startDate)
+    public function setStartDate(string $startDate): void
     {
         $this->startDate = $startDate;
     }
@@ -102,7 +100,7 @@ class Event extends AbstractObject
     /**
      * @return string $startDate
      */
-    public function getStartDate()
+    public function getStartDate(): string
     {
         return $this->startDate;
     }
@@ -113,7 +111,7 @@ class Event extends AbstractObject
      * @param string $endDate for event
      * @return void
      */
-    public function setEndDate($endDate)
+    public function setEndDate(string $endDate): void
     {
         $this->endDate = $endDate;
     }
@@ -121,7 +119,7 @@ class Event extends AbstractObject
     /**
      * @return string $endDate of event
      */
-    public function getEndDate()
+    public function getEndDate(): string
     {
         return $this->endDate;
     }
@@ -132,7 +130,7 @@ class Event extends AbstractObject
      * @param string $eventType for the instance
      * @return void
      */
-    public function setEventType($eventType)
+    public function setEventType(string $eventType): void
     {
         $this->eventType = $eventType;
     }
@@ -140,7 +138,7 @@ class Event extends AbstractObject
     /**
      * @return string $eventType of object
      */
-    public function getEventType()
+    public function getEventType(): string
     {
         return $this->eventType;
     }
@@ -151,7 +149,7 @@ class Event extends AbstractObject
      * @param bool $isRecurring flag for event
      * @return void
      */
-    public function setIsRecurring($isRecurring)
+    public function setIsRecurring(bool $isRecurring): void
     {
         $this->isRecurring = $isRecurring;
     }
@@ -159,7 +157,7 @@ class Event extends AbstractObject
     /**
      * @return bool $isRecurring flag
      */
-    public function getIsRecurring()
+    public function getIsRecurring(): bool
     {
         return $this->isRecurring;
     }
@@ -170,7 +168,7 @@ class Event extends AbstractObject
      * @param string $recurrence for instance
      * @return void
      */
-    public function setRecurrence($recurrence)
+    public function setRecurrence(string $recurrence): void
     {
         $this->recurrence = $recurrence;
     }
@@ -178,7 +176,7 @@ class Event extends AbstractObject
     /**
      * @return string $recurrence of the event
      */
-    public function getRecurrence()
+    public function getRecurrence(): string
     {
         return $this->recurrence;
     }
@@ -189,7 +187,7 @@ class Event extends AbstractObject
      * @param bool $isAllday flag for the event
      * @return void
      */
-    public function setIsAllday($isAllday)
+    public function setIsAllday(bool $isAllday): void
     {
         $this->isAllday = $isAllday;
     }
@@ -197,7 +195,7 @@ class Event extends AbstractObject
     /**
      * @return bool $isAllday flag
      */
-    public function getIsAllday()
+    public function getIsAllday(): bool
     {
         return $this->isAllday;
     }

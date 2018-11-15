@@ -26,7 +26,7 @@ class EventTest extends TestCase
         parent::tearDown();
     }
 
-    public function testSetCalendarId()
+    public function testSetCalendarId(): void
     {
         $id = '123123';
         $obj = new Event();
@@ -34,7 +34,7 @@ class EventTest extends TestCase
         $this->assertEquals($id, $obj->getCalendarId());
     }
 
-    public function testSetTitle()
+    public function testSetTitle(): void
     {
         $title = 'Thou shall not pass';
         $obj = new Event();
@@ -42,7 +42,7 @@ class EventTest extends TestCase
         $this->assertEquals($title, $obj->getTitle());
     }
 
-    public function testSetContent()
+    public function testSetContent(): void
     {
         $content = 'Hello, Dolly!';
         $obj = new Event();
@@ -51,7 +51,7 @@ class EventTest extends TestCase
         $this->assertEquals($content, $obj->getContent());
     }
 
-    public function testSetStartDate()
+    public function testSetStartDate(): void
     {
         $date = '2018-04-21 09:00:00';
         $obj = new Event();
@@ -61,7 +61,7 @@ class EventTest extends TestCase
         $this->assertEquals($date, $obj->getEndDate());
     }
 
-    public function testSetEventType()
+    public function testSetEventType(): void
     {
         $type = 'default';
         $obj = new Event();
@@ -69,7 +69,7 @@ class EventTest extends TestCase
         $this->assertEquals($type, $obj->getEventType());
     }
 
-    public function testSetIsRecurring()
+    public function testSetIsRecurring(): void
     {
         $isRecurring = false;
         $obj = new Event();
@@ -77,18 +77,16 @@ class EventTest extends TestCase
         $this->assertEquals($isRecurring, $obj->getIsRecurring());
     }
 
-    public function testSetRecurrence()
+    public function testSetRecurrence(): void
     {
-        $recurrence = (object)[
-            'foo' => 'bar',
-        ];
+        $recurrence = 'foo';
 
         $obj = new Event();
         $obj->setRecurrence($recurrence);
         $this->assertEquals($recurrence, $obj->getRecurrence());
     }
 
-    public function testSetIsAllday()
+    public function testSetIsAllday(): void
     {
         $isAllday = true;
         $obj = new Event();

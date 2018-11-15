@@ -37,6 +37,11 @@ use \ArrayObject;
  * @method \Qobo\Calendar\Model\Entity\Calendar[] patchEntities($entities, array $data, array $options = [])
  * @method \Qobo\Calendar\Model\Entity\Calendar findOrCreate($search, callable $callback = null, $options = [])
  *
+ * @todo implement the following methods which are being used by SyncTask
+ * @method syncCalendars(array $options)
+ * @method syncCalendarEvents($calendar, array $options)
+ * @method syncEventsAttendees($calendar, $resultEvents)
+ *
  * @mixin \Cake\ORM\Behavior\TimestampBehavior
  */
 class CalendarsTable extends Table
@@ -114,30 +119,31 @@ class CalendarsTable extends Table
      *
      * @return void
      */
-    public function beforeSave(Event $event, EntityInterface $entity, ArrayObject $options)
+    public function beforeSave(Event $event, EntityInterface $entity, ArrayObject $options): void
     {
-        if (empty($entity->source)) {
-            $entity->source = 'Plugin__';
+        if (empty($entity->get('source'))) {
+            $entity->set('source', 'Plugin__');
         }
 
         // Default calendar color in case none is given.
-        if (empty($entity->color)) {
-            $entity->color = $this->getColor($entity);
+        if (empty($entity->get('color'))) {
+            $entity->set('color', $this->getColor($entity));
         }
 
-        $this->CalendarEvents = TableRegistry::get('Qobo/Calendar.CalendarEvents');
-        $default = $this->CalendarEvents->getEventTypeBy('default');
+        /** @var \Qobo\Calendar\Model\Table\CalendarEventsTable $calendarEventsTable */
+        $calendarEventsTable = TableRegistry::get('Qobo/Calendar.CalendarEvents');
+        $default = $calendarEventsTable->getEventTypeBy('default');
         $defaultKey = key($default);
-        if (!empty($entity->event_types)) {
-            $types = json_decode($entity->event_types, true);
+        if (!empty($entity->get('event_types'))) {
+            $types = json_decode($entity->get('event_types'), true);
 
             if (!in_array($defaultKey, $types)) {
                 array_push($types, $defaultKey);
                 asort($types);
-                $entity->event_types = json_encode($types);
+                $entity->set('event_types', json_encode($types));
             }
         } else {
-            $entity->event_types = json_encode([$defaultKey]);
+            $entity->set('event_types', json_encode([$defaultKey]));
         }
     }
 
@@ -152,10 +158,10 @@ class CalendarsTable extends Table
      *
      * @return void
      */
-    public function afterSave(Event $event, EntityInterface $entity, ArrayObject $options)
+    public function afterSave(Event $event, EntityInterface $entity, ArrayObject $options): void
     {
-        if (empty($entity->source_id)) {
-            $entity->source_id = $entity->id;
+        if (empty($entity->get('source_id'))) {
+            $entity->set('source_id', $entity->get('id'));
             $this->save($entity);
         }
     }
@@ -163,11 +169,11 @@ class CalendarsTable extends Table
     /**
      * Get Calendar entities.
      *
-     * @param array $options for filtering calendars
+     * @param mixed[] $options for filtering calendars
      *
-     * @return array $result containing calendar entities with event_types
+     * @return mixed[] $result containing calendar entities with event_types
      */
-    public function getCalendars(array $options = [])
+    public function getCalendars(array $options = []): array
     {
         $result = $conditions = [];
 
@@ -195,15 +201,15 @@ class CalendarsTable extends Table
     /**
      * Get Default calendar color.
      *
-     * @param \Cake\ORM\Entity $entity of the current calendar
+     * @param \Cake\Datasource\EntityInterface|null $entity of the current calendar
      * @return string $color containing hexadecimal color notation.
      */
-    public function getColor($entity = null)
+    public function getColor(?EntityInterface $entity = null): string
     {
         $color = Configure::read('Calendar.Configs.color');
 
-        if (!empty($entity->color)) {
-            $color = $entity->color;
+        if ($entity instanceof EntityInterface && !empty($entity->get('color'))) {
+            $color = $entity->get('color');
         }
 
         if (!$color) {
@@ -216,11 +222,11 @@ class CalendarsTable extends Table
     /**
      * Synchronize calendars
      *
-     * @param array $options passed from the outside.
+     * @param mixed[] $options passed from the outside.
      *
-     * @return array $result of the synchronize method.
+     * @return mixed[] $result of the synchronize method.
      */
-    public function sync(array $options = [])
+    public function sync(array $options = []): array
     {
         $result = [];
         $event = new Event((string)EventName::PLUGIN_CALENDAR_MODEL_GET_CALENDARS(), $this, [
@@ -253,11 +259,11 @@ class CalendarsTable extends Table
      * in event_types field. For instance: Users::birthdays.
      *
      * @param string $tableName of the app's module
-     * @param array $options with extra data
+     * @param mixed[] $options with extra data
      *
-     * @return array $result with calendar instances
+     * @return mixed[] $result with calendar instances
      */
-    public function getByAllowedEventTypes($tableName = null, array $options = [])
+    public function getByAllowedEventTypes(?string $tableName = null, array $options = []): array
     {
         $result = [];
         $query = $this->find();
@@ -294,12 +300,12 @@ class CalendarsTable extends Table
     /**
      * Save Calendar Entity
      *
-     * @param array $calendar data to be saved
-     * @param array $options in case any extras required for conditions
+     * @param mixed[] $calendar data to be saved
+     * @param mixed[] $options in case any extras required for conditions
      *
-     * @return array $response containing the state of save operation
+     * @return mixed[] $response containing the state of save operation
      */
-    public function saveCalendarEntity(array $calendar = [], array $options = [])
+    public function saveCalendarEntity(array $calendar = [], array $options = []): array
     {
         $response = [
             'errors' => [],
@@ -316,7 +322,8 @@ class CalendarsTable extends Table
             $entity = $this->newEntity();
             $entity = $this->patchEntity($entity, $calendar);
         } else {
-            $calEntity = $query->first();
+            /** @var \Cake\Datasource\EntityInterface $calEntity */
+            $calEntity = $query->firstOrFail();
             $entity = $this->patchEntity($calEntity, $calendar);
         }
 
@@ -335,10 +342,10 @@ class CalendarsTable extends Table
     /**
      * Get Event Types saved within Calendar
      *
-     * @param string $data of the event type
-     * @return array $result with event types decoded.
+     * @param string|null $data of the event type
+     * @return mixed[] $result with event types decoded.
      */
-    protected function getEventTypes($data)
+    protected function getEventTypes(?string $data = null): array
     {
         $result = [];
 

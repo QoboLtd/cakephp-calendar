@@ -2,14 +2,13 @@
 namespace Qobo\Calendar\Test\TestCase\Controller;
 
 use Cake\ORM\TableRegistry;
-use Cake\TestSuite\IntegrationTestCase;
-use Qobo\Calendar\Controller\CalendarAttendeesController;
 use Qobo\Calendar\Model\Table\CalendarAttendeesTable;
+use Qobo\Utils\TestSuite\JsonIntegrationTestCase;
 
 /**
  * Qobo\Calendar\Controller\CalendarAttendeesController Test Case
  */
-class CalendarAttendeesControllerTest extends IntegrationTestCase
+class CalendarAttendeesControllerTest extends JsonIntegrationTestCase
 {
     /**
      * Fixtures
@@ -24,6 +23,9 @@ class CalendarAttendeesControllerTest extends IntegrationTestCase
         'plugin.qobo/calendar.calendars',
     ];
 
+    /** @var \Qobo\Calendar\Model\Table\CalendarAttendeesTable */
+    private $CalendarAttendees;
+
     public function setUp()
     {
         parent::setUp();
@@ -34,9 +36,13 @@ class CalendarAttendeesControllerTest extends IntegrationTestCase
                 'User' => TableRegistry::get('Users')->get($userId)->toArray()
             ]
         ]);
+        $this->setRequestHeaders();
 
         $config = TableRegistry::exists('CalendarAttendees') ? [] : ['className' => CalendarAttendeesTable::class];
-        $this->CalendarAttendees = TableRegistry::get('CalendarAttendees', $config);
+
+        /** @var \Qobo\Calendar\Model\Table\CalendarAttendeesTable $table */
+        $table = TableRegistry::get('CalendarAttendees', $config);
+        $this->CalendarAttendees = $table;
     }
 
     public function tearDown()
@@ -44,7 +50,7 @@ class CalendarAttendeesControllerTest extends IntegrationTestCase
         parent::tearDown();
     }
 
-    public function testDeleteResponseOk()
+    public function testDeleteResponseOk(): void
     {
         $id = '00000000-0000-0000-0000-000000000001';
 
@@ -52,7 +58,7 @@ class CalendarAttendeesControllerTest extends IntegrationTestCase
         $this->assertRedirect('/calendars/calendars');
     }
 
-    public function testViewResponseOk()
+    public function testViewResponseOk(): void
     {
         $id = '00000000-0000-0000-0000-000000000001';
         $this->get('/calendars/calendar-attendees/view/' . $id);
@@ -62,7 +68,7 @@ class CalendarAttendeesControllerTest extends IntegrationTestCase
         $this->assertEquals($calendarAttendee['id'], $attendee->id);
     }
 
-    public function testLookup()
+    public function testLookup(): void
     {
         $term = [
             'term' => 'John'

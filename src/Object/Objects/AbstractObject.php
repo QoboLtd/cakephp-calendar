@@ -1,17 +1,30 @@
 <?php
 namespace Qobo\Calendar\Object\Objects;
 
+use Cake\Datasource\EntityInterface;
 use Cake\Utility\Inflector;
 
 abstract class AbstractObject
 {
+    /** @var mixed */
+    protected $id;
+
+    /** @var string */
+    protected $entityProvider = '';
+
+    /** @var string */
+    protected $source;
+
+    /** @var string */
+    protected $sourceId;
+
     /**
      * Set Calendar Id
      *
      * @param mixed $id of the calendar
      * @return void
      */
-    public function setId($id)
+    public function setId($id): void
     {
         $this->id = $id;
     }
@@ -31,7 +44,7 @@ abstract class AbstractObject
      *
      * @return string $entity provider containing full object path to it
      */
-    public function getEntityProvider()
+    public function getEntityProvider(): string
     {
         return $this->entityProvider;
     }
@@ -42,7 +55,7 @@ abstract class AbstractObject
      * @param string $source from where calendar derives
      * @return void
      */
-    public function setSource($source)
+    public function setSource(string $source): void
     {
         $this->source = $source;
     }
@@ -50,7 +63,7 @@ abstract class AbstractObject
     /**
      * @return string $source of the object
      */
-    public function getSource()
+    public function getSource(): string
     {
         return $this->source;
     }
@@ -61,15 +74,15 @@ abstract class AbstractObject
      * @param string $sourceId of calendar source
      * @return void
      */
-    public function setSourceId($sourceId)
+    public function setSourceId(string $sourceId): void
     {
         $this->sourceId = $sourceId;
     }
 
     /**
-     * @return mixed $sourceId of the object instance.
+     * @return string $sourceId of the object instance.
      */
-    public function getSourceId()
+    public function getSourceId(): string
     {
         return $this->sourceId;
     }
@@ -81,14 +94,14 @@ abstract class AbstractObject
      * prepopulated with the data of a given object instance
      * via getters.
      *
-     * @return \Cake\ORM\Entity $entity of the calendar
+     * @return \Cake\Datasource\EntityInterface $entity of the calendar
      */
-    public function toEntity()
+    public function toEntity(): EntityInterface
     {
         $data = [];
 
         $entityProvider = $this->getEntityProvider();
-        foreach ($this as $property => $value) {
+        foreach (get_object_vars($this) as $property => $value) {
             $method = Inflector::variable('get ' . $property);
 
             if (method_exists($this, $method) && is_callable([$this, $method])) {

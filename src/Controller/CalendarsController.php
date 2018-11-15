@@ -30,7 +30,7 @@ class CalendarsController extends AppController
      *
      * @return void
      */
-    public function index()
+    public function index(): void
     {
         $calendars = $options = [];
 
@@ -51,7 +51,7 @@ class CalendarsController extends AppController
             'options' => []
         ]);
 
-        $this->eventManager()->dispatch($event);
+        $this->getEventManager()->dispatch($event);
         $calendars = $event->result;
 
         $this->set(compact('calendars'));
@@ -63,9 +63,8 @@ class CalendarsController extends AppController
      *
      * @param string|null $id Calendar id.
      * @return void
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function view($id = null)
+    public function view(? string $id = null): void
     {
         $calendar = null;
 
@@ -78,18 +77,19 @@ class CalendarsController extends AppController
     /**
      * Add method
      *
-     * @return \Cake\Http\Response|null Redirects on successful add, renders view otherwise.
+     * @return \Cake\Http\Response|void|null Redirects on successful add, renders view otherwise.
      */
     public function add()
     {
-        $this->CalendarEvents = TableRegistry::get('Qobo/Calendar.CalendarEvents');
+        /** @var \Qobo\Calendar\Model\Table\CalendarEventsTable $calendarEventsTable */
+        $calendarEventsTable = TableRegistry::get('Qobo/Calendar.CalendarEvents');
         $calendar = $this->Calendars->newEntity();
 
-        $eventTypes = $this->CalendarEvents->getEventTypes(['user' => $this->Auth->user()]);
+        $eventTypes = $calendarEventsTable->getEventTypes(['user' => $this->Auth->user()]);
 
         if ($this->request->is('post')) {
             $data = $this->request->getData();
-
+            $data = is_array($data) ? $data : [];
             if (!empty($data['event_types'])) {
                 $data['event_types'] = json_encode($data['event_types']);
             }
@@ -97,12 +97,12 @@ class CalendarsController extends AppController
             $calendar = $this->Calendars->patchEntity($calendar, $data);
 
             if ($this->Calendars->save($calendar)) {
-                $this->Flash->success(__('The calendar has been saved.'));
+                $this->Flash->success((string)__('The calendar has been saved.'));
 
                 return $this->redirect(['action' => 'index']);
             }
 
-            $this->Flash->error(__('The calendar could not be saved. Please, try again.'));
+            $this->Flash->error((string)__('The calendar could not be saved. Please, try again.'));
         }
 
         $this->set(compact('calendar', 'eventTypes'));
@@ -113,15 +113,15 @@ class CalendarsController extends AppController
      * Edit method
      *
      * @param string|null $id Calendar id.
-     * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
-     * @throws \Cake\Network\Exception\NotFoundException When record not found.
+     * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
      */
-    public function edit($id = null)
+    public function edit(?string $id = null)
     {
-        $this->CalendarEvents = TableRegistry::get('Qobo/Calendar.CalendarEvents');
+        /** @var \Qobo\Calendar\Model\Table\CalendarEventsTable $calendarEventsTable */
+        $calendarEventsTable = TableRegistry::get('Qobo/Calendar.CalendarEvents');
         $calendar = $this->Calendars->get($id);
 
-        $eventTypes = $this->CalendarEvents->getEventTypes(['user' => $this->Auth->user()]);
+        $eventTypes = $calendarEventsTable->getEventTypes(['user' => $this->Auth->user()]);
 
         if ($this->request->is(['patch', 'post', 'put'])) {
             $data = $this->request->getData();
@@ -132,11 +132,11 @@ class CalendarsController extends AppController
             $calendar = $this->Calendars->patchEntity($calendar, $data);
 
             if ($this->Calendars->save($calendar)) {
-                $this->Flash->success(__('The calendar has been saved.'));
+                $this->Flash->success((string)__('The calendar has been saved.'));
 
                 return $this->redirect(['action' => 'index']);
             }
-            $this->Flash->error(__('The calendar could not be saved. Please, try again.'));
+            $this->Flash->error((string)__('The calendar could not be saved. Please, try again.'));
         }
 
         $this->set(compact('calendar', 'eventTypes'));
@@ -147,18 +147,17 @@ class CalendarsController extends AppController
      * Delete method
      *
      * @param string|null $id Calendar id.
-     * @return \Cake\Http\Response|null Redirects to index.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
+     * @return \Cake\Http\Response|void|null Redirects to index.
      */
-    public function delete($id = null)
+    public function delete(?string $id = null)
     {
         $this->request->allowMethod(['post', 'delete']);
         $calendar = $this->Calendars->get($id);
 
         if ($this->Calendars->delete($calendar)) {
-            $this->Flash->success(__('The calendar has been deleted.'));
+            $this->Flash->success((string)__('The calendar has been deleted.'));
         } else {
-            $this->Flash->error(__('The calendar could not be deleted. Please, try again.'));
+            $this->Flash->error((string)__('The calendar could not be deleted. Please, try again.'));
         }
 
         return $this->redirect(['action' => 'index']);

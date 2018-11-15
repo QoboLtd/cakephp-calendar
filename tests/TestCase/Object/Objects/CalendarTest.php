@@ -1,15 +1,12 @@
 <?php
 namespace Qobo\Calendar\Test\TestCase\Object\Objects;
 
-use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 use Qobo\Calendar\Object\ObjectFactory;
 use Qobo\Calendar\Object\Objects\Calendar;
 
 class CalendarTest extends TestCase
 {
-    protected $caledarsTable;
-
     public $fixtures = [
         'plugin.qobo/calendar.calendars',
     ];
@@ -17,8 +14,6 @@ class CalendarTest extends TestCase
     public function setUp()
     {
         parent::setUp();
-        $config = TableRegistry::exists('Qobo/Calendars.Calendars') ? [] : ['className' => 'Qobo\Calendar\Model\Table\CalendarsTable'];
-        $this->calendarsTable = TableRegistry::get('Qobo/Calendars.Calendars', $config);
     }
 
     public function tearDown()
@@ -26,7 +21,7 @@ class CalendarTest extends TestCase
         parent::tearDown();
     }
 
-    public function testSetId()
+    public function testSetId(): void
     {
         $id = '123';
         $obj = new Calendar();
@@ -34,13 +29,13 @@ class CalendarTest extends TestCase
         $this->assertEquals($id, $obj->getId());
     }
 
-    public function testGetEntityProvider()
+    public function testGetEntityProvider(): void
     {
         $obj = new Calendar();
         $this->assertNotEmpty($obj->getEntityProvider());
     }
 
-    public function testSetName()
+    public function testSetName(): void
     {
         $obj = new Calendar();
         $name = 'Foobar';
@@ -48,7 +43,7 @@ class CalendarTest extends TestCase
         $this->assertEquals($name, $obj->getName());
     }
 
-    public function testSetIcon()
+    public function testSetIcon(): void
     {
         $icon = 'fa-close';
         $obj = new Calendar();
@@ -57,7 +52,7 @@ class CalendarTest extends TestCase
         $this->assertEquals($icon, $obj->getIcon());
     }
 
-    public function testSetColor()
+    public function testSetColor(): void
     {
         $color = 'red';
         $obj = new Calendar();
@@ -66,7 +61,7 @@ class CalendarTest extends TestCase
         $this->assertEquals($color, $obj->getColor());
     }
 
-    public function testSetCalendarType()
+    public function testSetCalendarType(): void
     {
         $type = 'default';
         $obj = new Calendar();
@@ -75,7 +70,7 @@ class CalendarTest extends TestCase
         $this->assertEquals($type, $obj->getCalendarType());
     }
 
-    public function testSetSource()
+    public function testSetSource(): void
     {
         $source = 'App__';
         $obj = new Calendar();
@@ -84,7 +79,7 @@ class CalendarTest extends TestCase
         $this->assertEquals($source, $obj->getSource());
     }
 
-    public function testSetActive()
+    public function testSetActive(): void
     {
         $active = true;
         $obj = new Calendar();
@@ -92,7 +87,7 @@ class CalendarTest extends TestCase
         $this->assertEquals($active, $obj->getActive());
     }
 
-    public function testSetEditable()
+    public function testSetEditable(): void
     {
         $editable = false;
         $obj = new Calendar();
@@ -100,7 +95,7 @@ class CalendarTest extends TestCase
         $this->assertEquals($editable, $obj->getEditable());
     }
 
-    public function testSetIsPublic()
+    public function testSetIsPublic(): void
     {
         $isPublic = true;
         $obj = new Calendar();
@@ -108,7 +103,7 @@ class CalendarTest extends TestCase
         $this->assertEquals($isPublic, $obj->getIsPublic());
     }
 
-    public function testGetSourceId()
+    public function testGetSourceId(): void
     {
         $sourceId = '1234';
         $obj = new Calendar();

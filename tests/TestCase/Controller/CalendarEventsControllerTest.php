@@ -2,15 +2,19 @@
 namespace Qobo\Calendar\Test\TestCase\Controller;
 
 use Cake\ORM\TableRegistry;
-use Cake\TestSuite\IntegrationTestCase;
 use Qobo\Calendar\Controller\CalendarEventsController;
 use Qobo\Calendar\Model\Table\CalendarEventsTable;
+use Qobo\Utils\TestSuite\JsonIntegrationTestCase;
 
 /**
  * Qobo\Calendar\Controller\CalendarEventsController Test Case
  */
-class CalendarEventsControllerTest extends IntegrationTestCase
+class CalendarEventsControllerTest extends JsonIntegrationTestCase
 {
+    /**
+     * @var \Qobo\Calendar\Model\Table\CalendarEventsTable
+     */
+    protected $CalendarEvents;
 
     /**
      * Fixtures
@@ -35,8 +39,13 @@ class CalendarEventsControllerTest extends IntegrationTestCase
                 'User' => TableRegistry::get('Users')->get($userId)->toArray()
             ]
         ]);
-        $config = TableRegistry::exists('CalendarEvents') ? [] : ['className' => CalendarEventsTable::class];
-        $this->CalendarEvents = TableRegistry::get('CalendarEvents', $config);
+        $this->setRequestHeaders();
+        $config = TableRegistry::exists('Qobo\Calendar.CalendarEvents') ? [] : ['className' => CalendarEventsTable::class];
+        /**
+         * @var \Qobo\Calendar\Model\Table\CalendarEventsTable $table
+         */
+        $table = TableRegistry::get('CalendarEvents', $config);
+        $this->CalendarEvents = $table;
     }
 
     public function tearDown()
@@ -44,13 +53,13 @@ class CalendarEventsControllerTest extends IntegrationTestCase
         parent::tearDown();
     }
 
-    public function testIndexGetException()
+    public function testIndexGetException(): void
     {
         $this->get('/calendars/calendar-events');
         $this->assertResponseError();
     }
 
-    public function testIndexPostResponseOk()
+    public function testIndexPostResponseOk(): void
     {
         $calendarId = '00000000-0000-0000-0000-000000000001';
 
@@ -60,7 +69,7 @@ class CalendarEventsControllerTest extends IntegrationTestCase
         $this->assertTrue(is_array($events));
     }
 
-    public function testViewResponseOk()
+    public function testViewResponseOk(): void
     {
         $eventId = '00000000-0000-0000-0000-000000000004';
 
@@ -70,7 +79,7 @@ class CalendarEventsControllerTest extends IntegrationTestCase
         $this->assertEquals(true, $response['success']);
     }
 
-    public function testGetEventTypesResponseOk()
+    public function testGetEventTypesResponseOk(): void
     {
         $calendarId = '00000000-0000-0000-0000-000000000001';
 
@@ -80,7 +89,7 @@ class CalendarEventsControllerTest extends IntegrationTestCase
         $this->assertNotEmpty($eventTypes);
     }
 
-    public function testGetEventTypesResponseExclude()
+    public function testGetEventTypesResponseExclude(): void
     {
         $calendarId = '00000000-0000-0000-0000-000000000001';
 
@@ -90,13 +99,13 @@ class CalendarEventsControllerTest extends IntegrationTestCase
         $this->assertNotEmpty($eventTypes);
     }
 
-    public function testAddResponseError()
+    public function testAddResponseError(): void
     {
         $this->get('/calendars/calendar-events/add');
         $this->assertResponseError();
     }
 
-    public function testAddErrorResponse()
+    public function testAddErrorResponse(): void
     {
         $data = [
             'calendar_id' => null,
@@ -114,7 +123,7 @@ class CalendarEventsControllerTest extends IntegrationTestCase
         $this->assertEquals($event['success'], false);
     }
 
-    public function testAddGenerateTitle()
+    public function testAddGenerateTitle(): void
     {
         $data = [
             'calendar_id' => '00000000-0000-0000-0000-000000000001',
@@ -125,17 +134,19 @@ class CalendarEventsControllerTest extends IntegrationTestCase
         ];
 
         $this->post('/calendars/calendar-events/add', $data);
+
+        /** @var \Cake\Datasource\EntityInterface $saved */
         $saved = $this->CalendarEvents->find()
             ->where([
                 'content' => $data['content']
             ])
             ->first();
 
-        $this->assertEquals('Calendar - 1 Event', $saved->title);
-        $this->assertEquals($saved->content, $data['content']);
+        $this->assertEquals('Calendar - 1 Event', $saved->get('title'));
+        $this->assertEquals($saved->get('content'), $data['content']);
     }
 
-    public function testAddResponseOk()
+    public function testAddResponseOk(): void
     {
         $data = [
             'calendar_id' => '00000000-0000-0000-0000-000000000001',
@@ -150,6 +161,7 @@ class CalendarEventsControllerTest extends IntegrationTestCase
         $event = $this->viewVariable('response');
         $this->assertEquals($event['success'], true);
 
+        /** @var \Cake\Datasource\EntityInterface $saved */
         $saved = $this->CalendarEvents->find()
             ->where([
                 'title' => 'Test Event',
@@ -157,10 +169,10 @@ class CalendarEventsControllerTest extends IntegrationTestCase
             ])
             ->first();
 
-        $this->assertEquals($saved->content, $data['content']);
+        $this->assertEquals($saved->get('content'), $data['content']);
     }
 
-    public function testAddRecurringEvent()
+    public function testAddRecurringEvent(): void
     {
         $data = [
             'calendar_id' => '00000000-0000-0000-0000-000000000001',
@@ -176,17 +188,24 @@ class CalendarEventsControllerTest extends IntegrationTestCase
         ];
 
         $this->post('/calendars/calendar-events/add', $data);
-        $saved = $this->CalendarEvents->find()
-            ->contain(['CalendarAttendees'])
+
+        /** @var \Cake\ORM\Query */
+        $query = $this->CalendarEvents
+            ->find()
             ->where([
                 'title' => $data['title'],
-            ])->first();
-        $this->assertEquals($saved->title, $data['title']);
-        $this->assertEquals(1, count($saved->calendar_attendees));
-        $this->assertEquals('00000000-0000-0000-0000-000000000001', $saved->calendar_attendees[0]->id);
+            ])
+            ->contain(['CalendarAttendees']);
+
+        /** @var \Cake\Datasource\EntityInterface $saved */
+        $saved = $query->first();
+
+        $this->assertEquals($saved->get('title'), $data['title']);
+        $this->assertEquals(1, count($saved->get('calendar_attendees')));
+        $this->assertEquals('00000000-0000-0000-0000-000000000001', $saved->get('calendar_attendees')[0]->id);
     }
 
-    public function testDeleteResponseOk()
+    public function testDeleteResponseOk(): void
     {
         $eventId = '00000000-0000-0000-0000-000000000004';
 

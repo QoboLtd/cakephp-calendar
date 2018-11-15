@@ -1,8 +1,6 @@
 <?php
 namespace Qobo\Calendar\Object\Objects;
 
-use Cake\Utility\Inflector;
-
 class Attendee extends AbstractObject
 {
 
@@ -24,7 +22,7 @@ class Attendee extends AbstractObject
      * @param string $displayName of the attendee
      * @return void
      */
-    public function setDisplayName($displayName)
+    public function setDisplayName(string $displayName): void
     {
         $this->displayName = $displayName;
     }
@@ -32,7 +30,7 @@ class Attendee extends AbstractObject
     /**
      * @return string $displayName of attendee
      */
-    public function getDisplayName()
+    public function getDisplayName(): string
     {
         return $this->displayName;
     }
@@ -43,7 +41,7 @@ class Attendee extends AbstractObject
      * @param mixed $contactDetails in longtext format
      * @return void
      */
-    public function setContactDetails($contactDetails)
+    public function setContactDetails($contactDetails): void
     {
         $this->contactDetails = $contactDetails;
     }
