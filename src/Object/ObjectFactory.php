@@ -5,7 +5,8 @@ use Cake\Core\Configure;
 use Cake\Filesystem\Folder;
 use Cake\Utility\Inflector;
 use InvalidArgumentException;
-use Qobo\Calendar\Object\Parsers\Json\Event;
+use Qobo\Utils\ModuleConfig\Parser\Parser;
+use Qobo\Utils\ModuleConfig\Parser\Schema;
 use \RuntimeException;
 
 class ObjectFactory
@@ -45,17 +46,11 @@ class ObjectFactory
             $list = self::getModuleConfigNames($entityName, $files, $path);
 
             $parserName = Inflector::classify(Inflector::singularize($objectName));
-            $namespace = 'Qobo\\Calendar\\Object\\Parsers\\Json\\';
 
-            $className = $namespace . $parserName;
+            $file = 'file://' . dirname(dirname(dirname(__FILE__))) . DS . 'config' . DS . 'Schema' . DS . Inflector::underscore($parserName) . '.json';
+            $schema = new Schema($file);
+            $parser = new Parser($schema);
 
-            if (!class_exists($className)) {
-                throw new RuntimeException(
-                    sprintf('Class %s does not exist', $className)
-                );
-            }
-
-            $parser = new $className();
             $configFiles = array_flip($list);
 
             if (!$configFiles[$configName]) {
