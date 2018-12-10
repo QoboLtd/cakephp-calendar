@@ -5,8 +5,8 @@ use Cake\Core\Configure;
 use Cake\Filesystem\Folder;
 use Cake\Utility\Inflector;
 use InvalidArgumentException;
-use Qobo\Utils\ModuleConfig\Parser\Schema;
 use Qobo\Utils\ModuleConfig\Parser\Parser;
+use Qobo\Utils\ModuleConfig\Parser\Schema;
 use \RuntimeException;
 
 class ObjectFactory
