@@ -1,5 +1,5 @@
 <template>
-    <transition name="modal" v-if="showModal">
+    <transition name="modal" v-if="modal.showModal">
       <div class="modal modal-mask" style="display: block">
         <div class="modal-dialog" role="document">
           <div class="modal-content">
@@ -12,9 +12,9 @@
               <!-- view information of the calendar -->
               <slot name="body-content"></slot>
             </div>
-            <div class="modal-footer" v-if="showFooter">
-              <a :href="editUrl" class="btn btn-info" v-if="showEdit"> Edit</a>
-              <button type="button" class="btn btn-info" @click="saveModal" v-if="showSaveButton === true"> Save </button>
+            <div class="modal-footer" v-if="modal.showFooter">
+              <a :href="modal.editUrl" class="btn btn-info" v-if="modal.showEdit"> Edit</a>
+              <button type="button" class="btn btn-info" @click="saveModal" v-if="modal.showSaveButton === true"> Save </button>
               <button type="button" class="btn btn-info" @click="closeModal"> Close </button>
             </div>
           </div>
@@ -24,7 +24,9 @@
 </template>
 <script>
 export default {
-  props: ['showModal', 'showFooter', 'showEdit', 'editUrl', 'showSaveButton'],
+  props: {
+    modal: Object
+  },
   methods: {
     closeModal () {
       this.$emit('modal-toggle', { value: false })

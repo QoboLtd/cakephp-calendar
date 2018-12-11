@@ -6,18 +6,12 @@
   </div>
 </template>
 <script>
+import { DAYS } from '@/common/recurrence.config'
+
 export default {
   data () {
     return {
-      options: [
-        { label: 'Monday', value: 'MO' },
-        { label: 'Tuesday', value: 'TU' },
-        { label: 'Wednesday', value: 'WE' },
-        { label: 'Thursday', value: 'TH' },
-        { label: 'Friday', value: 'FR' },
-        { label: 'Saturday', value: 'SA' },
-        { label: 'Sunday', value: 'SU' }
-      ],
+      options: DAYS,
       values: []
     }
   },
