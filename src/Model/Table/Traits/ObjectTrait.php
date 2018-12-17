@@ -54,9 +54,9 @@ trait ObjectTrait
     /**
      * Get Default Event Type
      *
-     * @param \Cake\Datasource\EntityInterface $entity
-     * @param \ArrayObject $options,
-     * @param mixed|null $map
+     * @param \Cake\Datasource\EntityInterface $entity resource
+     * @param \ArrayObject $options of the entity
+     * @param mixed|null $map to transfer the object
      *
      * @return string $result of event type
      */
