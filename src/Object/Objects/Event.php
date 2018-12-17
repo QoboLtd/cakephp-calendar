@@ -23,7 +23,7 @@ class Event extends AbstractObject
 
     protected $eventType;
 
-    protected $isRecurring;
+    protected $isRecurring = false;
 
     protected $recurrence;
 
@@ -136,9 +136,9 @@ class Event extends AbstractObject
     }
 
     /**
-     * @return string $eventType of object
+     * @return string|null $eventType of object
      */
-    public function getEventType(): string
+    public function getEventType(): ?string
     {
         return $this->eventType;
     }
