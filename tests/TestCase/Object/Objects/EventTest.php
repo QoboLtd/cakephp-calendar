@@ -57,8 +57,8 @@ class EventTest extends TestCase
         $obj = new Event();
         $obj->setStartDate($date);
         $obj->setEndDate($date);
-        $this->assertEquals($date, $obj->getStartDate());
-        $this->assertEquals($date, $obj->getEndDate());
+        $this->assertEquals($date, $obj->getStartDate()->i18nFormat('yyyy-MM-dd HH:mm:ss'));
+        $this->assertEquals($date, $obj->getEndDate()->i18nFormat('yyyy-MM-dd HH:mm:ss'));
     }
 
     public function testSetEventType(): void
