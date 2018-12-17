@@ -146,9 +146,9 @@ class Event extends AbstractObject
     }
 
     /**
-     * @return string|null $eventType of object
+     * @return string $eventType of object
      */
-    public function getEventType(): ?string
+    public function getEventType(): string
     {
         return $this->eventType;
     }
