@@ -52,6 +52,26 @@ trait ObjectTrait
     }
 
     /**
+     * Get Default Event Type
+     *
+     * @param \Cake\Datasource\EntityInterface $entity
+     * @param \ArrayObject $options,
+     * @param mixed|null $map
+     *
+     * @return string $result of event type
+     */
+    public function getEventType(EntityInterface $entity, ArrayObject $options, $map = null)
+    {
+        $result = 'Json::' . $entity->getSource() . '::Default';
+
+        if (! empty($options['event_type'])) {
+            $result = $options['event_type'];
+        }
+
+        return $result;
+    }
+
+    /**
      * Get Calendar ID.
      *
      * @param \Cake\Datasource\EntityInterface $entity of the received record
@@ -85,9 +105,11 @@ trait ObjectTrait
     public function getCalendarEventEndDate(EntityInterface $entity, ArrayObject $options, $map = null)
     {
         $source = $map->end_date->options->source;
-        $result = Time::parse($entity->get($source));
 
-        $result->modify('+ 1 hour');
+        $ts = Time::parse($entity->get($source));
+        $endDate = $ts->modify('+ 1 hour')->i18nFormat('yyyy-MM-dd HH:mm');
+
+        $result = new Time($endDate);
 
         return $result;
     }
