@@ -20,8 +20,8 @@ $colors = Utility::getColors();
  */
 echo $this->Html->css(
     [
-        'AdminLTE./plugins/select2/select2.min',
-        'AdminLTE./plugins/colorpicker/bootstrap-colorpicker.min',
+        'AdminLTE./bower_components/select2/dist/css/select2.min',
+        'AdminLTE./bower_components/bootstrap-colorpicker/dist/css/bootstrap-colorpicker.min.css',
         'Qobo/Utils.select2-bootstrap.min',
         'Qobo/Utils.select2-style',
     ],
@@ -30,8 +30,8 @@ echo $this->Html->css(
 
 echo $this->Html->script(
     [
-        'AdminLTE./plugins/select2/select2.full.min',
-        'AdminLTE./plugins/colorpicker/bootstrap-colorpicker.min',
+        'AdminLTE./bower_components/select2/dist/js/select2.full.min',
+        'AdminLTE./bower_components/bootstrap-colorpicker/dist/js/bootstrap-colorpicker.min',
         'Qobo/Utils.select2.init',
     ],
     ['block' => 'scriptBottom']
