@@ -1,6 +1,8 @@
 <?php
 namespace Qobo\Calendar\Object\Objects;
 
+use Cake\I18n\Time;
+
 class Event extends AbstractObject
 {
     protected $entityProvider = '\Qobo\Calendar\Model\Entity\CalendarEvent';
@@ -23,7 +25,7 @@ class Event extends AbstractObject
 
     protected $eventType;
 
-    protected $isRecurring;
+    protected $isRecurring = false;
 
     protected $recurrence;
 
@@ -89,18 +91,22 @@ class Event extends AbstractObject
     /**
      * Set Start Date of event
      *
-     * @param string $startDate of event
+     * @param \Cake\I18n\Time|string $startDate of event
      * @return void
      */
-    public function setStartDate(string $startDate): void
+    public function setStartDate($startDate): void
     {
+        if (is_string($startDate)) {
+            $startDate = new Time($startDate);
+        }
+
         $this->startDate = $startDate;
     }
 
     /**
-     * @return string $startDate
+     * @return \Cake\I18n\Time $startDate
      */
-    public function getStartDate(): string
+    public function getStartDate(): Time
     {
         return $this->startDate;
     }
@@ -108,18 +114,22 @@ class Event extends AbstractObject
     /**
      * Set End Date of event
      *
-     * @param string $endDate for event
+     * @param \Cake\I18n\Time|string $endDate for event
      * @return void
      */
-    public function setEndDate(string $endDate): void
+    public function setEndDate($endDate): void
     {
+        if (is_string($endDate)) {
+            $endDate = new Time($endDate);
+        }
+
         $this->endDate = $endDate;
     }
 
     /**
-     * @return string $endDate of event
+     * @return \Cake\I18n\Time $endDate of event
      */
-    public function getEndDate(): string
+    public function getEndDate(): Time
     {
         return $this->endDate;
     }

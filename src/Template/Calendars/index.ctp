@@ -14,8 +14,8 @@ use Cake\Core\Configure;
 echo $this->Html->css(
     [
         'Qobo/Calendar.fullcalendar.min.css',
-        'AdminLTE./plugins/select2/select2.min',
-        'AdminLTE./plugins/daterangepicker/daterangepicker',
+        'AdminLTE./bower_components/select2/dist/css/select2.min',
+        'AdminLTE./bower_components/bootstrap-daterangepicker/daterangepicker',
         'Qobo/Utils.select2-bootstrap.min',
         'Qobo/Calendar.calendar',
     ]
