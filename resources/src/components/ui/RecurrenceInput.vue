@@ -78,8 +78,9 @@
 
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-default" @click="clearRRule">Clear</button>
             <button type="button" class="btn btn-primary" data-dismiss="modal" @click="saveRRule">Save</button>
+            <button type="button" class="btn btn-default" @click="clearRRule">Reset</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
           </div>
         </div> <!-- modal-content -->
       </div> <!-- modal-dialog -->
@@ -89,49 +90,22 @@
 
 <script>
 import RRule from 'rrule'
+import { MONTHS, WEEKDAYS, FREQUENCIES } from '@/common/recurrence.config'
 
 export default {
   props: ['name', 'recurrenceData'],
   data () {
     return {
-      rruleString: null,
-      rruleRaw: null,
-      count: null,
-      interval: 1,
-      frequency: null,
       byweekday: [],
       bymonth: [],
-      months: [
-        { name: 'Jan', value: 1 },
-        { name: 'Feb', value: 2 },
-        { name: 'Mar', value: 3 },
-        { name: 'Apr', value: 4 },
-        { name: 'May', value: 5 },
-        { name: 'Jun', value: 6 },
-        { name: 'Jul', value: 7 },
-        { name: 'Aug', value: 8 },
-        { name: 'Sep', value: 9 },
-        { name: 'Oct', value: 10 },
-        { name: 'Nov', value: 11 },
-        { name: 'Dec', value: 12 }
-      ],
-      weekdays: [
-        { name: 'MO', value: 'MO' },
-        { name: 'TU', value: 'TU' },
-        { name: 'WE', value: 'WE' },
-        { name: 'TH', value: 'TH' },
-        { name: 'FR', value: 'FR' },
-        { name: 'SA', value: 'SA' },
-        { name: 'SU', value: 'SU' }
-      ],
-      frequencies: [
-        { name: 'Yearly', value: 0 },
-        { name: 'Monthly', value: 1 },
-        { name: 'Weekly', value: 2 },
-        { name: 'Daily', value: 3 },
-        { name: 'Hourly', value: 4 },
-        { name: 'Minutely', value: 5 }
-      ]
+      count: null,
+      frequency: null,
+      frequencies: FREQUENCIES,
+      interval: 1,
+      months: MONTHS,
+      rruleString: null,
+      rruleRaw: null,
+      weekdays: WEEKDAYS
     }
   },
   computed: {
@@ -139,7 +113,7 @@ export default {
       return [this.frequency, this.interval, this.count, this.byweekday, this.bymonth].join()
     }
   },
-  mounted: function () {
+  mounted () {
     if (this.recurrenceData) {
       this.setRRule()
     }

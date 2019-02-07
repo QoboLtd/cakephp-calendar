@@ -3,11 +3,7 @@
     <div ref="calendar"></div>
 
     <modal
-      :show-modal="modal.showModal"
-      :show-footer="modal.showFooter"
-      :show-save-button="modal.showSaveButton"
-      :show-edit="modal.showEdit"
-      :edit-url="modal.editUrl"
+      :modal="modal"
       @modal-save="saveModal"
       @modal-toggle="toggleModal">
         <template slot="header-title">{{ modal.title }}</template>
@@ -20,12 +16,13 @@
   </div>
 </template>
 <script>
-import { mapGetters, mapActions } from 'vuex'
 import * as $ from 'jquery'
 import fullCalendar from 'fullcalendar'
 import EventCreate from '@/components/modals/EventCreate.vue'
 import EventView from '@/components/modals/EventView.vue'
 import Modal from '@/components/Modal.vue'
+import { mapGetters, mapActions } from 'vuex'
+import { CALENDAR_CONFIG } from '@/common/calendar.config'
 
 export default {
   props: ['editable', 'timezone', 'public', 'showPrintButton'],
@@ -49,25 +46,7 @@ export default {
       calendar: null,
       eventInfo: null,
       format: 'YYYY-MM-DD',
-      calendarConfigs: {
-        header: {
-          left: 'prev,next',
-          center: 'title',
-          right: 'month,agendaWeek,agendaDay, listWeek'
-        },
-        buttonText: {
-          today: 'Today',
-          month: 'Month',
-          week: 'Week',
-          day: 'Day',
-          listWeek: 'Weekly Agenda'
-        },
-        lazyFetching: false,
-        defaultView: 'month',
-        firstDay: 1,
-        editable: false,
-        timeFormat: 'HH:mm'
-      }
+      calendarConfigs: CALENDAR_CONFIG
     }
   },
   beforeMount () {
