@@ -111,7 +111,7 @@ class CalendarsController extends AppController
     public function edit(string $id)
     {
         /** @var \Qobo\Calendar\Model\Table\CalendarEventsTable $eventsTable */
-        $eventsTable = TableRegistry::get('Qobo/Calendar.CalendarEvents');
+        $eventsTable = TableRegistry::getTableLocator()->get('Qobo/Calendar.CalendarEvents');
         $calendar = $this->Calendars->get($id);
 
         $eventTypes = $eventsTable->getEventTypes(['user' => $this->Auth->user()]);

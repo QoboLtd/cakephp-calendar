@@ -28,10 +28,10 @@ class CalendarAttendeesController extends AppController
     /**
      * View method
      *
-     * @param string|null $id Calendar Attendee id.
+     * @param string $id Calendar Attendee id.
      * @return \Cake\Http\Response|void
      */
-    public function view(?string $id = null)
+    public function view(string $id)
     {
         $calendarAttendee = $this->CalendarAttendees->get($id, [
             'contain' => ['CalendarEvents']
@@ -44,10 +44,10 @@ class CalendarAttendeesController extends AppController
     /**
      * Delete method
      *
-     * @param string|null $id Calendar Attendee id.
-     * @return \Cake\Http\Response|null Redirects to index.
+     * @param string $id Calendar Attendee id.
+     * @return \Cake\Http\Response|void|null Redirects to index.
      */
-    public function delete(?string $id = null): ?Response
+    public function delete(string $id)
     {
         $this->request->allowMethod(['post', 'delete']);
         $calendarAttendee = $this->CalendarAttendees->get($id);
