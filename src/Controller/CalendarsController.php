@@ -32,7 +32,7 @@ class CalendarsController extends AppController
      */
     public function index(): void
     {
-        $calendars = $options = [];
+        $options = [];
 
         // ajax-based request for public calendars
         if ($this->request->is(['post', 'put', 'patch'])) {
@@ -43,16 +43,9 @@ class CalendarsController extends AppController
             }
         }
 
-        $calendars = $this->Calendars->getCalendars($options);
+        $entities = $this->Calendars->getCalendars($options);
 
-        $event = new Event((string)EventName::APP_CALENDARS_CHECK_PERMISSIONS(), $this, [
-            'entities' => $calendars,
-            'user' => $this->Auth->user(),
-            'options' => []
-        ]);
-
-        $this->getEventManager()->dispatch($event);
-        $calendars = $event->result;
+        $calendars = $entities ? $entities->toArray() : [];
 
         $this->set(compact('calendars'));
         $this->set('_serialize', 'calendars');
@@ -112,10 +105,10 @@ class CalendarsController extends AppController
     /**
      * Edit method
      *
-     * @param string|null $id Calendar id.
+     * @param string $id Calendar id.
      * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
      */
-    public function edit(?string $id = null)
+    public function edit(string $id)
     {
         /** @var \Qobo\Calendar\Model\Table\CalendarEventsTable $eventsTable */
         $eventsTable = TableRegistry::get('Qobo/Calendar.CalendarEvents');

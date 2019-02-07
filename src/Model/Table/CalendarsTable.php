@@ -195,6 +195,12 @@ class CalendarsTable extends Table
 
         foreach ($query as $item) {
             $item->set('event_types', $this->getEventTypes($item->get('event_types')));
+            //@FIXME: re-arrange the permissions for calendar actions check.
+            $item->set('permissions', [
+                'edit' => true,
+                'view' => true,
+                'delete' => true,
+            ]);
         }
 
         return $result;
