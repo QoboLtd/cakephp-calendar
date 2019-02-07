@@ -106,7 +106,7 @@ const actions = {
         .catch(() => reject)
     })
   },
-  getAttendees ({ commit, dispatch, state}, data) {
+  getAttendees ({ commit, dispatch, state }, data) {
     return new Promise((resolve, reject) => {
       ApiService
         .post('/calendars/calendar-attendees/lookup.json', data)
