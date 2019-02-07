@@ -37,8 +37,8 @@ class GetCalendarsListener implements EventListenerInterface
         return [
             (string)EventName::APP_MODEL_GET_CALENDARS() => 'getPluginCalendars',
             (string)EventName::APP_MODEL_GET_EVENTS() => 'getPluginCalendarEvents',
-            (string)EventName::PLUGIN_CALENDAR_MODEL_GET_CALENDARS() => 'sendGetCalendarsToApp',
-            (string)EventName::PLUGIN_CALENDAR_MODEL_GET_EVENTS() => 'sendGetCalendarEventsToApp',
+            (string)EventName::QOBO_CALENDAR_MODEL_GET_CALENDARS() => 'sendGetCalendarsToApp',
+            (string)EventName::QOBO_CALENDAR_MODEL_GET_EVENTS() => 'sendGetCalendarEventsToApp',
             (string)EventName::APP_ADD_EVENT() => 'addEvent',
         ];
     }

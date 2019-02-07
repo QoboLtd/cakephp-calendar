@@ -81,11 +81,11 @@ class CalendarsController extends AppController
      */
     public function add()
     {
-        /** @var \Qobo\Calendar\Model\Table\CalendarEventsTable $calendarEventsTable */
-        $calendarEventsTable = TableRegistry::get('Qobo/Calendar.CalendarEvents');
+        /** @var \Qobo\Calendar\Model\Table\CalendarEventsTable $eventsTable */
+        $eventsTable = TableRegistry::getTableLocator()->get('Qobo/Calendar.CalendarEvents');
         $calendar = $this->Calendars->newEntity();
 
-        $eventTypes = $calendarEventsTable->getEventTypes(['user' => $this->Auth->user()]);
+        $eventTypes = $eventsTable->getEventTypes(['user' => $this->Auth->user()]);
 
         if ($this->request->is('post')) {
             $data = $this->request->getData();
@@ -117,11 +117,11 @@ class CalendarsController extends AppController
      */
     public function edit(?string $id = null)
     {
-        /** @var \Qobo\Calendar\Model\Table\CalendarEventsTable $calendarEventsTable */
-        $calendarEventsTable = TableRegistry::get('Qobo/Calendar.CalendarEvents');
+        /** @var \Qobo\Calendar\Model\Table\CalendarEventsTable $eventsTable */
+        $eventsTable = TableRegistry::get('Qobo/Calendar.CalendarEvents');
         $calendar = $this->Calendars->get($id);
 
-        $eventTypes = $calendarEventsTable->getEventTypes(['user' => $this->Auth->user()]);
+        $eventTypes = $eventsTable->getEventTypes(['user' => $this->Auth->user()]);
 
         if ($this->request->is(['patch', 'post', 'put'])) {
             $data = $this->request->getData();
@@ -146,10 +146,10 @@ class CalendarsController extends AppController
     /**
      * Delete method
      *
-     * @param string|null $id Calendar id.
+     * @param string $id Calendar id.
      * @return \Cake\Http\Response|void|null Redirects to index.
      */
-    public function delete(?string $id = null)
+    public function delete(string $id)
     {
         $this->request->allowMethod(['post', 'delete']);
         $calendar = $this->Calendars->get($id);

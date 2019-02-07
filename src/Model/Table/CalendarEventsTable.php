@@ -704,7 +704,7 @@ class CalendarEventsTable extends Table
             return $result;
         }
 
-        $event = new Event((string)EventName::PLUGIN_CALENDAR_MODEL_GET_EVENTS(), $this, [
+        $event = new Event((string)EventName::QOBO_CALENDAR_MODEL_GET_EVENTS(), $this, [
             'calendar' => $calendar,
             'options' => $options,
         ]);

@@ -13,6 +13,7 @@ namespace Qobo\Calendar\Model\Table;
 
 use Cake\Core\Configure;
 use Cake\Datasource\EntityInterface;
+use Cake\Datasource\ResultSetInterface;
 use Cake\Event\Event;
 use Cake\Event\EventManager;
 use Cake\ORM\RulesChecker;
@@ -171,9 +172,9 @@ class CalendarsTable extends Table
      *
      * @param mixed[] $options for filtering calendars
      *
-     * @return mixed[] $result containing calendar entities with event_types
+     * @return \Cake\Datasource\ResultSetInterface|null $result containing calendar entities with event_types
      */
-    public function getCalendars(array $options = []): array
+    public function getCalendars(array $options = []): ?ResultSetInterface
     {
         $result = $conditions = [];
 
@@ -183,16 +184,17 @@ class CalendarsTable extends Table
 
         $query = $this->find()
                 ->where($conditions)
-                ->order(['name' => 'ASC'])
-                ->all();
-        $result = $query->toArray();
+                ->enableHydration(true)
+                ->order(['name' => 'ASC']);
 
-        if (empty($result)) {
-            return $result;
+        if (! $query->count()) {
+            return null;
         }
 
-        foreach ($result as $item) {
-            $item->event_types = $this->getEventTypes($item->event_types);
+        $result = $query->all();
+
+        foreach ($query as $item) {
+            $item->set('event_types', $this->getEventTypes($item->get('event_types')));
         }
 
         return $result;
@@ -229,7 +231,7 @@ class CalendarsTable extends Table
     public function sync(array $options = []): array
     {
         $result = [];
-        $event = new Event((string)EventName::PLUGIN_CALENDAR_MODEL_GET_CALENDARS(), $this, [
+        $event = new Event((string)EventName::QOBO_CALENDAR_MODEL_GET_CALENDARS(), $this, [
             'options' => $options,
         ]);
 

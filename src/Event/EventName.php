@@ -18,8 +18,8 @@ use MyCLabs\Enum\Enum;
  */
 class EventName extends Enum
 {
-    const PLUGIN_CALENDAR_MODEL_GET_CALENDARS = 'Qobo/Calendar.Model.getCalendars';
-    const PLUGIN_CALENDAR_MODEL_GET_EVENTS = 'Qobo/Calendar.Model.getCalendarEvents';
+    const QOBO_CALENDAR_MODEL_GET_CALENDARS = 'Qobo/Calendar.Model.getCalendars';
+    const QOBO_CALENDAR_MODEL_GET_EVENTS = 'Qobo/Calendar.Model.getCalendarEvents';
     const APP_CALENDARS_CHECK_PERMISSIONS = 'Qobo/Calendar.Controller.checkCalendarsPermissions';
     const APP_MODEL_GET_CALENDARS = 'Qobo/Calendar.Model.getCalendars';
     const APP_MODEL_GET_EVENTS = 'Qobo/Calendar.Model.getCalendarEvents';

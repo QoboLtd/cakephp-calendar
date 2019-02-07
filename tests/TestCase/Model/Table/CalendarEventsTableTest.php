@@ -76,11 +76,17 @@ class CalendarEventsTableTest extends TestCase
         $result = $this->CalendarEvents->getEvents(null);
         $this->assertEquals($result, []);
         $dbItems = $this->Calendars->getCalendars();
-        $options = [
-            'calendar_id' => $dbItems[0]->id,
-        ];
-        $result = $this->CalendarEvents->getEvents($dbItems[0], $options, false);
-        $this->assertNotEmpty($result);
+
+        $this->assertInstanceOf(\Cake\Datasource\ResultSetInterface::class, $dbItems);
+        if ($dbItems) {
+            $entity = $dbItems->first();
+            $options = [
+                'calendar_id' => $entity->get('id'),
+            ];
+
+            $result = $this->CalendarEvents->getEvents($entity, $options, false);
+            $this->assertNotEmpty($result);
+        }
     }
 
     public function testGetEventsWithTimePeriod(): void
