@@ -70,7 +70,7 @@ class CalendarEventsController extends AppController
         $data = is_array($data) ? $data : [];
 
         if (empty($data['calendar_id'])) {
-            $response['errors'][] = "Calendar ID is missing";
+            $response['errors'][] = (string)__('Calendar ID is missing');
             $this->set(compact('response'));
             $this->set('_serialize', 'response');
 
@@ -124,7 +124,7 @@ class CalendarEventsController extends AppController
             $response['success'] = true;
             $response['data'] = $result;
         } else {
-            $response['errors'][] = "Couldn't find Event with id {$data['id']}";
+            $response['errors'][] = (string)__("Couldn't find Event with id {$data['id']}");
         }
 
         $this->set(compact('response'));
@@ -184,6 +184,7 @@ class CalendarEventsController extends AppController
         $events = [];
         $data = $this->request->getData();
         $data = is_array($data)? $data : [];
+
         if (!empty($data['calendar_id'])) {
             $calendar = $calendarsTable->get($data['calendar_id']);
             $events = $this->CalendarEvents->getEvents($calendar, $data);
@@ -215,7 +216,7 @@ class CalendarEventsController extends AppController
         try {
             $config = ObjectFactory::getConfig(null, 'Event', $data['event_type']);
 
-            if (!empty($config)) {
+            if (! empty($config)) {
                 $response['success'] = true;
                 $response['data'] = $config;
             }
