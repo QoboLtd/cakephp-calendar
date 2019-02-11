@@ -215,4 +215,27 @@ class ObjectFactory
 
         return $subdir;
     }
+
+    /**
+     * Get Event Type name
+     *
+     * @param mixed[] $data with name parts
+     * @param mixed[] $options for extra settings if needed
+     *
+     * @return string|null $name containing event type definition.
+     */
+    public static function getEventTypeName(array $data = [], array $options = []): ?string
+    {
+        if (empty($data['name'])) {
+            return null;
+        }
+
+        $prefix = !empty($options['prefix']) ? $options['prefix'] : 'Config';
+        $type = !empty($data['type']) ? $data['type'] : 'default';
+        $delimiter = '::';
+
+        $name = $prefix . $delimiter . $data['name'] . $delimiter . Inflector::camelize($type);
+
+        return $name;
+    }
 }

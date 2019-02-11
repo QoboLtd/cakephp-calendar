@@ -20,6 +20,7 @@ class EventName extends Enum
 {
     const QOBO_CALENDAR_MODEL_GET_CALENDARS = 'Qobo/Calendar.Model.getCalendars';
     const QOBO_CALENDAR_MODEL_GET_EVENTS = 'Qobo/Calendar.Model.getCalendarEvents';
+    const QOBO_CALENDAR_MODEL_GET_EVENT_TYPES = 'App.Calendars.getCalendarEventTypes';
     const APP_CALENDARS_CHECK_PERMISSIONS = 'Qobo/Calendar.Controller.checkCalendarsPermissions';
     const APP_MODEL_GET_CALENDARS = 'Qobo/Calendar.Model.getCalendars';
     const APP_MODEL_GET_EVENTS = 'Qobo/Calendar.Model.getCalendarEvents';

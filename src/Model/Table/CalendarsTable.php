@@ -132,7 +132,7 @@ class CalendarsTable extends Table
         }
 
         /** @var \Qobo\Calendar\Model\Table\CalendarEventsTable $calendarEventsTable */
-        $calendarEventsTable = TableRegistry::get('Qobo/Calendar.CalendarEvents');
+        $calendarEventsTable = TableRegistry::getTableLocator()->get('Qobo/Calendar.CalendarEvents');
         $default = $calendarEventsTable->getEventTypeBy('default');
         $defaultKey = key($default);
         if (!empty($entity->get('event_types'))) {
