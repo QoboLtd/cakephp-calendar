@@ -196,7 +196,8 @@ class CalendarsTable extends Table
         $result = $query->all();
 
         foreach ($query as $item) {
-            $item->set('event_types', $this->getEventTypes($item->get('event_types')));
+            $types = json_decode($item->get('event_types'), true);
+            $item->set('event_types', $types);
             //@FIXME: re-arrange the permissions for calendar actions check.
             $item->set('permissions', [
                 'edit' => true,
@@ -290,7 +291,7 @@ class CalendarsTable extends Table
             $event_types = json_decode($calendar->get('event_types'), true);
             $found = ObjectFactory::getEventTypesByModule($tableName, $event_types);
 
-            if (!empty($found)) {
+            if (! empty($found)) {
                 $result[] = $calendar;
             }
         }
@@ -338,24 +339,5 @@ class CalendarsTable extends Table
         }
 
         return $response;
-    }
-
-    /**
-     * Get Event Types saved within Calendar
-     *
-     * @param string|null $data of the event type
-     * @return mixed[] $result with event types decoded.
-     */
-    protected function getEventTypes(?string $data = null): array
-    {
-        $result = [];
-
-        if (empty($data)) {
-            return $result;
-        }
-
-        $result = json_decode($data, true);
-
-        return $result;
     }
 }
