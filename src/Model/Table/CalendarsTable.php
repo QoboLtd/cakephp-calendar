@@ -13,6 +13,7 @@ namespace Qobo\Calendar\Model\Table;
 
 use Cake\Core\Configure;
 use Cake\Datasource\EntityInterface;
+use Cake\Datasource\ResultSetInterface;
 use Cake\Event\Event;
 use Cake\Event\EventManager;
 use Cake\ORM\RulesChecker;
@@ -21,6 +22,7 @@ use Cake\ORM\TableRegistry;
 use Cake\Utility\Hash;
 use Cake\Validation\Validator;
 use Qobo\Calendar\Event\EventName;
+use Qobo\Calendar\Object\ObjectFactory;
 use \ArrayObject;
 
 /**
@@ -130,9 +132,9 @@ class CalendarsTable extends Table
             $entity->set('color', $this->getColor($entity));
         }
 
-        /** @var \Qobo\Calendar\Model\Table\CalendarEventsTable $calendarEventsTable */
-        $calendarEventsTable = TableRegistry::get('Qobo/Calendar.CalendarEvents');
-        $default = $calendarEventsTable->getEventTypeBy('default');
+        /** @var \Qobo\Calendar\Model\Table\CalendarEventsTable $eventsTable */
+        $eventsTable = TableRegistry::getTableLocator()->get('Qobo/Calendar.CalendarEvents');
+        $default = $eventsTable->getEventTypeBy('default');
         $defaultKey = key($default);
         if (!empty($entity->get('event_types'))) {
             $types = json_decode($entity->get('event_types'), true);
@@ -160,6 +162,7 @@ class CalendarsTable extends Table
      */
     public function afterSave(Event $event, EntityInterface $entity, ArrayObject $options): void
     {
+        //@FIXME: source/source_id should be prepopulated only for external calendars.
         if (empty($entity->get('source_id'))) {
             $entity->set('source_id', $entity->get('id'));
             $this->save($entity);
@@ -171,9 +174,9 @@ class CalendarsTable extends Table
      *
      * @param mixed[] $options for filtering calendars
      *
-     * @return mixed[] $result containing calendar entities with event_types
+     * @return \Cake\Datasource\ResultSetInterface|null $result containing calendar entities with event_types
      */
-    public function getCalendars(array $options = []): array
+    public function getCalendars(array $options = []): ?ResultSetInterface
     {
         $result = $conditions = [];
 
@@ -183,16 +186,24 @@ class CalendarsTable extends Table
 
         $query = $this->find()
                 ->where($conditions)
-                ->order(['name' => 'ASC'])
-                ->all();
-        $result = $query->toArray();
+                ->enableHydration(true)
+                ->order(['name' => 'ASC']);
 
-        if (empty($result)) {
-            return $result;
+        if (! $query->count()) {
+            return null;
         }
 
-        foreach ($result as $item) {
-            $item->event_types = $this->getEventTypes($item->event_types);
+        $result = $query->all();
+
+        foreach ($query as $item) {
+            $types = json_decode($item->get('event_types'), true);
+            $item->set('event_types', $types);
+            //@FIXME: re-arrange the permissions for calendar actions check.
+            $item->set('permissions', [
+                'edit' => true,
+                'view' => true,
+                'delete' => true,
+            ]);
         }
 
         return $result;
@@ -212,10 +223,6 @@ class CalendarsTable extends Table
             $color = $entity->get('color');
         }
 
-        if (!$color) {
-            $color = '#337ab7';
-        }
-
         return $color;
     }
 
@@ -229,7 +236,7 @@ class CalendarsTable extends Table
     public function sync(array $options = []): array
     {
         $result = [];
-        $event = new Event((string)EventName::PLUGIN_CALENDAR_MODEL_GET_CALENDARS(), $this, [
+        $event = new Event((string)EventName::QOBO_CALENDAR_MODEL_GET_CALENDARS(), $this, [
             'options' => $options,
         ]);
 
@@ -266,30 +273,25 @@ class CalendarsTable extends Table
     public function getByAllowedEventTypes(?string $tableName = null, array $options = []): array
     {
         $result = [];
+
         $query = $this->find();
         $query->execute();
-        $query->all();
 
-        if (!$query->count()) {
+        if (! $query->count()) {
             return $result;
         }
 
-        $resultSet = $query->all();
+        $calendars = $query->all();
 
-        foreach ($resultSet as $calendar) {
-            if (empty($calendar->event_types)) {
+        foreach ($calendars as $calendar) {
+            if (empty($calendar->get('event_types')) || empty($tableName)) {
                 continue;
             }
 
-            $event_types = json_decode($calendar->event_types, true);
+            $event_types = json_decode($calendar->get('event_types'), true);
+            $found = ObjectFactory::getEventTypesByModule($tableName, $event_types);
 
-            $found = array_filter($event_types, function ($item) use ($tableName) {
-                if (preg_match("/$tableName::/", $item, $matches)) {
-                    return $item;
-                }
-            });
-
-            if (!empty($found)) {
+            if (! empty($found)) {
                 $result[] = $calendar;
             }
         }
@@ -337,24 +339,5 @@ class CalendarsTable extends Table
         }
 
         return $response;
-    }
-
-    /**
-     * Get Event Types saved within Calendar
-     *
-     * @param string|null $data of the event type
-     * @return mixed[] $result with event types decoded.
-     */
-    protected function getEventTypes(?string $data = null): array
-    {
-        $result = [];
-
-        if (empty($data)) {
-            return $result;
-        }
-
-        $result = json_decode($data, true);
-
-        return $result;
     }
 }

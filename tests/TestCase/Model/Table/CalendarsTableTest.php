@@ -48,7 +48,7 @@ class CalendarsTableTest extends TestCase
         $this->Calendars = $table;
 
         // @TODO: return something useful to test sync method.
-        EventManager::instance()->on((string)EventName::PLUGIN_CALENDAR_MODEL_GET_CALENDARS(), function ($event, $table) {
+        EventManager::instance()->on((string)EventName::QOBO_CALENDAR_MODEL_GET_CALENDARS(), function ($event, $table) {
             return [];
         });
     }
@@ -88,7 +88,7 @@ class CalendarsTableTest extends TestCase
 
         $foo = $this->Calendars->sync($data);
 
-        $this->assertEventFired((string)EventName::PLUGIN_CALENDAR_MODEL_GET_CALENDARS(), EventManager::instance());
+        $this->assertEventFired((string)EventName::QOBO_CALENDAR_MODEL_GET_CALENDARS(), EventManager::instance());
     }
 
     public function testGetCalendars(): void
@@ -96,9 +96,20 @@ class CalendarsTableTest extends TestCase
         $result = $this->Calendars->getCalendars();
         $this->assertTrue(!empty($result));
 
-        $result = $this->Calendars->getCalendars(['conditions' => ['id' => '00000000-0000-0000-0000-000000000001']]);
-        $this->assertNotEmpty($result);
-        $this->assertEquals($result[0]->id, '00000000-0000-0000-0000-000000000001');
+        $result = $this->Calendars->getCalendars([
+            'conditions' => [
+                'id' => '00000000-0000-0000-0000-000000000001'
+            ]
+        ]);
+
+        $this->assertNotNull($result);
+
+        if ($result) {
+            $entity = $result->first();
+
+            $this->assertInstanceOf(\Cake\Datasource\EntityInterface::class, $entity);
+            $this->assertEquals($entity->get('id'), '00000000-0000-0000-0000-000000000001');
+        }
     }
 
     public function testGetCalendarsEmpty(): void
@@ -109,7 +120,7 @@ class CalendarsTableTest extends TestCase
 
     public function testGetByAllowedEventTypes(): void
     {
-        $result = $this->Calendars->getByAllowedEventTypes('Config');
+        $result = $this->Calendars->getByAllowedEventTypes('Calls');
         $this->assertNotEmpty($result);
 
         $result = $this->Calendars->getByAllowedEventTypes('Foobar');

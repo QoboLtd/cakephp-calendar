@@ -76,11 +76,17 @@ class CalendarEventsTableTest extends TestCase
         $result = $this->CalendarEvents->getEvents(null);
         $this->assertEquals($result, []);
         $dbItems = $this->Calendars->getCalendars();
-        $options = [
-            'calendar_id' => $dbItems[0]->id,
-        ];
-        $result = $this->CalendarEvents->getEvents($dbItems[0], $options, false);
-        $this->assertNotEmpty($result);
+
+        $this->assertInstanceOf(\Cake\Datasource\ResultSetInterface::class, $dbItems);
+        if ($dbItems) {
+            $entity = $dbItems->first();
+            $options = [
+                'calendar_id' => $entity->get('id'),
+            ];
+
+            $result = $this->CalendarEvents->getEvents($entity, $options, false);
+            $this->assertNotEmpty($result);
+        }
     }
 
     public function testGetEventsWithTimePeriod(): void
@@ -171,6 +177,21 @@ class CalendarEventsTableTest extends TestCase
         $data = 'FREQ=MONTHLY;COUNT=30;WKST=MO';
         $recurrence = $this->CalendarEvents->setRRuleConfiguration($data);
         $this->assertEquals($recurrence, 'RRULE:' . $data);
+    }
+
+    public function testGetEventTypeName(): void
+    {
+        $data = [
+            'name' => 'birthdays',
+            'type' => 'february'
+        ];
+
+        $options = [
+            'prefix' => 'My',
+        ];
+
+        $result = $this->CalendarEvents->getEventTypeName($data, $options);
+        $this->assertEquals('My::birthdays::February', $result);
     }
 
     /**

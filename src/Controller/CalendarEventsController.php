@@ -64,12 +64,13 @@ class CalendarEventsController extends AppController
             'errors' => [],
         ];
 
-        $calendarsTable = TableRegistry::get('Calendars');
+        $calendarsTable = TableRegistry::getTableLocator()->get('Qobo/Calendar.Calendars');
 
         $data = $this->request->getData();
         $data = is_array($data) ? $data : [];
+
         if (empty($data['calendar_id'])) {
-            $response['errors'][] = "Calendar ID is missing";
+            $response['errors'][] = (string)__('Calendar ID is missing');
             $this->set(compact('response'));
             $this->set('_serialize', 'response');
 
@@ -108,22 +109,22 @@ class CalendarEventsController extends AppController
      */
     public function view()
     {
+        $this->request->allowMethod(['post', 'put', 'patch']);
+
         $response = [
             'success' => false,
             'data' => [],
             'errors' => []
         ];
 
-        if ($this->request->is(['post', 'patch', 'put'])) {
-            $data = $this->request->getData();
-            $result = $this->CalendarEvents->getEventInfo($data['id']);
+        $data = $this->request->getData();
+        $result = $this->CalendarEvents->getEventInfo($data['id']);
 
-            if (!empty($result)) {
-                $response['success'] = true;
-                $response['data'] = $result;
-            } else {
-                $response['errors'][] = "Couldn't find Event with id {$data['id']}";
-            }
+        if (!empty($result)) {
+            $response['success'] = true;
+            $response['data'] = $result;
+        } else {
+            $response['errors'][] = (string)__("Couldn't find Event with id {$data['id']}");
         }
 
         $this->set(compact('response'));
@@ -138,7 +139,7 @@ class CalendarEventsController extends AppController
     public function getEventTypes()
     {
         $this->request->allowMethod(['post', 'patch', 'put']);
-        $calendarsTable = TableRegistry::Get('Qobo/Calendar.Calendars');
+        $calendarsTable = TableRegistry::getTableLocator()->get('Qobo/Calendar.Calendars');
 
         $eventTypes = [];
         $data = $this->request->getData();
@@ -178,11 +179,12 @@ class CalendarEventsController extends AppController
     public function index()
     {
         $this->request->allowMethod(['post', 'put', 'patch']);
-        $calendarsTable = TableRegistry::get('Qobo/Calendar.Calendars');
+        $calendarsTable = TableRegistry::getTableLocator()->get('Qobo/Calendar.Calendars');
 
         $events = [];
         $data = $this->request->getData();
         $data = is_array($data)? $data : [];
+
         if (!empty($data['calendar_id'])) {
             $calendar = $calendarsTable->get($data['calendar_id']);
             $events = $this->CalendarEvents->getEvents($calendar, $data);
@@ -214,7 +216,7 @@ class CalendarEventsController extends AppController
         try {
             $config = ObjectFactory::getConfig(null, 'Event', $data['event_type']);
 
-            if (!empty($config)) {
+            if (! empty($config)) {
                 $response['success'] = true;
                 $response['data'] = $config;
             }

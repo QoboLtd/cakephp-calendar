@@ -33,7 +33,6 @@ use \RRule\RRule;
  */
 class CalendarEventsTable extends Table
 {
-
     /**
      * Initialize method
      *
@@ -63,7 +62,7 @@ class CalendarEventsTable extends Table
         ]);
 
         /** @var \Qobo\Calendar\Model\Table\CalendarsTable $table */
-        $table = TableRegistry::get('Qobo/Calendar.Calendars');
+        $table = TableRegistry::getTableLocator()->get('Qobo/Calendar.Calendars');
         $this->Calendars = $table;
     }
 
@@ -411,7 +410,9 @@ class CalendarEventsTable extends Table
         $result = [];
 
         if (!empty($options['calendar'])) {
-            $types = json_decode($options['calendar']->event_types, true);
+            $entity = $options['calendar'];
+            $types = json_decode($entity->get('event_types'), true);
+
             foreach ($types as $type) {
                 $result[$type] = $type;
             }
@@ -421,7 +422,7 @@ class CalendarEventsTable extends Table
             return $result;
         }
 
-        $event = new Event('App.Calendars.getCalendarEventTypes', $this, [
+        $event = new Event((string)EventName::QOBO_CALENDAR_MODEL_GET_EVENT_TYPES(), $this, [
             'user' => $options['user'],
         ]);
 
@@ -447,17 +448,7 @@ class CalendarEventsTable extends Table
      */
     public function getEventTypeName(array $data = [], array $options = []): ?string
     {
-        if (empty($data['name'])) {
-            return null;
-        }
-
-        $prefix = !empty($options['prefix']) ? $options['prefix'] : 'Config';
-        $type = !empty($data['type']) ? $data['type'] : 'default';
-        $delimiter = '::';
-
-        $name = $prefix . $delimiter . $data['name'] . $delimiter . Inflector::camelize($type);
-
-        return $name;
+        return ObjectFactory::getEventTypeName($data, $options);
     }
 
     /**
@@ -704,7 +695,7 @@ class CalendarEventsTable extends Table
             return $result;
         }
 
-        $event = new Event((string)EventName::PLUGIN_CALENDAR_MODEL_GET_EVENTS(), $this, [
+        $event = new Event((string)EventName::QOBO_CALENDAR_MODEL_GET_EVENTS(), $this, [
             'calendar' => $calendar,
             'options' => $options,
         ]);
