@@ -179,6 +179,21 @@ class CalendarEventsTableTest extends TestCase
         $this->assertEquals($recurrence, 'RRULE:' . $data);
     }
 
+    public function testGetEventTypeName(): void
+    {
+        $data = [
+            'name' => 'birthdays',
+            'type' => 'february'
+        ];
+
+        $options = [
+            'prefix' => 'My',
+        ];
+
+        $result = $this->CalendarEvents->getEventTypeName($data, $options);
+        $this->assertEquals('My::birthdays::February', $result);
+    }
+
     /**
      * @dataProvider getRRuleConfigurationProvider
      * @param string $data Data

@@ -120,7 +120,7 @@ class CalendarsTableTest extends TestCase
 
     public function testGetByAllowedEventTypes(): void
     {
-        $result = $this->Calendars->getByAllowedEventTypes('Config');
+        $result = $this->Calendars->getByAllowedEventTypes('Calls');
         $this->assertNotEmpty($result);
 
         $result = $this->Calendars->getByAllowedEventTypes('Foobar');

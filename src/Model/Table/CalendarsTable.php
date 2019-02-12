@@ -22,6 +22,7 @@ use Cake\ORM\TableRegistry;
 use Cake\Utility\Hash;
 use Cake\Validation\Validator;
 use Qobo\Calendar\Event\EventName;
+use Qobo\Calendar\Object\ObjectFactory;
 use \ArrayObject;
 
 /**
@@ -131,9 +132,9 @@ class CalendarsTable extends Table
             $entity->set('color', $this->getColor($entity));
         }
 
-        /** @var \Qobo\Calendar\Model\Table\CalendarEventsTable $calendarEventsTable */
-        $calendarEventsTable = TableRegistry::getTableLocator()->get('Qobo/Calendar.CalendarEvents');
-        $default = $calendarEventsTable->getEventTypeBy('default');
+        /** @var \Qobo\Calendar\Model\Table\CalendarEventsTable $eventsTable */
+        $eventsTable = TableRegistry::getTableLocator()->get('Qobo/Calendar.CalendarEvents');
+        $default = $eventsTable->getEventTypeBy('default');
         $defaultKey = key($default);
         if (!empty($entity->get('event_types'))) {
             $types = json_decode($entity->get('event_types'), true);
@@ -161,6 +162,7 @@ class CalendarsTable extends Table
      */
     public function afterSave(Event $event, EntityInterface $entity, ArrayObject $options): void
     {
+        //@FIXME: source/source_id should be prepopulated only for external calendars.
         if (empty($entity->get('source_id'))) {
             $entity->set('source_id', $entity->get('id'));
             $this->save($entity);
@@ -220,10 +222,6 @@ class CalendarsTable extends Table
             $color = $entity->get('color');
         }
 
-        if (!$color) {
-            $color = '#337ab7';
-        }
-
         return $color;
     }
 
@@ -274,28 +272,23 @@ class CalendarsTable extends Table
     public function getByAllowedEventTypes(?string $tableName = null, array $options = []): array
     {
         $result = [];
+
         $query = $this->find();
         $query->execute();
-        $query->all();
 
-        if (!$query->count()) {
+        if (! $query->count()) {
             return $result;
         }
 
-        $resultSet = $query->all();
+        $calendars = $query->all();
 
-        foreach ($resultSet as $calendar) {
-            if (empty($calendar->event_types)) {
+        foreach ($calendars as $calendar) {
+            if (empty($calendar->get('event_types'))) {
                 continue;
             }
 
-            $event_types = json_decode($calendar->event_types, true);
-
-            $found = array_filter($event_types, function ($item) use ($tableName) {
-                if (preg_match("/$tableName::/", $item, $matches)) {
-                    return $item;
-                }
-            });
+            $event_types = json_decode($calendar->get('event_types'), true);
+            $found = ObjectFactory::getEventTypesByModule($tableName, $event_types);
 
             if (!empty($found)) {
                 $result[] = $calendar;

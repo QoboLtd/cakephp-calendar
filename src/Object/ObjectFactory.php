@@ -238,4 +238,29 @@ class ObjectFactory
 
         return $name;
     }
+
+    /**
+     * Filter the list of event types by module name
+     *
+     * @param string $name of the module
+     * @param mixed[] $data of event types
+     *
+     * @return mixed[] $result of event types
+     */
+    public static function getEventTypesByModule(string $name, array $data = []): array
+    {
+        $result = [];
+
+        if (empty($data)) {
+            return $result;
+        }
+
+        foreach ($data as $item) {
+            if (preg_match("/^\w+::($name)::\w+$/", $item, $matches)) {
+                array_push($result, $item);
+            }
+        }
+
+        return $result;
+    }
 }
