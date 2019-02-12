@@ -283,7 +283,7 @@ class CalendarsTable extends Table
         $calendars = $query->all();
 
         foreach ($calendars as $calendar) {
-            if (empty($calendar->get('event_types'))) {
+            if (empty($calendar->get('event_types')) || empty($tableName)) {
                 continue;
             }
 
