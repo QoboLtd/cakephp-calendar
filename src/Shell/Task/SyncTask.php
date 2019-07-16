@@ -75,38 +75,38 @@ class SyncTask extends Shell
         $result = $options = [];
         $table = TableRegistry::get('Qobo/Calendar.Calendars');
 
-        if (!empty($this->params['start'])) {
-            $options['period']['start_date'] = $this->params['start'];
-        }
-
-        if (!empty($this->params['end'])) {
-            $options['period']['end_date'] = $this->params['end'];
-        }
-        $result['calendars'] = $table->syncCalendars($options);
-
-        if (empty($result['calendars'])) {
-            $this->abort('No calendars found for synchronization');
-        }
-
-        foreach ($result['calendars'] as $actionName => $calendars) {
-            foreach ($calendars as $k => $calendar) {
-                $resultEvents = $table->syncCalendarEvents($calendar, $options);
-
-                $resultAttendees = $table->syncEventsAttendees($calendar, $resultEvents);
-
-                $output[] = [
-                    'action' => $actionName,
-                    'calendar' => $calendar,
-                    'events' => $resultEvents,
-                    'attendees' => $resultAttendees,
-                ];
-
-                $progress->increment(100 / ++$calendarsProcessed);
-                $progress->draw();
-            }
-        }
-
-        $this->syncAttendees();
+        // if (!empty($this->params['start'])) {
+        //     $options['period']['start_date'] = $this->params['start'];
+        // }
+        //
+        // if (!empty($this->params['end'])) {
+        //     $options['period']['end_date'] = $this->params['end'];
+        // }
+        // $result['calendars'] = $table->syncCalendars($options);
+        //
+        // if (empty($result['calendars'])) {
+        //     $this->abort('No calendars found for synchronization');
+        // }
+        //
+        // foreach ($result['calendars'] as $actionName => $calendars) {
+        //     foreach ($calendars as $k => $calendar) {
+        //         $resultEvents = $table->syncCalendarEvents($calendar, $options);
+        //
+        //         $resultAttendees = $table->syncEventsAttendees($calendar, $resultEvents);
+        //
+        //         $output[] = [
+        //             'action' => $actionName,
+        //             'calendar' => $calendar,
+        //             'events' => $resultEvents,
+        //             'attendees' => $resultAttendees,
+        //         ];
+        //
+        //         $progress->increment(100 / ++$calendarsProcessed);
+        //         $progress->draw();
+        //     }
+        // }
+        //
+        // $this->syncAttendees();
         $birthdays = $this->syncBirthdays($table);
 
         $this->out(null);
@@ -195,7 +195,9 @@ class SyncTask extends Shell
 
         $eventsTable = TableRegistry::get('Qobo/Calendar.CalendarEvents');
         $usersTable = TableRegistry::get('Users');
-        $users = $usersTable->find()->all();
+        $users = $usersTable->find()->where([
+		'active' => 1,
+	])->all();
 
         $progress = $this->helper('Progress');
         $progress->init();
@@ -261,9 +263,52 @@ class SyncTask extends Shell
             $progress->draw();
         }
 
+        $deleteCount = $this->removeObsoleteBirthdays($calendar);
+
         $this->out(null);
         $this->out('<success> Added [' . count($result['added']) . '], Updated [' . count($result['updated']) . '] events!</success>');
+        $this->out('<success> Removed birthday events [' . $deleteCount . ']');
         $this->out(null);
+
+        return $result;
+    }
+
+    protected function removeObsoleteBirthdays($calendar)
+    {
+        $result = 0;
+
+        $usersTable = TableRegistry::get('Users');
+        $eventsTable = TableRegistry::get('Qobo/Calendar.CalendarEvents');
+
+        $this->out(__('Removing obsolete events for deactivated users'));
+
+        $users = $usersTable->find()->where([
+            'active' => false,
+        ])->all();
+
+        if (!$users) {
+            $this->out(__('No deactivated users found'));
+        }
+
+        if ($users) {
+            foreach ($users as $k => $user) {
+                $birthdayEvent = $eventsTable->find()
+                    ->where([
+                        'calendar_id' => $calendar->id,
+                        'content LIKE' => "%{$user->first_name} {$user->last_name}%",
+                        'is_recurring' => 1,
+                ])->first();
+
+                if ($birthdayEvent) {
+                    $deleted = $eventsTable->deleteAll([
+                        'id' => $birthdayEvent->id
+                    ]);
+                    if ($deleted) {
+                        $result++;
+                    }
+                }
+            }
+        }
 
         return $result;
     }
