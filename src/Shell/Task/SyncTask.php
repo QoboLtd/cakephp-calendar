@@ -75,38 +75,38 @@ class SyncTask extends Shell
         $result = $options = [];
         $table = TableRegistry::get('Qobo/Calendar.Calendars');
 
-        // if (!empty($this->params['start'])) {
-        //     $options['period']['start_date'] = $this->params['start'];
-        // }
-        //
-        // if (!empty($this->params['end'])) {
-        //     $options['period']['end_date'] = $this->params['end'];
-        // }
-        // $result['calendars'] = $table->syncCalendars($options);
-        //
-        // if (empty($result['calendars'])) {
-        //     $this->abort('No calendars found for synchronization');
-        // }
-        //
-        // foreach ($result['calendars'] as $actionName => $calendars) {
-        //     foreach ($calendars as $k => $calendar) {
-        //         $resultEvents = $table->syncCalendarEvents($calendar, $options);
-        //
-        //         $resultAttendees = $table->syncEventsAttendees($calendar, $resultEvents);
-        //
-        //         $output[] = [
-        //             'action' => $actionName,
-        //             'calendar' => $calendar,
-        //             'events' => $resultEvents,
-        //             'attendees' => $resultAttendees,
-        //         ];
-        //
-        //         $progress->increment(100 / ++$calendarsProcessed);
-        //         $progress->draw();
-        //     }
-        // }
-        //
-        // $this->syncAttendees();
+        if (!empty($this->params['start'])) {
+            $options['period']['start_date'] = $this->params['start'];
+        }
+
+        if (!empty($this->params['end'])) {
+            $options['period']['end_date'] = $this->params['end'];
+        }
+        $result['calendars'] = $table->syncCalendars($options);
+
+        if (empty($result['calendars'])) {
+            $this->abort('No calendars found for synchronization');
+        }
+
+        foreach ($result['calendars'] as $actionName => $calendars) {
+            foreach ($calendars as $k => $calendar) {
+                $resultEvents = $table->syncCalendarEvents($calendar, $options);
+
+                $resultAttendees = $table->syncEventsAttendees($calendar, $resultEvents);
+
+                $output[] = [
+                    'action' => $actionName,
+                    'calendar' => $calendar,
+                    'events' => $resultEvents,
+                    'attendees' => $resultAttendees,
+                ];
+
+                $progress->increment(100 / ++$calendarsProcessed);
+                $progress->draw();
+            }
+        }
+
+        $this->syncAttendees();
         $birthdays = $this->syncBirthdays($table);
 
         $this->out(null);
