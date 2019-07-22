@@ -195,6 +195,7 @@ class ObjectFactory
     public static function getConfigTypeDir(?string $type = ''): ?string
     {
         $subdir = null;
+        $type = null === $type ? '' : $type;
         $type = Inflector::underscore(Inflector::pluralize($type));
 
         if (!in_array($type, ['events', 'attendees', 'calendars'])) {

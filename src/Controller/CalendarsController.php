@@ -36,7 +36,7 @@ class CalendarsController extends AppController
 
         // ajax-based request for public calendars
         if ($this->request->is(['post', 'put', 'patch'])) {
-            $data = $this->request->getData();
+            $data = (array)$this->request->getData();
 
             if (!empty($data['public'])) {
                 $options['conditions'] = ['is_public' => true];
@@ -124,7 +124,7 @@ class CalendarsController extends AppController
         $eventTypes = $calendarEventsTable->getEventTypes(['user' => $this->Auth->user()]);
 
         if ($this->request->is(['patch', 'post', 'put'])) {
-            $data = $this->request->getData();
+            $data = (array)$this->request->getData();
 
             $data['event_types'] = !empty($data['event_types']) ? $data['event_types'] : [];
             $data['event_types'] = json_encode($data['event_types']);
