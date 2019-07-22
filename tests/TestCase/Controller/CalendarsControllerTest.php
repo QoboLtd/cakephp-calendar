@@ -92,7 +92,7 @@ class CalendarsControllerTest extends IntegrationTestCase
         if ($this->_requestSession === null) {
             throw new RuntimeException('Session can\'t be null');
         }
-        $message = $this->_requestSession->read('Flash.flash.0');
+        $message = (array)$this->_requestSession->read('Flash.flash.0');
 
         $this->assertEquals($message['message'], 'The calendar could not be saved. Please, try again.');
     }

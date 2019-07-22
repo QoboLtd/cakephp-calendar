@@ -62,7 +62,7 @@ class SyncTask extends Shell
     /**
      * main() method.
      *
-     * @return void
+     * @return bool|int|null
      */
     public function main()
     {
@@ -139,6 +139,8 @@ class SyncTask extends Shell
         }
 
         $lock->unlock();
+
+        return true;
     }
 
     /**

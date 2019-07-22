@@ -115,7 +115,7 @@ class CalendarEventsController extends AppController
         ];
 
         if ($this->request->is(['post', 'patch', 'put'])) {
-            $data = $this->request->getData();
+            $data = (array)$this->request->getData();
             $result = $this->CalendarEvents->getEventInfo($data['id']);
 
             if (!empty($result)) {
@@ -141,7 +141,7 @@ class CalendarEventsController extends AppController
         $calendarsTable = TableRegistry::Get('Qobo/Calendar.Calendars');
 
         $eventTypes = [];
-        $data = $this->request->getData();
+        $data = (array)$this->request->getData();
 
         $calendar = $calendarsTable->get($data['calendar_id']);
         $types = $this->CalendarEvents->getEventTypes(['calendar' => $calendar, 'user' => $this->Auth->user()]);
@@ -209,7 +209,7 @@ class CalendarEventsController extends AppController
             'errors' => [],
         ];
 
-        $data = $this->request->getData();
+        $data = (array)$this->request->getData();
 
         try {
             $config = ObjectFactory::getConfig(null, 'Event', $data['event_type']);

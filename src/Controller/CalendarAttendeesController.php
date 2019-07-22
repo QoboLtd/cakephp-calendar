@@ -71,7 +71,7 @@ class CalendarAttendeesController extends AppController
     {
         $this->request->allowMethod(['post', 'put', 'patch']);
         $result = [];
-        $data = $this->request->getData();
+        $data = (array)$this->request->getData();
         $searchTerm = empty($data['term']) ? '' : $data['term'];
 
         $query = $this->CalendarAttendees->find()
