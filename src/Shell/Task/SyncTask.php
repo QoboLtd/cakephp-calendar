@@ -139,6 +139,8 @@ class SyncTask extends Shell
         }
 
         $lock->unlock();
+
+        return true;
     }
 
     /**
