@@ -328,7 +328,6 @@ class CalendarEventsTable extends Table
 
             $entity = $this->newEntity();
             $entity = $this->patchEntity($entity, $origin);
-
             $entity->start_date->year((int)$eventDate->format('Y'));
             $entity->start_date->month((int)$eventDate->format('m'));
             $entity->start_date->day((int)$eventDate->format('d'));
@@ -537,12 +536,23 @@ class CalendarEventsTable extends Table
     {
         $item = [];
 
+        $startDate = date('Y-m-d H:i:s', strtotime($event['start_date']));
+        $endDate = date('Y-m-d H:i:s', strtotime($event['end_date']));
+
+        if ($event['start_date'] instanceof Time) {
+            $startDate = $event['start_date']->i18nFormat('yyyy-MM-dd HH:mm:ss');
+        }
+
+        if ($event['end_date'] instanceof Time) {
+            $endDate = $event['end_date']->i18nFormat('yyyy-MM-dd HH:mm:ss');
+        }
+
         $item = [
             'id' => $event['id'],
             'title' => (!empty($options['title']) ? $options['title'] : $event['title']),
             'content' => $event['content'],
-            'start_date' => date('Y-m-d H:i:s', strtotime($event['start_date'])),
-            'end_date' => date('Y-m-d H:i:s', strtotime($event['end_date'])),
+            'start_date' => $startDate,
+            'end_date' => $endDate,
             'color' => (empty($event['color']) ? $calendar->color : $event['color']),
             'source' => $event['source'],
             'source_id' => $event['source_id'],
