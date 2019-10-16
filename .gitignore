@@ -3,6 +3,7 @@
 build/
 !resources/build
 vendor/
+tmp/
 cghooks.lock
 node_modules/
 
