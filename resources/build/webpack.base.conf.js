@@ -1,19 +1,22 @@
-const { resolve, join } = require('path')
+const { resolve } = require('path')
+const { VueLoaderPlugin } = require('vue-loader')
 const webpack = require('webpack')
-const ExtractTextPlugin = require('extract-text-webpack-plugin')
-
-const appEntry = './resources/src/main.js'
-const distPath = resolve(__dirname, '../../webroot/dist')
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const CleanWebpackPlugin = require('clean-webpack-plugin')
 
 module.exports = {
+  mode: 'development',
   devtool: '#eval-source-map',
   entry: {
-    app: appEntry,
+    app: './resources/src/main.js',
     vendor: ['jquery', 'moment', 'fullcalendar', 'daterangepicker', 'vue']
   },
   output: {
-    path: distPath,
-    filename: '[name].js'
+    filename: '[name].js',
+    path: resolve(__dirname, '../../webroot/dist'),
+  },
+  externals: {
+    jquery: 'jQuery'
   },
   module: {
     rules: [
@@ -30,24 +33,54 @@ module.exports = {
         exclude: /node_modules/
       },
       {
-        test: /\.(png|jpg|gif|svg)$/,
+        test: /\.(png|jpg|gif)$/,
         loader: 'file-loader',
         options: {
           name: '[name].[ext]?[hash]'
         }
+      },
+      {
+        test: /\.(svg)$/,
+        loader: 'svg-url-loader',
+        options: {
+        }
+      },
+      {
+        test: /\.sass$/,
+        use: [
+          'vue-style-loader',
+          'css-loader',
+          {
+            loader: 'sass-loader',
+            options: {
+              indentedSyntax: true
+            }
+          }
+        ]
+      },
+      {
+        test: /\.css$/,
+        use: [
+          MiniCssExtractPlugin.loader,
+          'css-loader'
+        ]
       }
+
     ]
   },
+  plugins: [
+    new VueLoaderPlugin(),
+    new CleanWebpackPlugin(),
+    new MiniCssExtractPlugin({
+      filename: 'style.css'
+    })
+  ],
   resolve: {
     extensions: ['.js', '.vue', '.json'],
     alias: {
       'vue$': 'vue/dist/vue.esm.js',
       '@': resolve('./resources/src/'),
-      jquery: resolve(join(__dirname, '../..', 'node_modules', 'jquery')),
       fullcalendar: 'fullcalendar/dist/fullcalendar'
     }
-  },
-  plugins: [
-    new ExtractTextPlugin('style.css')
-  ]
+  }
 }

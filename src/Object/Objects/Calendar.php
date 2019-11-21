@@ -100,6 +100,7 @@ class Calendar extends AbstractObject
     {
         return $this->calendarType;
     }
+
     /**
      * Set Calendar Active flag
      *

@@ -1,13 +1,13 @@
 <?php
 namespace Qobo\Calendar\Model\Table\Traits;
 
+use ArrayObject;
 use Cake\Datasource\EntityInterface;
 use Cake\Event\Event;
 use Cake\I18n\Time;
 use Cake\ORM\TableRegistry;
 use Cake\Utility\Inflector;
 use Qobo\Calendar\Object\Objects\Event as EventObject;
-use \ArrayObject;
 
 trait ObjectTrait
 {
