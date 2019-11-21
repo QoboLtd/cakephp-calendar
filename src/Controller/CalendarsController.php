@@ -64,7 +64,7 @@ class CalendarsController extends AppController
      * @param string|null $id Calendar id.
      * @return void
      */
-    public function view(? string $id = null): void
+    public function view(?string $id = null): void
     {
         $calendar = null;
 

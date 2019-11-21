@@ -64,6 +64,7 @@ class CalendarsControllerTest extends IntegrationTestCase
         $this->get('/calendars/calendars/view/' . $id);
         $this->assertResponseOk();
     }
+
     public function testAddResponseOk(): void
     {
         $this->get('/calendars/calendars/add');

@@ -361,7 +361,7 @@ class CalendarEventsTable extends Table
      *
      * @return mixed[] $result containing key/value pair of event types.
      */
-    public function getEventTypeBy(? string $name = null): array
+    public function getEventTypeBy(?string $name = null): array
     {
         $result = [];
         $configs = Configure::read('Calendar.Types');
