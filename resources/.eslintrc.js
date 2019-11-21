@@ -1,16 +1,16 @@
 module.exports = {
   root: true,
-  parser: 'babel-eslint',
   parserOptions: {
-    sourceType: 'module'
+   ecmaVersion: 2018
   },
-  extends: 'vue',
+  extends: [
+    'plugin:vue/recommended'
+  ],
   'rules': {
     'generator-star-spacing': 0,
     'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0
   },
   globals: {
-    requestAnimationFrame: true,
     performance: true
   }
 }

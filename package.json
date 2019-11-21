@@ -1,14 +1,13 @@
 {
   "name": "cakephp-calendar-app",
   "description": "CakePHP Calendar Plugin",
+  "license": "MIT",
   "scripts": {
-    "build:dev": "cross-env NODE_ENV=development webpack --config ./resources/build/webpack.dev.conf.js --progress --hide-modules",
+    "build:dev": "cross-env NODE_ENV=development webpack-dev-server --config ./resources/build/webpack.dev.conf.js --hot --progress -d",
     "build:prod": "cross-env NODE_ENV=production webpack --config ./resources/build/webpack.prod.conf.js --progress --hide-modules",
-    "clean": "rimraf ./webroot/dist ./resources/test/unit/dist",
-    "dev": "yarn build:dev && webpack-dev-server --config ./resources/build/webpack.dev.conf.js",
-    "watch": "cross-env NODE_ENV=development webpack --config ./resources/build/webpack.hot.conf.js --progress --hide-modules --watch --watch-poll",
-    "lint:js": "./node_modules/eslint/bin/eslint.js --config ./resources/.eslintrc.js --ext js --ext vue ./resources/src",
-    "test:unit": "cross-env BABEL_ENV=test karma start ./resources/test/unit/karma.conf.js --single-run"
+    "watch": "webpack --config ./resources/build/webpack.base.conf.js --progress --hide-modules --watch --watch-poll",
+    "lint": "eslint --config ./resources/.eslintrc.js --ext js --ext vue ./resources/src",
+    "test": "jest --verbose ./resources/test/unit/*"
   },
   "devDependencies": {
     "@babel/cli": "^7.7.0",
