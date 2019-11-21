@@ -1,6 +1,5 @@
 const { resolve } = require('path')
 const { VueLoaderPlugin } = require('vue-loader')
-const webpack = require('webpack')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const CleanWebpackPlugin = require('clean-webpack-plugin')
 
@@ -65,14 +64,13 @@ module.exports = {
           'css-loader'
         ]
       }
-
     ]
   },
   plugins: [
-    new VueLoaderPlugin(),
-    new CleanWebpackPlugin(),
-    new MiniCssExtractPlugin({
-      filename: 'style.css'
+      new VueLoaderPlugin(),
+      new CleanWebpackPlugin(),
+      new MiniCssExtractPlugin({
+      filename: 'style.css',
     })
   ],
   resolve: {
@@ -80,7 +78,6 @@ module.exports = {
     alias: {
       'vue$': 'vue/dist/vue.esm.js',
       '@': resolve('./resources/src/'),
-      fullcalendar: 'fullcalendar/dist/fullcalendar'
     }
   }
 }
