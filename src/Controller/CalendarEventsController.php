@@ -182,7 +182,8 @@ class CalendarEventsController extends AppController
 
         $events = [];
         $data = $this->request->getData();
-        $data = is_array($data)? $data : [];
+        $data = is_array($data) ? $data : [];
+
         if (!empty($data['calendar_id'])) {
             $calendar = $calendarsTable->get($data['calendar_id']);
             $events = $this->CalendarEvents->getEvents($calendar, $data);

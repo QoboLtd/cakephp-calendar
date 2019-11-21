@@ -11,6 +11,7 @@
  */
 namespace Qobo\Calendar\Model\Table;
 
+use ArrayObject;
 use Cake\Core\Configure;
 use Cake\Datasource\EntityInterface;
 use Cake\Event\Event;
@@ -24,8 +25,7 @@ use Cake\Utility\Inflector;
 use Cake\Validation\Validator;
 use Qobo\Calendar\Event\EventName;
 use Qobo\Calendar\Object\ObjectFactory;
-use \ArrayObject;
-use \RRule\RRule;
+use RRule\RRule;
 
 /**
  * CalendarEvents Model
