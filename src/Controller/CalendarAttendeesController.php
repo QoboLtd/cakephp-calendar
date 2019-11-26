@@ -12,8 +12,6 @@
 namespace Qobo\Calendar\Controller;
 
 use Cake\Http\Response;
-use Cake\ORM\TableRegistry;
-use Qobo\Calendar\Controller\AppController;
 
 /**
  * CalendarAttendees Controller
