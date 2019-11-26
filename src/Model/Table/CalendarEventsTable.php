@@ -11,6 +11,7 @@
  */
 namespace Qobo\Calendar\Model\Table;
 
+use ArrayObject;
 use Cake\Core\Configure;
 use Cake\Datasource\EntityInterface;
 use Cake\Event\Event;
@@ -24,8 +25,7 @@ use Cake\Utility\Inflector;
 use Cake\Validation\Validator;
 use Qobo\Calendar\Event\EventName;
 use Qobo\Calendar\Object\ObjectFactory;
-use \ArrayObject;
-use \RRule\RRule;
+use RRule\RRule;
 
 /**
  * CalendarEvents Model
@@ -361,7 +361,7 @@ class CalendarEventsTable extends Table
      *
      * @return mixed[] $result containing key/value pair of event types.
      */
-    public function getEventTypeBy(? string $name = null): array
+    public function getEventTypeBy(?string $name = null): array
     {
         $result = [];
         $configs = Configure::read('Calendar.Types');

@@ -1,36 +1,38 @@
-'use strict'
-const { resolve, join } = require('path')
-const webpack = require('webpack')
 const merge = require('webpack-merge')
+const chokidar = require('chokidar')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-const baseWebpackConfig = require('./webpack.base.conf')
-const ExtractTextPlugin = require('extract-text-webpack-plugin')
+const base = require('./webpack.base.conf.js')
 
-const rootDir = resolve(__dirname, '../test/unit')
-const buildPath = resolve(rootDir, 'dist')
-
-baseWebpackConfig.plugins = []
-
-delete baseWebpackConfig.entry
-
-module.exports = merge(baseWebpackConfig, {
+module.exports = merge(base, {
+  mode: 'development',
   devtool: '#eval-source-map',
-  entry: {
-    app: resolve(rootDir, 'visual.js')
-  },
-  output: {
-    path: buildPath
-  },
+  entry: './resources/dev/dev.js',
   plugins: [
-    new ExtractTextPlugin('style.css'),
-    new webpack.DefinePlugin({
-      'process.env': {
-        NODE_ENV: '"development"'
-      }
-    }),
-    new HtmlWebpackPlugin({
-      title: 'Testing Qobrix App',
-      chunkSortMode: 'dependency'
-    })
-  ]
+      new HtmlWebpackPlugin({
+        template: './resources/dev/index.html',
+        inject: true,
+      }),
+  ],
+  optimization: {
+   noEmitOnErrors: true,
+  },
+  devServer: {
+    hot: true,
+    hotOnly: true,
+    open: true,
+    inline: true,
+    stats: {
+      children: false,
+      modules: false,
+      chunks: false,
+    },
+    port: 8080,
+    before (app, server) {
+      chokidar.watch([
+        './**/*.html',
+      ]).on('all', function () {
+        server.sockWrite(server.sockets, 'content-changed');
+      })
+    },
+  }
 })

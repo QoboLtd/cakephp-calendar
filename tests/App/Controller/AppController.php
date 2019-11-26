@@ -1,7 +1,7 @@
 <?php
 namespace Qobo\Calendar\Test\App\Controller;
 
-use \Cake\Controller\Controller;
+use Cake\Controller\Controller;
 
 class AppController extends Controller
 {

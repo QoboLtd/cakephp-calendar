@@ -7,7 +7,7 @@ use Cake\Utility\Inflector;
 use InvalidArgumentException;
 use Qobo\Utils\ModuleConfig\Parser\Parser;
 use Qobo\Utils\ModuleConfig\Parser\Schema;
-use \RuntimeException;
+use RuntimeException;
 
 class ObjectFactory
 {
