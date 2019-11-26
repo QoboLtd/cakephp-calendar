@@ -12,18 +12,14 @@
 namespace Qobo\Calendar\Event\Plugin;
 
 use ArrayObject;
-use Cake\Core\Configure;
 use Cake\Datasource\EntityInterface;
 use Cake\Event\Event;
 use Cake\Event\EventListenerInterface;
 use Cake\Event\EventManager;
-use Cake\Network\Request;
 use Cake\ORM\Entity;
 use Cake\ORM\TableRegistry;
 use Cake\View\View;
 use Qobo\Calendar\Event\EventName;
-use Qobo\Calendar\Object\ObjectFactory;
-use Qobo\Calendar\Object\Objects\ObjectInterface;
 
 class GetCalendarsListener implements EventListenerInterface
 {

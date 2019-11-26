@@ -11,16 +11,10 @@
  */
 namespace Qobo\Calendar\Controller;
 
-use Cake\Core\Configure;
 use Cake\Event\Event;
-use Cake\Event\EventManager;
-use Cake\I18n\Time;
 use Cake\ORM\TableRegistry;
-use Cake\Utility\Inflector;
 use Exception;
-use Qobo\Calendar\Controller\AppController;
 use Qobo\Calendar\Object\ObjectFactory;
-use RRule\RRule;
 
 /**
  * CalendarEvents Controller
