@@ -35,7 +35,7 @@ $timezone = date_default_timezone_get();
 <section class="content-header hidden-print">
     <div class="row">
         <div class="col-xs-12 col-md-6">
-            <h4><?php echo __('Calendars'); ?></h4>
+            <h4><?php echo __d('Qobo/Calendar', 'Calendars'); ?></h4>
         </div>
         <div class="col-xs-12 col-md-6">
             <div class="pull-right">
@@ -46,7 +46,7 @@ $timezone = date_default_timezone_get();
                         echo $this->element('CsvMigrations.Menu/index_top', ['user' => $user]);
                     } else {
                         echo $this->Html->link(
-                            '<i class="fa fa-plus"></i> ' . __('Add'),
+                            '<i class="fa fa-plus"></i> ' . __d('Qobo/Calendar', 'Add'),
                             [
                                 'plugin' => 'Qobo/Calendar',
                                 'controller' => 'Calendars',

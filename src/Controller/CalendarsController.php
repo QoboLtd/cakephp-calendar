@@ -94,12 +94,12 @@ class CalendarsController extends AppController
             $calendar = $this->Calendars->patchEntity($calendar, $data);
 
             if ($this->Calendars->save($calendar)) {
-                $this->Flash->success((string)__('The calendar has been saved.'));
+                $this->Flash->success((string)__d('Qobo/Calendar', 'The calendar has been saved.'));
 
                 return $this->redirect(['action' => 'index']);
             }
 
-            $this->Flash->error((string)__('The calendar could not be saved. Please, try again.'));
+            $this->Flash->error((string)__d('Qobo/Calendar', 'The calendar could not be saved. Please, try again.'));
         }
 
         $this->set(compact('calendar', 'eventTypes'));
@@ -129,11 +129,11 @@ class CalendarsController extends AppController
             $calendar = $this->Calendars->patchEntity($calendar, $data);
 
             if ($this->Calendars->save($calendar)) {
-                $this->Flash->success((string)__('The calendar has been saved.'));
+                $this->Flash->success((string)__d('Qobo/Calendar', 'The calendar has been saved.'));
 
                 return $this->redirect(['action' => 'index']);
             }
-            $this->Flash->error((string)__('The calendar could not be saved. Please, try again.'));
+            $this->Flash->error((string)__d('Qobo/Calendar', 'The calendar could not be saved. Please, try again.'));
         }
 
         $this->set(compact('calendar', 'eventTypes'));
@@ -152,9 +152,9 @@ class CalendarsController extends AppController
         $calendar = $this->Calendars->get($id);
 
         if ($this->Calendars->delete($calendar)) {
-            $this->Flash->success((string)__('The calendar has been deleted.'));
+            $this->Flash->success((string)__d('Qobo/Calendar', 'The calendar has been deleted.'));
         } else {
-            $this->Flash->error((string)__('The calendar could not be deleted. Please, try again.'));
+            $this->Flash->error((string)__d('Qobo/Calendar', 'The calendar could not be deleted. Please, try again.'));
         }
 
         return $this->redirect(['action' => 'index']);

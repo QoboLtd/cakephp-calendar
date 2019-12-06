@@ -151,7 +151,7 @@ trait ObjectTrait
         $result = $entity->get($source);
 
         if (!empty($options['viewEntity'])) {
-            $url = $options['viewEntity']->Html->link(__('Source'), ['action' => 'view', $entity->get('id')]);
+            $url = $options['viewEntity']->Html->link(__d('Qobo/Calendar', 'Source'), ['action' => 'view', $entity->get('id')]);
 
             $result .= "<br/><p>Reference: $url </p>";
         }

@@ -53,7 +53,7 @@ if (!empty($calEvent->calendar_attendees)) {
             </div>
         <?php else :?>
             <div class="col-xs-12">
-                <?= $calEvent->start_date->format('Y-m-d');?> - <?= __('All Day');?>
+                <?= $calEvent->start_date->format('Y-m-d');?> - <?= __d('Qobo/Calendar', 'All Day');?>
             </div>
         <?php endif; ?>
     </div>
@@ -71,7 +71,7 @@ if (!empty($calEvent->calendar_attendees)) {
     <?php endif; ?>
 </div>
     <div class="modal-footer">
-        <?= $this->Form->button(__('Close'), ['data-dismiss' => 'modal', 'class' => 'btn btn-success']);?>
+        <?= $this->Form->button(__d('Qobo/Calendar', 'Close'), ['data-dismiss' => 'modal', 'class' => 'btn btn-success']);?>
     </div> <!-- //modal-footer -->
 </div>
 

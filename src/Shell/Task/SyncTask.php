@@ -43,17 +43,17 @@ class SyncTask extends Shell
     {
         $parser = parent::getOptionParser();
         $parser->setDescription(
-            (string)__('Synchronize local and remote calendars with the database')
+            (string)__d('Qobo/Calendar', 'Synchronize local and remote calendars with the database')
         );
 
         $parser->addOption('start', [
-            'description' => (string)__('Specify start interval for the events to fetch'),
-            'help' => (string)__("Start date 'YYYY-MM-DD HH:MM:SS' for events to fetch"),
+            'description' => (string)__d('Qobo/Calendar', 'Specify start interval for the events to fetch'),
+            'help' => (string)__d("Qobo/Calendar", "Start date 'YYYY-MM-DD HH:MM:SS' for events to fetch"),
         ]);
 
         $parser->addOption('end', [
-            'description' => (string)__('Specify end interval for the events to fetch'),
-            'help' => (string)__("End date 'YYYY-MM-DD HH:MM:SS' for events to fetch"),
+            'description' => (string)__d('Qobo/Calendar', 'Specify end interval for the events to fetch'),
+            'help' => (string)__d("Qobo/Calendar", "End date 'YYYY-MM-DD HH:MM:SS' for events to fetch"),
         ]);
 
         return $parser;

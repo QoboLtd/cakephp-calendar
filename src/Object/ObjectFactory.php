@@ -140,7 +140,7 @@ class ObjectFactory
         $configs = [];
 
         if (empty($path)) {
-            throw new InvalidArgumentException((string)__('Specify [path] for the JSON configs'));
+            throw new InvalidArgumentException((string)__d('Qobo/Calendar', 'Specify [path] for the JSON configs'));
         }
 
         $folder = new Folder($path);
@@ -199,7 +199,7 @@ class ObjectFactory
         $type = Inflector::underscore(Inflector::pluralize($type));
 
         if (!in_array($type, ['events', 'attendees', 'calendars'])) {
-            throw new InvalidArgumentException((string)__('Wrong Config Calendar Type'));
+            throw new InvalidArgumentException((string)__d('Qobo/Calendar', 'Wrong Config Calendar Type'));
         }
 
         if ('calendars' == $type) {

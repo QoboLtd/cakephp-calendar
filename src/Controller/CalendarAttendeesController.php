@@ -50,9 +50,9 @@ class CalendarAttendeesController extends AppController
         $this->request->allowMethod(['post', 'delete']);
         $calendarAttendee = $this->CalendarAttendees->get($id);
         if ($this->CalendarAttendees->delete($calendarAttendee)) {
-            $this->Flash->success((string)__('The calendar attendee has been deleted.'));
+            $this->Flash->success((string)__d('Qobo/Calendar', 'The calendar attendee has been deleted.'));
         } else {
-            $this->Flash->error((string)__('The calendar attendee could not be deleted. Please, try again.'));
+            $this->Flash->error((string)__d('Qobo/Calendar', 'The calendar attendee could not be deleted. Please, try again.'));
         }
 
         return $this->redirect(['plugin' => 'Qobo/Calendar', 'controller' => 'Calendars', 'action' => 'index']);
