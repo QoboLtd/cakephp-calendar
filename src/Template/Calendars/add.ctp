@@ -45,7 +45,7 @@ foreach ($icons as $k => $v) {
 <section class="content-header">
     <div class="row">
         <div class="col-xs-12 col-md-6">
-            <h4><?php echo __('Add Calendar'); ?></h4>
+            <h4><?php echo __d('Qobo/Calendar', 'Add Calendar'); ?></h4>
         </div>
         <div class="col-xs-12 col-md-6"></div>
     </div>
@@ -53,13 +53,13 @@ foreach ($icons as $k => $v) {
 <div class="content">
     <div class='box box-primary'>
         <div class="box-header with-border">
-            <h3 class="box-title"><?= __('Calendar Details');?></h3>
+            <h3 class="box-title"><?= __d('Qobo/Calendar', 'Calendar Details');?></h3>
         </div>
         <div class="box-body">
             <div class="row">
                 <div class="col-xs-12 col-md-6">
                     <?= $this->Form->control('name'); ?>
-                    <?= $this->Form->control('is_public', ['label' => __('Publicly Accessible')]);?>
+                    <?= $this->Form->control('is_public', ['label' => __d('Qobo/Calendar', 'Publicly Accessible')]);?>
                     <?= $this->Form->control('event_types', ['type' => 'select', 'options' => $eventTypes, 'class' => 'select2', 'multiple' => 'multiple', 'empty' => true]);?>
                 </div>
                 <div class="col-xs-12 col-md-6">
@@ -84,7 +84,7 @@ foreach ($icons as $k => $v) {
         </div>
     </div>
     <div>
-        <?= $this->Form->button(__('Submit')) ?>
+        <?= $this->Form->button(__d('Qobo/Calendar', 'Submit')) ?>
         <?= $this->Form->end() ?>
     </div>
 </div>

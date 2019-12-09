@@ -1,0 +1,94 @@
+# LANGUAGE translation of CakePHP Application
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2019-12-06 13:20+0000\n"
+"PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+msgid "The calendar attendee has been deleted."
+msgstr ""
+
+msgid "The calendar attendee could not be deleted. Please, try again."
+msgstr ""
+
+msgid "The calendar event has been deleted."
+msgstr ""
+
+msgid "The calendar event could not be deleted. Please, try again."
+msgstr ""
+
+msgid "The calendar has been saved."
+msgstr ""
+
+msgid "The calendar could not be saved. Please, try again."
+msgstr ""
+
+msgid "The calendar has been deleted."
+msgstr ""
+
+msgid "The calendar could not be deleted. Please, try again."
+msgstr ""
+
+msgid "Source"
+msgstr ""
+
+msgid "Specify [path] for the JSON configs"
+msgstr ""
+
+msgid "Wrong Config Calendar Type"
+msgstr ""
+
+msgid "Synchronize local and remote calendars with the database"
+msgstr ""
+
+msgid "Specify start interval for the events to fetch"
+msgstr ""
+
+msgid "Start date 'YYYY-MM-DD HH:MM:SS' for events to fetch"
+msgstr ""
+
+msgid "Specify end interval for the events to fetch"
+msgstr ""
+
+msgid "End date 'YYYY-MM-DD HH:MM:SS' for events to fetch"
+msgstr ""
+
+msgid "All Day"
+msgstr ""
+
+msgid "Close"
+msgstr ""
+
+msgid "Add Calendar"
+msgstr ""
+
+msgid "Calendar Details"
+msgstr ""
+
+msgid "Publicly Accessible"
+msgstr ""
+
+msgid "Submit"
+msgstr ""
+
+msgid "Calendars"
+msgstr ""
+
+msgid "Add"
+msgstr ""
+
+msgid "Edit"
+msgstr ""
+
+msgid "Source & Source ID Links"
+msgstr ""
+

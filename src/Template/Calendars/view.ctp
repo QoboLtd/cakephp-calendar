@@ -48,10 +48,10 @@
                     ];
                     $menu[] = [
                         'html' => $this->Html->link(
-                            '<i class="fa fa-pencil"></i> ' . __('Edit'),
+                            '<i class="fa fa-pencil"></i> ' . __d('Qobo/Calendar', 'Edit'),
                             $url,
                             [
-                                'title' => __('Edit'), 'escape' => false, 'class' => 'btn btn-default'
+                                'title' => __d('Qobo/Calendar', 'Edit'), 'escape' => false, 'class' => 'btn btn-default'
                             ]
                         ),
                         'url' => $url
@@ -109,7 +109,7 @@
 
     <div class="box box-default">
         <div class="box-header with-border">
-            <h3 class="box-title"><?= __('Source & Source ID Links');?></h3>
+            <h3 class="box-title"><?= __d('Qobo/Calendar', 'Source & Source ID Links');?></h3>
         </div>
         <div class="box-body">
             <div class="row">
