@@ -33,8 +33,8 @@ class CalendarAttendeesControllerTest extends JsonIntegrationTestCase
         $userId = '00000000-0000-0000-0000-000000000001';
         $this->session([
             'Auth' => [
-                'User' => TableRegistry::get('Users')->get($userId)->toArray()
-            ]
+                'User' => TableRegistry::get('Users')->get($userId)->toArray(),
+            ],
         ]);
         $this->setRequestHeaders();
 
@@ -71,7 +71,7 @@ class CalendarAttendeesControllerTest extends JsonIntegrationTestCase
     public function testLookup(): void
     {
         $term = [
-            'term' => 'John'
+            'term' => 'John',
         ];
 
         $this->post('/calendars/calendar-attendees/lookup.json', $term);

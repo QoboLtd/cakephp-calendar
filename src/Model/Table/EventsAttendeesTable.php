@@ -35,12 +35,12 @@ class EventsAttendeesTable extends Table
         $this->belongsTo('CalendarEvents', [
             'foreignKey' => 'calendar_event_id',
             'joinType' => 'INNER',
-            'className' => 'Qobo/Calendar.CalendarEvents'
+            'className' => 'Qobo/Calendar.CalendarEvents',
         ]);
         $this->belongsTo('CalendarAttendees', [
             'foreignKey' => 'calendar_attendee_id',
             'joinType' => 'INNER',
-            'className' => 'Qobo/Calendar.CalendarAttendees'
+            'className' => 'Qobo/Calendar.CalendarAttendees',
         ]);
     }
 

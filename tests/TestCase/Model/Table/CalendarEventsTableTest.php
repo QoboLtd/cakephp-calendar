@@ -89,7 +89,7 @@ class CalendarEventsTableTest extends TestCase
             'calendar_id' => '00000000-0000-0000-0000-000000000001',
             'period' => [
                 'start_date' => '2017-08-10 09:00:00',
-                'end_date' => '2017-08-12 09:00:00'
+                'end_date' => '2017-08-12 09:00:00',
             ],
         ];
         $calendar = $this->Calendars->get($options['calendar_id']);
@@ -223,14 +223,14 @@ class CalendarEventsTableTest extends TestCase
         return [
             [
                 [],
-                []
+                [],
             ],
             [
                 [
                     'period' => [
                         'start_date' => '2018-04-09 09:30:00',
-                        'end_date' => '2018-05-01 08:00:00'
-                    ]
+                        'end_date' => '2018-05-01 08:00:00',
+                    ],
                 ],
                 [
                     'start' => [
@@ -238,9 +238,9 @@ class CalendarEventsTableTest extends TestCase
                     ],
                     'end' => [
                         'MONTH(end_date) <=' => '05',
-                    ]
-                ]
-            ]
+                    ],
+                ],
+            ],
         ];
     }
 }

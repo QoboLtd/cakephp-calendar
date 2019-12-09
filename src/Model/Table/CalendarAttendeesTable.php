@@ -55,7 +55,7 @@ class CalendarAttendeesTable extends Table
 
         $this->belongsToMany('CalendarEvents', [
             'joinTable' => 'events_attendees',
-            'foreignKey' => 'calendar_attendee_id'
+            'foreignKey' => 'calendar_attendee_id',
         ]);
     }
 

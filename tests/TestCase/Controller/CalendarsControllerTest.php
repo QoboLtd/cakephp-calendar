@@ -30,8 +30,8 @@ class CalendarsControllerTest extends IntegrationTestCase
         $userId = '00000000-0000-0000-0000-000000000001';
         $this->session([
             'Auth' => [
-                'User' => TableRegistry::get('Users')->get($userId)->toArray()
-            ]
+                'User' => TableRegistry::get('Users')->get($userId)->toArray(),
+            ],
         ]);
 
         $this->Calendars = TableRegistry::get('Calendars', ['className' => CalendarsTable::class]);
@@ -108,8 +108,8 @@ class CalendarsControllerTest extends IntegrationTestCase
             'active' => true,
             'event_types' => [
                 'Config::Default::Default',
-                'Json::Leads::Default'
-            ]
+                'Json::Leads::Default',
+            ],
         ];
 
         $this->post('/calendars/calendars/add', $data);
@@ -137,7 +137,7 @@ class CalendarsControllerTest extends IntegrationTestCase
             'event_types' => [
                 'Bar::foo::default',
                 'Foo::bar::default',
-            ]
+            ],
         ];
 
         $this->post('/calendars/calendars/edit/' . $calendarId, $data);

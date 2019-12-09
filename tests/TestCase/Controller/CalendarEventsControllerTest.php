@@ -36,8 +36,8 @@ class CalendarEventsControllerTest extends JsonIntegrationTestCase
         $userId = '00000000-0000-0000-0000-000000000001';
         $this->session([
             'Auth' => [
-                'User' => TableRegistry::get('Users')->get($userId)->toArray()
-            ]
+                'User' => TableRegistry::get('Users')->get($userId)->toArray(),
+            ],
         ]);
         $this->setRequestHeaders();
         $config = TableRegistry::exists('Qobo\Calendar.CalendarEvents') ? [] : ['className' => CalendarEventsTable::class];
@@ -138,7 +138,7 @@ class CalendarEventsControllerTest extends JsonIntegrationTestCase
         /** @var \Cake\Datasource\EntityInterface $saved */
         $saved = $this->CalendarEvents->find()
             ->where([
-                'content' => $data['content']
+                'content' => $data['content'],
             ])
             ->first();
 
@@ -165,7 +165,7 @@ class CalendarEventsControllerTest extends JsonIntegrationTestCase
         $saved = $this->CalendarEvents->find()
             ->where([
                 'title' => 'Test Event',
-                'content' => $data['content']
+                'content' => $data['content'],
             ])
             ->first();
 
@@ -183,8 +183,8 @@ class CalendarEventsControllerTest extends JsonIntegrationTestCase
             'is_recurring' => true,
             'recurrence' => 'RRULE:FREQ=DAILY;INTERVAL=1;COUNT=5',
             'attendees_ids' => [
-               '00000000-0000-0000-0000-000000000001'
-            ]
+               '00000000-0000-0000-0000-000000000001',
+            ],
         ];
 
         $this->post('/calendars/calendar-events/add', $data);
