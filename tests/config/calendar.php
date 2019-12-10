@@ -25,7 +25,7 @@ return [
                             'end_date' => [
                                 'options' => [
                                     'endTime' => '18:00',
-                                ]
+                                ],
                             ],
                         ],
                     ],
@@ -54,12 +54,12 @@ return [
                             'start_date' => [
                                 'options' => [
                                     'startTime' => '17:00',
-                                ]
+                                ],
                             ],
                             'end_date' => [
                                 'options' => [
-                                    'endTime' => '01:00'
-                                ]
+                                    'endTime' => '01:00',
+                                ],
                             ],
                         ],
                     ],
@@ -73,12 +73,12 @@ return [
                             'end_date' => [
                                 'options' => [
                                     'endTime' => '09:00',
-                                ]
+                                ],
                             ],
                         ],
                     ],
                 ],
             ],
         ], // Types
-    ]
+    ],
 ];

@@ -49,9 +49,9 @@ Configure::write('App', [
     'namespace' => 'Qobo\\' . $pluginName . '\Test\App',
     'paths' => [
         'templates' => [
-            APP . 'Template' . DS
-        ]
-    ]
+            APP . 'Template' . DS,
+        ],
+    ],
 ]);
 
 $config = Configure::read('Calendar');
@@ -68,27 +68,27 @@ $TMP->create(TMP . 'cache/views', 0777);
 
 $cache = [
     'default' => [
-        'engine' => 'File'
+        'engine' => 'File',
     ],
     '_cake_core_' => [
         'className' => 'File',
         'prefix' => strtolower($pluginName) . '_myapp_cake_core_',
         'path' => CACHE . 'persistent/',
         'serialize' => true,
-        'duration' => '+10 seconds'
+        'duration' => '+10 seconds',
     ],
     '_cake_model_' => [
         'className' => 'File',
         'prefix' => strtolower($pluginName) . '_my_app_cake_model_',
         'path' => CACHE . 'models/',
         'serialize' => 'File',
-        'duration' => '+10 seconds'
-    ]
+        'duration' => '+10 seconds',
+    ],
 ];
 
 Cake\Cache\Cache::setConfig($cache);
 Cake\Core\Configure::write('Session', [
-    'defaults' => 'php'
+    'defaults' => 'php',
 ]);
 
 // Ensure default test connection is defined
@@ -99,13 +99,13 @@ if (!getenv('db_dsn')) {
 Cake\Datasource\ConnectionManager::setConfig('default', [
     'url' => getenv('db_dsn'),
     'quoteIdentifiers' => true,
-    'timezone' => 'UTC'
+    'timezone' => 'UTC',
 ]);
 
 Cake\Datasource\ConnectionManager::setConfig('test', [
     'url' => getenv('db_dsn'),
     'quoteIdentifiers' => true,
-    'timezone' => 'UTC'
+    'timezone' => 'UTC',
 ]);
 
 // Alias AppController to the test App

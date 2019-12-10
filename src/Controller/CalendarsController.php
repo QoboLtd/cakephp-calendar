@@ -45,7 +45,7 @@ class CalendarsController extends AppController
         $event = new Event((string)EventName::APP_CALENDARS_CHECK_PERMISSIONS(), $this, [
             'entities' => $calendars,
             'user' => $this->Auth->user(),
-            'options' => []
+            'options' => [],
         ]);
 
         $this->getEventManager()->dispatch($event);

@@ -98,7 +98,7 @@ class GetCalendarsListener implements EventListenerInterface
         }
 
         $ev = new Event($eventName, $this, [
-            'options' => $options
+            'options' => $options,
         ]);
 
         EventManager::instance()->dispatch($ev);
@@ -124,7 +124,7 @@ class GetCalendarsListener implements EventListenerInterface
 
         $ev = new Event($eventName, $this, [
             'calendar' => $calendar,
-            'options' => $options
+            'options' => $options,
         ]);
 
         EventManager::instance()->dispatch($ev);
@@ -155,7 +155,7 @@ class GetCalendarsListener implements EventListenerInterface
         $options = array_merge($options, [
             'conditions' => [
                 'source LIKE' => 'Plugin__%',
-            ]
+            ],
         ]);
 
         $calendars = $table->getCalendars($options);

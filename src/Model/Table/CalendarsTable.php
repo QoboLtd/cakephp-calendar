@@ -65,7 +65,7 @@ class CalendarsTable extends Table
 
         $this->hasMany('CalendarEvents', [
             'foreignKey' => 'calendar_id',
-            'className' => 'Qobo/Calendar.CalendarEvents'
+            'className' => 'Qobo/Calendar.CalendarEvents',
         ]);
     }
 

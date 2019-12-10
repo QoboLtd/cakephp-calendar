@@ -53,7 +53,7 @@ class CalendarEventsTable extends Table
         $this->belongsTo('Calendars', [
             'foreignKey' => 'calendar_id',
             'joinType' => 'INNER',
-            'className' => 'Qobo/Calendar.Calendars'
+            'className' => 'Qobo/Calendar.Calendars',
         ]);
 
         $this->belongsToMany('CalendarAttendees', [
@@ -259,13 +259,13 @@ class CalendarEventsTable extends Table
         //@NOTE: sqlite doesn't support date_format or month functions
         if (!empty($options['period']['start_date'])) {
             $result['start'] = [
-                'MONTH(start_date) >=' => date('m', strtotime($options['period']['start_date']))
+                'MONTH(start_date) >=' => date('m', strtotime($options['period']['start_date'])),
             ];
         }
 
         if (!empty($options['period']['end_date'])) {
             $result['end'] = [
-                'MONTH(end_date) <=' => date('m', strtotime($options['period']['end_date']))
+                'MONTH(end_date) <=' => date('m', strtotime($options['period']['end_date'])),
             ];
         }
 

@@ -105,7 +105,7 @@ class CalendarEventsController extends AppController
         $response = [
             'success' => false,
             'data' => [],
-            'errors' => []
+            'errors' => [],
         ];
 
         if ($this->request->is(['post', 'patch', 'put'])) {

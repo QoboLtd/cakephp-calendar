@@ -32,7 +32,7 @@ class CalendarAttendeesController extends AppController
     public function view(?string $id = null)
     {
         $calendarAttendee = $this->CalendarAttendees->get($id, [
-            'contain' => ['CalendarEvents']
+            'contain' => ['CalendarEvents'],
         ]);
 
         $this->set(compact('calendarAttendee'));
@@ -76,8 +76,8 @@ class CalendarAttendeesController extends AppController
             ->where([
                 'OR' => [
                     'display_name LIKE' => "%$searchTerm%",
-                    'contact_details LIKE' => "%$searchTerm%"
-                ]
+                    'contact_details LIKE' => "%$searchTerm%",
+                ],
             ]);
         $attendees = $query->toArray();
 
