@@ -216,6 +216,7 @@ class SyncTask extends Shell
         ];
 
         $eventsTable = TableRegistry::get('Qobo/Calendar.CalendarEvents');
+
         $users = $this->usersTable->find()->all();
 
         $progress = $this->helper('Progress');
