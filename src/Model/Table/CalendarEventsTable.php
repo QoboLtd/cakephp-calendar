@@ -199,17 +199,6 @@ class CalendarEventsTable extends Table
         }
 
         foreach ($events as $k => $event) {
-            $extra = [];
-            if (!empty($event['calendar_attendees'])) {
-                foreach ($event['calendar_attendees'] as $att) {
-                    array_push($extra, $att->display_name);
-                }
-            }
-
-            if (!empty($extra)) {
-                $event['title'] .= ' - ' . implode("\n", $extra);
-            }
-
             $eventItem = $this->prepareEventData($event, $calendar);
             array_push($result, $eventItem);
 
@@ -259,7 +248,20 @@ class CalendarEventsTable extends Table
 
         $query->contain(['CalendarAttendees']);
 
-        if (!$query) {
+        if (!$query->count()) {
+            // @NOTE: if no recurring events found for this month,
+            // let's check for MONTHLY/WEEKLY/DAILY events for given
+            // calendar with the same YEAR recurring events.
+            $year = (!empty($options['period']['start_date'])) ? date('Y', strtotime($options['period']['start_date'])) : date('Y');
+
+            $query->where([
+                'is_recurring' => true,
+                'calendar_id' => $calendarId,
+                'YEAR(start_date) >=' => $year,
+            ], [], true);
+        }
+
+        if (!$query->count()) {
             return $result;
         }
 
@@ -290,6 +292,7 @@ class CalendarEventsTable extends Table
      *
      * @param array $origin event object
      * @param array $options with events configs
+     * @param array $events to be displayed and checked for exclusion
      *
      * @return array $result with assembled recurring entities
      */
@@ -323,7 +326,6 @@ class CalendarEventsTable extends Table
 
             $entity = $this->newEntity();
             $entity = $this->patchEntity($entity, $origin);
-
             $entity->start_date->year((int)$eventDate->format('Y'));
             $entity->start_date->month((int)$eventDate->format('m'));
             $entity->start_date->day((int)$eventDate->format('d'));
@@ -488,12 +490,23 @@ class CalendarEventsTable extends Table
     {
         $item = [];
 
+        $startDate = date('Y-m-d H:i:s', strtotime($event['start_date']));
+        $endDate = date('Y-m-d H:i:s', strtotime($event['end_date']));
+
+        if ($event['start_date'] instanceof Time) {
+            $startDate = $event['start_date']->i18nFormat('yyyy-MM-dd HH:mm:ss');
+        }
+
+        if ($event['end_date'] instanceof Time) {
+            $endDate = $event['end_date']->i18nFormat('yyyy-MM-dd HH:mm:ss');
+        }
+
         $item = [
             'id' => $event['id'],
             'title' => (!empty($options['title']) ? $options['title'] : $event['title']),
             'content' => $event['content'],
-            'start_date' => date('Y-m-d H:i:s', strtotime($event['start_date'])),
-            'end_date' => date('Y-m-d H:i:s', strtotime($event['end_date'])),
+            'start_date' => $startDate,
+            'end_date' => $endDate,
             'color' => (empty($event['color']) ? $calendar->color : $event['color']),
             'source' => $event['source'],
             'source_id' => $event['source_id'],
