@@ -16,11 +16,11 @@ class CalendarAttendeesControllerTest extends JsonIntegrationTestCase
      * @var array
      */
     public $fixtures = [
-        'plugin.qobo/calendar.users',
-        'plugin.qobo/calendar.calendar_attendees',
-        'plugin.qobo/calendar.calendar_events',
-        'plugin.qobo/calendar.events_attendees',
-        'plugin.qobo/calendar.calendars',
+        'plugin.Qobo/Calendar.Users',
+        'plugin.Qobo/Calendar.CalendarAttendees',
+        'plugin.Qobo/Calendar.CalendarEvents',
+        'plugin.Qobo/Calendar.EventsAttendees',
+        'plugin.Qobo/Calendar.Calendars',
     ];
 
     /** @var \Qobo\Calendar\Model\Table\CalendarAttendeesTable */

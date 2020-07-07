@@ -8,7 +8,7 @@ use Qobo\Calendar\Object\Objects\Calendar;
 class CalendarTest extends TestCase
 {
     public $fixtures = [
-        'plugin.qobo/calendar.calendars',
+        'plugin.Qobo/Calendar.Calendars',
     ];
 
     public function setUp()
