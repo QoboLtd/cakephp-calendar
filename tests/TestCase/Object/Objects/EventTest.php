@@ -11,7 +11,7 @@ class EventTest extends TestCase
     protected $table;
 
     public $fixtures = [
-        'plugin.qobo/calendar.calendar_events',
+        'plugin.Qobo/Calendar.CalendarEvents',
     ];
 
     public function setUp()

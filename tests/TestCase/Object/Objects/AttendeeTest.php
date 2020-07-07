@@ -11,7 +11,7 @@ class AttendeeTest extends TestCase
     protected $table;
 
     public $fixtures = [
-        'plugin.qobo/calendar.calendar_attendees',
+        'plugin.Qobo/Calendar.CalendarAttendees',
     ];
 
     public function setUp()

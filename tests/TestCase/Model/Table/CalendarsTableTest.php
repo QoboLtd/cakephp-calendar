@@ -28,8 +28,8 @@ class CalendarsTableTest extends TestCase
      * @var array
      */
     public $fixtures = [
-        'plugin.qobo/calendar.calendars',
-        'plugin.qobo/calendar.calendar_events',
+        'plugin.Qobo/Calendar.Calendars',
+        'plugin.Qobo/Calendar.CalendarEvents',
     ];
 
     /**

@@ -19,8 +19,8 @@ class CalendarsControllerTest extends IntegrationTestCase
      * @var array
      */
     public $fixtures = [
-        'plugin.qobo/calendar.users',
-        'plugin.qobo/calendar.calendars',
+        'plugin.Qobo/Calendar.Users',
+        'plugin.Qobo/Calendar.Calendars',
     ];
 
     public function setUp()
