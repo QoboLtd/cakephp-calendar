@@ -13,8 +13,8 @@ class AddIndexesToCalendars extends AbstractMigration
     public function change()
     {
         $table = $this->table('calendars');
-        $table->addIndex(['source']);
-        $table->addIndex(['source_id']);
+        $table->addIndex(['calendar_source']);
+        $table->addIndex(['calendar_source_id']);
         $table->update();
     }
 }
